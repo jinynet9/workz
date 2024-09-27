@@ -1,0 +1,256 @@
+<!--
+	7.7 - js 추가 반영, 경고클릭시 macaddress 보여줌
+-->
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<div id="title"></div>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="./js/jquery-1.11.0.min.js"></script>
+<script src="./common/functions.js"></script>
+<script src="./js/ajaxbasic.js"></script>
+
+<script language="javascript" type="text/javascript">
+    
+    var bLoginPush = false;
+
+    var _show_mac_wait_count = 0;
+    var _mac_addr = null;
+
+    function RunLoginHandle(xmlDoc)
+    {
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.cookie = "sessionkey=" + getDataFromTag(xmlDoc,"sessionkey");
+
+        var accept = getDataFromTag(xmlDoc,"accept");
+
+        if (accept == "ok")
+        {
+            if (getDataFromTag(xmlDoc, "admin_pw_changed") == "false")
+                alert ("초기 암호를 변경해주시기 바랍니다.\n\nPlease change initial password.");
+
+            clearTimeout(timerAuthLoginLock);
+
+            location.href="/home.html";
+        }
+        else if(accept == "locked")
+        {
+            document.getElementById("default").style.display = "none";
+            document.getElementById("login_fail").style.display = "";
+            lock_auth_login();
+        }
+        else if(accept == "failed")
+        {
+            document.getElementById("login_fail").style.display = "";
+            document.getElementById("fail_font").innerHTML = "Login Failed. Please check it again. " 
+                + "(" + getDataFromTag(xmlDoc, "attempts") + ")";
+        }
+
+        document.getElementById("login_btn").disabled = false;
+    }
+
+    function OnClickRunLogin()
+    {
+        var str_id = document.getElementById("log_id");
+        var str_pw = document.getElementById("log_pw");
+
+//        if ((str_id.value == "") || (str_pw.value == ""))
+//            return;
+
+        document.getElementById("login_btn").disabled = true;
+
+        var url = "/cgi-bin/auth.cgi";
+        var param = "Command=RunLogin"
+            +"&id="+document.getElementById("log_id").value
+            +"&pw="+document.getElementById("log_pw").value;
+
+        XHRPost(RunLoginHandle, url, param, true);
+    }
+
+    var timerAuthLoginLock;
+
+    function LockLoginHandle(xmlDoc)
+    {
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.cookie = "sessionkey=" + getDataFromTag(xmlDoc,"sessionkey");
+
+        if (getDataFromTag(xmlDoc,"auth_locked") == "false")
+        {
+            clearTimeout(timerAuthLoginLock);
+
+            document.getElementById("log_id").disabled = false;
+            document.getElementById("log_pw").disabled = false;
+            document.getElementById("default").style.display = "";
+            document.getElementById("login_fail").style.display = "none";
+            document.getElementById("login_lock").style.display = "none";
+            document.getElementById("login_btn").style.display = "";
+            return;
+        }
+
+        timerAuthLoginLock = setTimeout("lock_auth_login()", (1 * 1000)); //1sec
+
+        document.getElementById("log_id").value = "";
+        document.getElementById("log_pw").value = "";
+        document.getElementById("log_id").disabled = true;
+        document.getElementById("log_pw").disabled = true;
+        document.getElementById("default").style.display = "none";
+        document.getElementById("login_fail").style.display = "none";
+        document.getElementById("login_lock").style.display = "";
+        document.getElementById("login_btn").style.display = "none";
+        document.getElementById("lock_font").innerHTML = "This user account has been locked."
+            + " (" + getDataFromTag(xmlDoc,"min") + "Min" + getDataFromTag(xmlDoc,"sec") + "Sec" + ")";
+    }
+
+    function lock_auth_login ()
+    {
+        var url = "/cgi-bin/auth.cgi";
+        var param = "Command=LockLogin"
+
+        XHRPost(LockLoginHandle, url, param, true);
+    }
+
+    function prs_key( e )
+    {
+        if ( !e )
+        { e = window.event; }
+
+        var key = (e.keyCode? e.keyCode : e.which);
+        if ( key == 13 )
+        {
+            OnClickRunLogin();
+        }
+    }
+
+    function OnClickShowMac ()
+    {
+        _show_mac_wait_count++;
+
+        if (_show_mac_wait_count > 2)
+            document.getElementById("macaddress_view").innerHTML = _mac_addr;
+    }
+
+    function LoginEnvHandle(xmlDoc)
+    {
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.cookie = "sessionkey=" + getDataFromTag(xmlDoc,"sessionkey");
+
+        vers = getDataFromTag(xmlDoc,"version");
+        document.getElementById("version").innerHTML = vers;
+
+        document.getElementById("ip").innerHTML = getDataFromTag(xmlDoc,"client_ip");
+
+        _mac_addr = getDataFromTag(xmlDoc,"mac_address");
+
+        if (getDataFromTag(xmlDoc,"auth_locked") == "true")
+        {
+            document.getElementById("default").style.display = "none";
+            document.getElementById("login_fail").style.display = "";
+
+            bLoginPush = false;
+
+            lock_auth_login();
+        }
+    }
+
+    function page_init()
+    {
+        var url = "/cgi-bin/auth.cgi?Command=LoginEnv";
+
+        XHRGet(LoginEnvHandle, url, true);
+    }
+
+    function init()
+    {
+        page_init();
+    }
+
+</script>
+</head>
+
+<body onload="init();">
+	<div id="wrap">
+		<div class="login">
+			<div class="login_inner">
+				<div class="login_box">
+					<div class="login_logo">
+						<img src="images/uplus.png" alt="">
+					</div>
+					<div class="login_input">
+						<ul>
+							<li>
+								<input type="text" id="log_id" placeholder="ID">
+							</li>
+							<li>
+								<input type="password"  id="log_pw" placeholder="PASSWORD" onKeydown="prs_key( event );">
+							</li>
+							<li class="accessed_txt">accessed IP: <span id="ip"></span></li>
+						
+						</ul>
+						<ul id="login_fail" style="display:none">
+							<li>
+								<span class="ico_warning"><img src="images/ico_warning.gif" alt=""></span>
+								<span class="info_txt" id="fail_font"></span>
+							</li>
+						</ul>
+					</div>
+					<div class="warning_info">
+						<ul id="default">
+							<li>
+								<span class="ico_warning" onclick="OnClickShowMac()"><img src="images/ico_warning.gif" alt=""></span>
+								<span class="info_txt">Warning! Legal action will be taken if there is set point change by illegal invasion.</span>
+							</li>
+							<li>
+								<span class="ico_warning"><img src="images/ico_warning.gif" alt=""></span>
+								<span class="info_txt">경고! 불법침입에 의한 설정값 변경시 법적 조치를 취함</span>
+							</li>
+							<li>
+								<span class="info_txt" style="margin-left:40px;color:#909090;" id="macaddress_view"></span>
+							</li>
+						</ul>
+						<ul id="login_fail" style="display:none">
+							<li>
+								<span class="ico_warning"><img src="images/ico_warning.gif" alt=""></span>
+								<span class="info_txt" >Incorrect username and password. Please check it again.</span>
+							</li>
+						</ul>
+						<ul id="login_lock" style="display:none">
+							<li>
+								<span class="ico_warning"><img src="images/ico_warning.gif" alt=""></span>
+								<span class="info_txt" id="lock_font"></span>
+							</li>
+						</ul>
+					</div>
+					<div class="login_btn">
+						<button type="button" id="login_btn" class="btn_default btn_login" onclick="OnClickRunLogin();">Login</button>
+					</div>
+					<div class="login_btm">
+						<ul>
+							<li class="btm_logo">
+								<img src="images/dayou_plus_eng.png" alt="">
+							</li>
+							<li class="ver_txt" id="version"></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

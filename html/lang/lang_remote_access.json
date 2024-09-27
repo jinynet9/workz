@@ -1,0 +1,110 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "RemoteAccess": {
+          "title": "Remote Access",
+          "path1": "ADVANCED SETUP",
+          "path2": "Remote Access",
+          "content": {
+            "HTTP" : {
+              "title" : "HTTPS",
+              "HTTPS" : "HTTPS",
+              "Remote_Access" : "Remote Access",
+              "Active" : "Active",
+              "HTTP_Port_Change" : "HTTP Port Change",
+              "HTTP_timeout" : "Session Timeout",
+              "http_port" : "(Default : 443, Range : 1024 ~ 65535 and 443)",
+              "noti_timeout" : "(Default : 600, Range : 60 ~ 3600)",
+              "Cancel" : "Cancel",
+              "Save" : "Save"
+            },
+            "SSH" : {
+              "title" : "SSH",
+              "SSH" : "SSH",
+              "SSH_Server" : "SSH Server",
+              "Active" : "Active",
+              "Server_Port" : "Server Port",
+              "ssh_server_port" : "(Default:22, 1024 ~ 65535)",
+              "Cancel" : "Cancel",
+              "Save" : "Save"
+            },
+            "NMS" : {
+              "title" : "NMS",
+              "NMS" : "NMS",
+              "NMS_Server" : "NMS Server",
+              "Active" : "Active",
+              "Apply" : "Apply"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"Restart the system.",
+          "Content": "This will take a few minutes. Reconnect after restarting the system.",
+          "MoveToLogin":"Go to Login page"
+        },
+        "alert" : {
+          "enter_port" : "Please enter the port number.",
+          "number_range_or_80" : "Port number is incorrect. Please enter the number in range of 1024~65535 or 443.",
+          "number_range_except_4444" : "Port number is incorrect. Please enter the number in range of 1024~65535 except 44444.",
+          "number_range_or_22" : "Port number is incorrect. Please enter the number in range of 1024~65535 or 22.",
+          "timeout_range" : "Web Session timeout is incorrect. Please enter the number in range of 60~3600.",
+          "number_range" : "Port number is incorrect. Please enter the number in range of 1024~65535."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "RemoteAccess": {
+          "title": "원격 접속",
+          "path1": "고급 설정",
+          "path2": "원격 접속",
+          "content": {
+            "HTTP" : {
+              "title" : "HTTPS",
+              "HTTPS" : "HTTPS",
+              "Remote_Access" : "원격 접근",
+              "Active" : "활성",
+              "HTTP_Port_Change" : "HTTPS 포트 변경",
+              "HTTP_timeout" : "접속 유지 시간",
+              "http_port" : "(기본 : 443, 범위 : 1024 ~ 65535 와 443)",
+              "noti_timeout" : "(기본 : 600, 범위 : 60 ~ 3600)",
+              "Cancel" : "취소",
+              "Save" : "저장"
+            },
+            "SSH" : {
+              "title" : "SSH",
+              "SSH" : "SSH",
+              "SSH_Server" : "SSH 서버",
+              "Active" : "활성",
+              "Server_Port" : "서버 포트",
+              "ssh_server_port" : "(기본:22, 1024 ~ 65535)",
+              "Cancel" : "취소",
+              "Save" : "저장"
+            },
+            "NMS" : {
+              "title" : "NMS",
+              "NMS" : "NMS",
+              "NMS_Server" : "NMS 서버",
+              "Active" : "활성",
+              "Apply" : "적용"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"시스템을 재시작 합니다.",
+          "Content": "이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.",
+          "MoveToLogin":"Login 페이지 이동"
+        },
+        "alert" : {
+          "enter_port" : "Port를 입력해 주세요",
+          "number_range_or_443" : "접속 포트번호를 잘못 입력하였습니다. [1024 ~ 65535] 범위 혹은 [443]의 숫자만 입력 가능합니다",
+          "number_range_except_4444" : "접속 포트번호를 잘못 입력하였습니다. 44444를 제외한 [1024 ~ 65535] 범위의 숫자만 입력 가능합니다.",
+          "number_range_or_22" : "접속 포트번호를 잘못 입력하였습니다. [1024 ~ 65535] 범위 혹은 [22]의 숫자만 입력 가능합니다.",
+          "timeout_range" : "접속 유지 시간을 잘못 입력하였습니다. [60 ~ 3600] 범위의 숫자만 입력 가능합니다.",
+          "number_range" : "접속 포트번호를 잘못 입력하였습니다. [1024 ~ 65535] 범위의 숫자만 입력 가능합니다."
+        }
+      }
+    }
+  }
+}

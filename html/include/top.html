@@ -1,0 +1,49 @@
+
+<div class="topcont">
+	<div class="topcont_inner">
+		<div class="toplogo">
+			<img src="./images/uplus.png" alt="" onclick="jump_home();" style="cursor:pointer;">
+		</div>
+		<div class="topinfo_l">
+			<ul>
+				<li>
+					<span>
+						<img src="./images/ico/model_icon.png" alt="">
+					</span>
+					<span><span data-i18n="common.Model">Model</span> | <span id="host_name"></span>
+					<br><span data-i18n="common.version">F/W version</span> | <span id="version"></span></span>
+				</li>
+				<li>
+					<span>
+						<img src="./images/ico/client_icon.png" alt="">
+					</span>
+					<span><span data-i18n="top.total">총 접속자수(2.4/5)</span> | <span id="con_user">0(0/0)</span ></span>
+					<!--
+					<br><span data-i18n="top.auth">인증 단말수(2.4/5)</span> | <span id="auth_user">0(0/0)</span></span>
+					-->
+				</li>
+			</ul>
+			<ul>
+				<li>
+				<p class="txt_info_top" id="password" data-i18n="top.password" style="display:none">초기 암호를 변경해주시기 바랍니다.</p>
+				</li>
+			</ul>
+		</div>
+		<div class="topinfo_r">
+			<!--
+			<span style="display:none;">
+				<button type="button" class="btn_default btn_logout lang-select" onclick="languageChange('en')">en</button>
+			</span>
+			<span style="display:none;">
+				<button type="button" class="btn_default btn_logout lang-select" onclick="languageChange('kr')">kr</button>
+			</span>
+			-->
+			<span>
+				<button type="button" class="btn_default btn_logout" onclick="reboot();" data-i18n="common.Reboot">Reboot</button>
+			</span>
+			<span>
+				<button type="button" class="btn_default btn_logout" onclick="logout();" data-i18n="common.Logout">Logout</button>
+			</span>
+		</div>
+	</div>
+</div>

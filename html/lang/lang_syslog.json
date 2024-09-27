@@ -1,0 +1,74 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Active" : "Active",
+          "Cancel" : "Cancel",
+          "Refresh" : "Refresh",
+          "LogCancel" : "Log Cancel",
+          "LogSave" : "Log Save"
+        },
+        "SysLogContent": {
+          "title": "Log Information",
+          "path1": "State Info",
+          "path2": "Log Info",
+          "content": {
+            "LogInfoContent" : {
+              "title": "Log Information",
+              "FlashLog" : "Flash Log",
+              "RemoteLog" : "Remote Log",
+              "Remote1" : "Remote Server Address 1",
+              "Remote2" : "Remote Server Address 2",
+              "Remote3" : "Remote Server Address 3",
+              "inactive" : "( Inactive: 0.0.0.0 )",
+              "LogLevel" : "Log Level"
+            },
+            "SystemLogTitle": "System Log",
+            "FlashLogTitle": "Flash Log"
+          }
+        },
+        "alert" : {
+          "Download_failed" : "Download failed"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Cancel" : "취소",
+          "Refresh" : "새로 고침",
+          "LogCancel" : "로그 삭제",
+          "LogSave" : "로그 저장",
+          "Active" : "활성"
+        },
+        "SysLogContent": {
+          "title": "로그 정보",
+          "path1": "상태 정보",
+          "path2": "로그 정보",
+          "content": {
+            "LogInfoContent" : {
+              "title": "로그 정보",
+              "FlashLog" : "플래쉬 로그",
+              "RemoteLog" : "원격 로그",
+              "Remote1" : "원격 서버 주소 1",
+              "Remote2" : "원격 서버 주소 2",
+              "Remote3" : "원격 서버 주소 3",
+              "inactive" : "( 비활성: 0.0.0.0 )",
+              "LogLevel" : "로그 레벨"
+            },
+            "SystemLogTitle": "시스템 로그",
+            "FlashLogTitle": "플래쉬 로그"
+          }
+        },
+        "alert" : {
+          "Download_failed" : "다운로드 실패"
+        }
+      }
+    }
+  }
+}

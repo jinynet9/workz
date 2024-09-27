@@ -1,0 +1,50 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "AssociateStatsContent": {
+          "title": "Associate Statistics",
+          "path1": "State Info",
+          "path2": "Associate Statistics",
+          "refresh" : "refresh",
+          "content" : {
+            "today" : "Connected Statistics(Today)",
+            "1day" : "Connected Statistics(1 day ago)",
+            "2day" : "Connected Statistics(2 day ago)",
+            "No" : "No",
+            "DateAndTime" : "Date and Time",
+            "24G" : "2.4G Connected Statistics",
+            "5G" : "5G Connected Statistics",
+            "Total" : "Total Connected Statistics",
+            "Usage" : "Usage Packet(Bytes)",
+            "ConnAuth" : "Conn / Auth",
+            "TxRx" : "TX / RX"
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "AssociateStatsContent": {
+          "title" : "접속 통계",
+          "path1" : "상태 정보",
+          "path2" : "접속 통계",
+          "refresh" : "새로고침",
+          "content" : {
+            "today" : "접속 통계(금일)",
+            "1day" : "접속 통계(1일 전)",
+            "2day" : "접속 통계(2일 전)",
+            "No" : "No",
+            "DateAndTime" : "일시",
+            "24G" : "2.4G 접속 통계",
+            "5G" : "5G 접속 통계",
+            "Total" : "전체 접속 통계",
+            "Usage" : "사용 패킷 양(Bytes)",
+            "ConnAuth" : "접속자수 / 인증자수",
+            "TxRx" : "TX / RX"
+          }
+        }
+      }
+    }
+  }
+}

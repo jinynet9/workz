@@ -1,0 +1,46 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "NetStatContent": {
+          "title": "Network Statistics",
+          "path1": "State Info",
+          "path2": "Network Statistics",
+          "refresh": "Refresh",
+          "table": {
+            "Interface": "Interface",
+            "Receive": "Receive",
+            "Transmit": "Transmit",
+            "Byte": "Byte",
+            "Packets": "Packets",
+            "Errors": "Errors",
+            "Drop": "Drop",
+            "Multicast": "Multicast",
+            "Collisions": "Collisions"
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "NetStatContent": {
+          "title": "네트워크 통계",
+          "path1": "상태 정보",
+          "path2": "네트워크 통계",
+          "refresh": "새로고침",
+          "table": {
+            "Interface": "인터페이스",
+            "Receive": "수신",
+            "Transmit": "전송",
+            "Byte": "Byte",
+            "Packets": "Packets",
+            "Errors": "Errors",
+            "Drop": "Drop",
+            "Multicast": "Multicast",
+            "Collisions": "Collisions"
+          }
+        }
+      }
+    }
+  }
+}

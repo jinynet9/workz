@@ -1,0 +1,256 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+	  "Enable" : "Enable",
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Modify" : "Modify",
+          "Cancel" : "Cancel",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "BasicSettingContent": {
+          "title": "Basic Setting",
+          "path1": "WAN",
+          "path2": "Basic Setting",
+          "content": {
+            "Connection_Mode_Setting" : {
+              "title" : "Connection Mode",
+              "Mode_Setting" : {
+                "title" : "Mode Setting",
+                "options" : {
+                  "Hybrid" : "Hybrid",
+                  "Combo" : "Combo",
+                  "Combo_M" : "Combo_M",
+                  "MobileOnly" : "LTE WAN mode",
+                  "EthernetOnly" : "Ethernet WAN mode",
+                  "LoadBalancing" : "Hybrid (Load Balancing)",
+                  "MobilePrefer" : "Hybrid (LTE Prefer)",
+                  "EthernetPrefer" : "Hybrid (Ethernet Prefer)"
+                }
+              },
+              "Ethernet_Mode" : "WAN Port Mode"
+            },
+            "Ethernet_Set" : {
+              "title" : "Ethernet Set",
+              "Protocol" : {
+                "title" : "Protocol",
+                "options" : {
+                  "STATIC" : "STATIC",
+                  "DHCP" : "DHCP"
+                }
+              },
+              "IP_Address" : "IP Address",
+              "Subnet_Maske" : "Subnet Mask",
+              "Gateway" : "Gateway",
+              "DNS" : "DNS"
+            },
+            "WAN_speed_limit" : {
+              "title" : "WAN Bandwidth Limit",
+              "Enable" : "Enable",
+              "UL_BW" : "UL_BW(Mbps)",
+              "DL_BW" : "DL_BW(Mbps)"
+            },
+            "WAN_QOS" : {
+              "title" : "WAN QoS",
+	      "RateLimit" : {
+		  "Enable" : "- Enable",
+		  "UL_BW" : "- Upload (Mbps)",
+		  "DL_BW" : "- Download (Mbps)"
+	      },
+	      "VOIP" : {
+		"title" : "VoIP packet priority processing"
+	      }
+            },
+            "Install_Location" : {
+              "title" : "Install Location",
+              "Business_Location" : "Business Location (0 ~ 40 Char)",
+              "Detail_Location" : "Detail Location (0 ~ 40 Char)",
+              "EGG_CODE" : "EGG CODE (0~20 Char)"
+            },
+            "DM_Setting" : {
+              "title" : "DM Setting",
+              "Mode_Setting" : {
+                "title" : "Mode Setting",
+                "options" : {
+                  "Disable" : "Disable",
+                  "Enable" : "Enable"
+                }
+              }
+            },
+            "RADIUS_NMS_Path_through_LTE" : {
+              "title" : "NMS Server",
+              "Report_Interval" : "Report Interval (minute)",
+              "Report_Port" : "Report Port",
+              "NMS_IP" : "NMS IP"
+            },
+            "Firmware_upgrade_Server_Setting" : {
+              "title" : "Firmware Upgrade Server",
+              "IP_Address" : "IP Address",
+              "Protocol" : "Protocol",
+              "SFTP_Port" : "SFTP Port",
+              "ID" : "ID",
+              "Password" : "Password",
+              "File_Path" : "File Path",
+              "Config_Int" : "Config Interval (minute)",
+              "Update_Mode" : "Update Mode",
+              "Now" : "Now",
+              "Delay" : "Delay"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"Restart the system.",
+          "Content": "This will take a few minutes. Reconnect after restarting the system.",
+          "MoveToLogin":"Go to Login page"
+        },
+        "alert" : {
+          "only_number" : "Input Number Only",
+          "Input_IP_Address" : "Please Input IP Address",
+          "Invalid_IP_Address" : "Invalid IP Address",
+          "Input_Subnet_Mask" : "Please Input Subnet Mask",
+          "Invalid_Subnet_Mask" : "Invalid Subnet Mask",
+          "Input_Gateway" : "Please Input Gateway",
+          "Invalid_Gateway" : "Invalid Gateway",
+          "Invalid_DNS" : "Invalid DNS",
+          "except_special_characters" : "Alphabetic or numeric , you can only enter special characters except doublequotes",
+          "Input_NMS_IP_Address" : "Please Input NMS IP Address",
+          "Invalid_NMS_IP_Address" : "Invalid NMS IP Address",
+          "input_server_IP" : "Please input server IP address.",
+          "incorrected_Server_IP" : "Server IP is incorrected.",
+          "empty_ID" : "ID is empty.",
+          "empty_Password" : "Passsword is empty.",
+          "empty_file_path" : "file path is empty."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+	  "Enable" : "활성",
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Modify" : "수정",
+          "Cancel" : "취소",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "BasicSettingContent": {
+          "title": "기본 설정",
+          "path1": "WAN",
+          "path2": "기본 설정",
+          "content": {
+            "Connection_Mode_Setting" : {
+              "title" : "접속 모드",
+              "Mode_Setting" : {
+                "title" : "모드설정",
+                "options" : {
+                  "Hybrid" : "Hybrid",
+                  "Combo" : "Combo",
+                  "Combo_M" : "Combo_M",
+                  "MobileOnly" : "LTE WAN 모드",
+                  "EthernetOnly" : "이더넷 WAN 모드",
+                  "LoadBalancing" : "하이브리드 (로드밸런싱)",
+                  "MobilePrefer" : "하이브리드 (LTE 우선)",
+                  "EthernetPrefer" : "하이브리드 (이더넷 우선)"
+                }
+              },
+              "Ethernet_Mode" : "WAN 포트 모드"
+            },
+            "Ethernet_Set" : {
+              "title" : "이더넷 설정",
+              "Protocol" : {
+                "title" : "프로토콜",
+                "options" : {
+                  "STATIC" : "STATIC",
+                  "DHCP" : "DHCP"
+                }
+              },
+              "IP_Address" : "IP 주소",
+              "Subnet_Maske" : "서브넷 마스크",
+              "Gateway" : "게이트웨이",
+              "DNS" : "DNS"
+            },
+            "WAN_speed_limit" : {
+              "title" : "WAN 속도 제한",
+              "Enable" : "활성",
+              "UL_BW" : "UL_BW(Mbps)",
+              "DL_BW" : "DL_BW(Mbps)"
+            },
+            "WAN_QOS" : {
+              "title" : "WAN QoS",
+	      "RateLimit" : {
+		  "Enable" : "- 활성",
+		  "UL_BW"  : "- Upload (Mbps)",
+		  "DL_BW"  : "- Download (Mbps)"
+	      },
+	      "VOIP" : {
+		"title" : "VoIP 패킷 우선 처리"
+	      }
+            },
+            "Install_Location" : {
+              "title" : "설치 위치",
+              "Business_Location" : "사업장 위치 (0 ~ 40 문자)",
+              "Detail_Location" : "상세 내역 (0 ~ 40 문자)",
+              "EGG_CODE" : "EGG CODE (0~20 문자)"
+            },
+            "DM_Setting" : {
+              "title" : "DM 설정",
+              "Mode_Setting" : {
+                "title" : "모드 설정",
+                "options" : {
+                  "Disable" : "비활성화",
+                  "Enable" : "활성화"
+                }
+              }
+            },
+            "RADIUS_NMS_Path_through_LTE" : {
+              "title" : "NMS SERVER",
+              "Report_Interval" : "보고 주기 (분)",
+              "Report_Port" : "접속 포트",
+              "NMS_IP" : "NMS IP"
+            },
+            "Firmware_upgrade_Server_Setting" : {
+              "title" : "Firmware upgrade 서버",
+              "IP_Address" : "IP 주소",
+              "Protocol" : "Protocol",
+              "SFTP_Port" : "SFTP 접속 포트",
+              "ID" : "ID",
+              "Password" : "Password",
+              "File_Path" : "File 경로",
+              "Config_int" : "원격 설정 갱신 주기(분)",
+              "Update_Mode" : "갱신 방법",
+              "Now" : "즉시 설치",
+              "Delay" : "대기 후 설치"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"시스템을 재시작 합니다.",
+          "Content": "이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.",
+          "MoveToLogin":"Login 페이지 이동"
+        },
+        "alert" : {
+          "only_number" : "숫자만 입력 가능합니다.",
+          "Input_IP_Address" : "IP 주소를 입력해 주세요",
+          "Invalid_IP_Address" : "유효하지 않은 IP 주소 입니다.",
+          "Input_Subnet_Mask" : "서브넷 마스크를 입력해 주세요",
+          "Invalid_Subnet_Mask" : "유효하지 않은 서브넷 마스크 입니다.",
+          "Input_Gateway" : "게이트웨이를 입력해 주세요.",
+          "Invalid_Gateway" : "유효하지 않은 게이트웨이입니다.",
+          "Invalid_DNS" : "유효하지 않은 DNS입니다.",
+          "except_special_characters" : "한글, 알파벳 또는 숫자, 따옴표를 제외한 특수문자는 입력 불가능합니다.",
+          "Input_NMS_IP_Address" : "NMS IP 주소를 입력해 주세요",
+          "Invalid_NMS_IP_Address" : "유효하지 않은 NMS IP 주소 입니다.",
+          "input_server_IP" : "Please input server IP address.",
+          "incorrected_Server_IP" : "Server IP is incorrected.",
+          "empty_ID" : "ID is empty.",
+          "empty_Password" : "Passsword is empty.",
+          "empty_file_path" : "file path is empty."
+        }
+      }
+    }
+  }
+}

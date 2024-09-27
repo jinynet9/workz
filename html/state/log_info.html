@@ -1,0 +1,534 @@
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+		var file_name;
+		var refresh = true;
+		function auth()
+		{
+			var url = "/cgi-bin/auth.cgi";
+			param = "Command=LoginCheck";
+			XHRPost(authCheckhandle, url, param, true);
+		}
+
+		function authCheckhandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			var authcheck = getDataFromTag(xmlDoc,"LoginMode");
+			var Session_name = getDataFromTag(xmlDoc,"session");
+			setCookie( Session_name, getDataFromTag(xmlDoc,"sessionkey"));
+			var objSessionKeys = document.getElementsByName( "SessionKey" );
+			for(i=0; i<objSessionKeys.length; i++)
+			{
+				objSessionKeys[i].value = getDataFromTag(xmlDoc,"sessionkey");
+			}
+			if(authcheck == "1")
+			{
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+				//page_init();
+			}
+			else
+			{
+				parent.location.href="/login.html";
+			}
+		}
+		function page_init()
+		{
+			var url = "/cgi-bin/stateinfo.cgi?Command=syslog";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+
+			var log_level = parseInt(getDataFromTag(xmlDoc,"log_level"));
+			var remote_server1 = getDataFromTag(xmlDoc,"remote_server1");
+			var remote_server2 = getDataFromTag(xmlDoc,"remote_server2");
+			var remote_server3 = getDataFromTag(xmlDoc,"remote_server3");
+			var remote = getDataFromTag(xmlDoc,"remote");
+			var nonvol_log_enable = getDataFromTag(xmlDoc,"nonvol_log_enable");
+
+			document.formSyslog.log_level.selectedIndex = log_level-1;
+			document.formSyslog.rlog_addr.value = remote_server1;
+			document.formSyslog.rlog_addr2.value = remote_server2;
+			document.formSyslog.rlog_addr3.value = remote_server3;
+
+			if(nonvol_log_enable == "1")
+			{
+				document.formSyslog.nonvol_log_enable.checked = true;
+			}else{
+				document.formSyslog.nonvol_log_enable.checked = false;
+			}
+
+			if(remote == "1")
+			{
+				document.formSyslog.remotelog_op.checked = true;
+			}else{
+				document.formSyslog.remotelog_op.checked = false;
+			}
+
+            setFileName();
+			get_system_log(true);
+			update_state();
+            parent.callResize();
+		}
+
+        function setFileName() {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = new String(date.getMonth()+1);
+            var day = new String(date.getDate());
+
+            if(month.length == 1){
+                month = "0" + month;
+            }
+            if(day.length == 1){
+                day = "0" + day;
+            }
+            file_name = year + "-" + month + "-" + day;
+        }
+
+		function change_state(){
+            document.getElementById("sbox").style.display = "";
+			if ( document.formSyslog.nonvol_log_enable.checked == true ){
+
+				document.getElementById("fbox").style.display = "";
+			}else{
+				document.getElementById("fbox").style.display = "none";
+			}
+			if ( document.formSyslog.remotelog_op.checked == true ){
+				document.formSyslog.rlog_addr.disabled = false;
+				document.formSyslog.rlog_addr2.disabled = false;
+				document.formSyslog.rlog_addr3.disabled = false;
+			}else{
+				document.formSyslog.rlog_addr.disabled = true;
+				document.formSyslog.rlog_addr2.disabled = true;
+				document.formSyslog.rlog_addr3.disabled = true;
+			}
+		}
+
+		function update_state()
+		{
+			change_state();
+		}
+		function get_system_log(isRefresh)
+		{
+		    refresh = isRefresh;
+			var url = "/cgi-bin/stateinfo.cgi?Command=get_system_log";
+			XHRGet(callback_get_system_log, url, true);
+		}
+		function callback_get_system_log(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			var slog_msg="";
+			var slog_line = parseInt(getDataFromTag(xmlDoc,"system_line"));
+			for(k=1; k<=slog_line; k++)
+			{
+                var log = getDataFromTag(xmlDoc,"slog"+k);
+                if(log.lastIndexOf("\n") < 0) {
+                    log += "\n"
+				}
+				slog_msg += log;
+			}
+
+			document.getElementById("slog_msg").value = slog_msg;
+			scroll_down();
+			if(refresh) {
+                get_flash_log();
+            }
+		}
+		function get_flash_log()
+		{
+			var url = "/cgi-bin/stateinfo.cgi?Command=get_flash_log";
+			XHRGet(callback_get_flash_log, url, true);
+		}
+
+		function callback_get_flash_log(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			var flog_msg="";
+			var flog_line = parseInt(getDataFromTag(xmlDoc,"flash_line"));
+			for(k=1; k<=flog_line; k++)
+			{
+                var log = getDataFromTag(xmlDoc,"flog"+k);
+                if(log.lastIndexOf("\n") < 0) {
+                    log += "\n"
+                }
+                flog_msg += log;
+			}
+
+			document.getElementById("flog_msg").value = flog_msg;
+			scroll_down();
+		}
+		function scroll_down()
+		{
+		    	/* no scroll down in reverse ordered logs
+			document.getElementById("slog_msg").scrollTop = document.getElementById("slog_msg").scrollHeight;
+			document.getElementById("flog_msg").scrollTop = document.getElementById("flog_msg").scrollHeight;
+			*/
+			document.getElementById("slog_msg").scrollTop = 0;
+			document.getElementById("flog_msg").scrollTop = 0;
+		}
+		function remoteIPFormCheck()
+		{
+			if(document.getElementById("nonvol_log_enable").checked == true)
+			{
+				document.getElementById("nonvol_log_enable").value = "1";
+			}
+			else
+			{
+				document.getElementById("nonvol_log_enable").value = "0";
+			}
+
+			if(document.getElementById("remotelog_op").checked == true)
+			{
+				document.getElementById("remotelog_op").value = "1";
+			}
+			else
+			{
+				document.getElementById("remotelog_op").value = "0";
+			}
+			return true;
+		}
+		function submit_apply_formSyslog()
+		{
+			if ( remoteIPFormCheck() )
+			{
+                EnableButtons( false );
+                TimeoutReload( TIMEOUT_DEFAULT_TIME );
+                var url = "/cgi-bin/stateset.cgi";
+                var param = "Command=syslog_setting"
+                    +"&"
+                    +serializeFormElement("formSyslog");
+
+                XHRPost(null, url, param, true);
+			}
+		}
+
+		function check_remove_syslog()
+		{
+			var url = "/cgi-bin/stateset.cgi";
+			var param = "Command=remove_syslog"
+					+"&"
+					+serializeFormElement("removeSyslog");
+
+			XHRPost(remove_syslog, url, param, true);
+		}
+		function remove_syslog(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			window.location.reload();
+		}
+		function save_syslog()
+		{
+			/*
+			document.getElementById("sdel").value = "0";
+			document.getElementById("saveSyslog").action="/cgi-bin/getsyslog.cgi";
+			saveSyslog.submit();
+			*/
+
+            var url = "/cgi-bin/stateset.cgi";
+            var param = "Command=slog_export";
+
+            XHRPost(saveslog, url, param, true);
+		}
+		function saveslog(xmlDoc)
+        {
+            if (hasError(xmlDoc))
+            {
+                showError(xmlDoc);
+                return;
+            }
+            if(getDataFromTag(xmlDoc,"result") == "success")
+            {
+                var link = document.createElement("a");
+
+                link.download = "da1024xl-syslog-"+file_name+ ".txt";
+                link.target = "_blank";
+
+		/*
+		 * sync with backend
+		 * DAYOU_JINY_200910
+		 */
+                link.href = "/tmp/slog_export.txt";
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                delete link;
+
+                var url = "/cgi-bin/stateset.cgi";
+                var param = "Command=slog_export_done";
+
+                XHRPost(null, url, param, true);
+
+            }
+            else
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['Download_failed']);
+                window.location.reload();
+            }
+        }
+
+		function check_remove_flash_log()
+		{
+			var url = "/cgi-bin/stateset.cgi";
+			var param = "Command=remove_flashlog"
+					+"&"
+					+serializeFormElement("removeFlashlog");
+
+			XHRPost(remove_flashlog, url, param, true);
+		}
+		function remove_flashlog(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			window.location.reload();
+		}
+
+		function save_flashlog()
+		{
+			/*
+			document.getElementById("fdel").value = "0";
+            document.getElementById("saveFlashlog").action="/cgi-bin/getflashlog.cgi";
+			saveFlashlog.submit();
+            */
+
+            var url = "/cgi-bin/stateset.cgi";
+            var param = "Command=flog_export"
+                +"&"
+                +serializeFormElement("saveFlashlog");
+
+            XHRPost(saveflog, url, param, true);
+		}
+
+		function saveflog(xmlDoc)
+        {
+            if (hasError(xmlDoc))
+            {
+                showError(xmlDoc);
+                return;
+            }
+            if(getDataFromTag(xmlDoc,"result") == "success")
+            {
+                var link = document.createElement("a");
+
+                link.download = "da1024xl-flashlog-"+file_name + ".txt";
+                link.target = "_blank";
+
+		/*
+		 * sync with backend
+		 * DAYOU_JINY_200910
+		 */
+                link.href = "/tmp/flog_export.txt";
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                delete link;
+
+                var url = "/cgi-bin/stateset.cgi";
+                var param = "Command=flog_export_done";
+
+                XHRPost(null, url, param, true);
+
+            }
+            else
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['Download_failed']);
+                window.location.reload();
+            }
+        }
+		function init()
+		{
+		    prevent_enterkey ();
+		    languageFileLoad("../lang/lang_syslog.json");
+			CheckLogin(page_init);
+		}
+	</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="SysLogContent.title">로그 정보</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="SysLogContent.path1">상태 정보</span>
+						<span class="path_arrow focus_on" data-i18n="SysLogContent.path2">로그 정보</span>
+					</p>
+					<!--
+                    <button type="button" class="btn_default btn_wifi">Reflash</button>
+                    -->
+				</li>
+			</ul>
+		</div>
+
+		<form method="POST" name="formSyslog" id="formSyslog" onsubmit="return false;">
+			<div class="cont_grp">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="SysLogContent.content.LogInfoContent.title">로그 정보</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SysLogContent.content.LogInfoContent.FlashLog">
+									Flash Log
+								</td>
+								<td>
+									<label><input type="checkbox" value="ON" name="nonvol_log_enable" id="nonvol_log_enable" onclick="change_state();" checked=""><span data-i18n="common.Active"></span></label>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SysLogContent.content.LogInfoContent.RemoteLog">
+									Remote Log
+								</td>
+								<td>
+									<label><input type="checkbox" value="ON" name="remotelog_op" id="remotelog_op" onclick="change_state();" checked=""><span data-i18n="common.Active"></span></label>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SysLogContent.content.LogInfoContent.Remote1">
+									Remote Server Address 1
+								</td>
+								<td>
+									<input type="text" name="rlog_addr" id="rlog_addr" value="" ipv4zero="true" class="inputbox_sm">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SysLogContent.content.LogInfoContent.Remote2">
+									Remote Server Address 2
+								</td>
+								<td>
+									<input type="text" name="rlog_addr2" id="rlog_addr2" value="" ipv4zero="true" class="inputbox_sm">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SysLogContent.content.LogInfoContent.Remote3">
+									Remote Server Address 3
+								</td>
+								<td>
+									<input type="text" name="rlog_addr3" id="rlog_addr3" value="" ipv4zero="true" class="inputbox_sm">
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2" class="grp_line">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SysLogContent.LogInfoContent.HAHA">
+									Log Level
+								</td>
+								<td>
+									<select name="log_level" id="log_level">
+										<option value="1" >0 Emergency</option>
+										<option value="2" >1 Alert</option>
+										<option value="3" >2 Critical</option>
+										<option value="4" >3 Error</option>
+										<option value="5" >4 Warning</option>
+										<option value="6" >5 Notice</option>
+										<option value="7" >6 Informational</option>
+										<option value="8" >7 Debug</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_basic">
+					<!--<button type="button" class="btn_default btn_save_sm" name="refresh" onclick="javascript: window.location.reload()"  data-i18n="common.Cancel">취소</button>-->
+					<button type="button" class="btn_default btn_save_sm" name="save" onClick="submit_apply_formSyslog();"  data-i18n="common.Apply">저장</button>
+					<input type="hidden" name="reboot_allow" id="reboot_allow" value="0">
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+
+		<div class="cont_grp" id="sbox">
+			<div class="cont_grp_inner">
+				<div class="cont_stitl"  data-i18n="SysLogContent.content.SystemLogTitle">System Log</div>
+				<div class="log_box">
+					<textarea name="slog_msg" id="slog_msg" readonly></textarea>
+				</div>
+			</div>
+			<div class="btm_btn_basic">
+				<button type="button" class="btn_default btn_save_sm"  name="slog_refresh" onclick="get_system_log(false)"  data-i18n="common.Refresh">Reflash</button>
+				<!--<form method="POST" name="removeSyslog" id="removeSyslog" style="display:inline">
+                    <button type="button" class="btn_default btn_save_sm" name="slog_clear" id="slog_clear" onclick="check_remove_syslog();"  data-i18n="common.LogCancel">Log Cancel</button>
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </form>-->
+				<form method="POST" name="saveSyslog" id="saveSyslog" style="display:inline">
+					<button type="button" class="btn_default btn_save_sm" name="save_slog" id="save_slog" onclick="save_syslog();"  data-i18n="common.LogSave">Log Save</button>
+					<input type="hidden" name="SessionKey" id="SessionKey" value="">
+					<input type="hidden" name="sdel" id="sdel" value="">
+				</form>
+			</div>
+		</div>
+
+		<div class="cont_grp" id="fbox">
+			<div class="cont_grp_inner">
+				<div class="cont_stitl"  data-i18n="SysLogContent.content.FlashLogTitle">Flash Log</div>
+				<div class="log_box">
+					<textarea name="flog_msg" id="flog_msg" readonly></textarea>
+				</div>
+			</div>
+			<div class="btm_btn_basic">
+				<button type="button" class="btn_default btn_save_sm" name="flog_refresh" onclick="get_flash_log()"  data-i18n="common.Refresh">Reflash</button>
+				<!--<form method="POST" name="removeFlashlog" id="removeFlashlog" style="display:inline">
+                    <button type="button" class="btn_default btn_save_sm" name="flog_clear" id="flog_clear" onclick="check_remove_flash_log();"  data-i18n="common.LogCancel">Log Cancel</button>
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </form>-->
+				<form method="POST" name="saveFlashlog" id="saveFlashlog" style="display:inline">
+					<button type="button" class="btn_default btn_save_sm" name="save_flog" id="save_flog" onclick="save_flashlog();"  data-i18n="common.LogSave">Log Save</button>
+					<input type="hidden" name="SessionKey" id="SessionKey" value="">
+					<input type="hidden" name="fdel" id="fdel" value="">
+				</form>
+			</div>
+		</div>
+	</section>
+</div>
+</body>
+</html>

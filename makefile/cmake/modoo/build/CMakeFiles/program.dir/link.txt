@@ -1,0 +1,1 @@
+/usr/bin/c++       CMakeFiles/program.dir/main.o CMakeFiles/program.dir/foo.o  -o program -rdynamic lib/libshape.a 

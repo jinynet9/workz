@@ -1,0 +1,44 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "AutoRebootContent": {
+          "title": "Auto Reboot",
+          "path1": "ADVANCED SET",
+          "path2": "Auto Reboot",
+          "content": {
+            "Regular_Reboot" : {
+              "title" : "Regular Reboot",
+              "Auto_Reboot" : "Auto Reboot",
+              "Reboot_All_Section_check" : "Reboot All Section Check",
+              "Time" : "Time",
+              "Active" : "Active",
+              "Cancel" : "Cancel",
+              "Apply" : "Apply"
+            }
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "AutoRebootContent": {
+          "title": "자동 재시작",
+          "path1": "고급 설정",
+          "path2": "자동 재시작",
+          "content": {
+            "Regular_Reboot" : {
+              "title" : "Regular 재부팅",
+              "Auto_Reboot" : "자동 재시작",
+              "Reboot_All_Section_check" : "리부팅 전 세션 체크",
+              "Time" : "시간",
+              "Active" : "활성",
+              "Cancel" : "취소",
+              "Apply" : "적용"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+<!-- 좌측GNB -->
+<script type="text/javascript" src="./js/core/libraries/bootstrap.min.js"></script>
+<script type="text/javascript" src="./js/plugins/loaders/blockui.min.js"></script>
+<script type="text/javascript" src="./js/core/app.js"></script>
+<!-- //좌측GNB -->
+
+<nav>
+<div class="lmenu_titl">
+	<img src="./images/dayou_plus_eng.png">
+</div>
+<!-- Page container -->
+<div class="page-container">
+	<!-- Page content -->
+	<div class="page-content">
+		<!-- Main sidebar -->
+		<div class="sidebar sidebar-main">
+			<div class="sidebar-content">
+				<!-- Main navigation -->
+				<div class="sidebar-category sidebar-category-visible">
+					<div class="category-content no-padding">
+						<ul class="navigation navigation-main navigation-accordion">
+							<!-- Main -->
+							<li id="menu_overview" class="active">
+								<a href="#">DA1024XL</span></a>
+								<ul>
+									<li id="menu_sys_info"><a href="javascript:go1('./overview/sys_info.html')" data-i18n="nav.menuOverview._1" class="on">시스템 정보</a></li>
+								</ul>
+							</li>
+							<li id="menu_wan">
+								<a href="#">WAN</span></a>
+								<ul>
+									<li id="menu_basic_setting"><a href="javascript:go1('./wan/basic_setting.html')" data-i18n="nav.menuWan._1">기본 설정</a></li>
+									<!--
+									<li id="menu_connection_info"><a href="javascript:go1('./wan/connection_info.html')" data-i18n="nav.menuWan._2">접속 정보</a></li>
+									-->
+									<li id="menu_lte_setting"><a href="javascript:go1('./wan/lte_setting.html')" data-i18n="nav.menuWan._3">LTE 설정</a></li>
+									<li id="menu_lte_state"><a href="javascript:go1('./wan/lte_state.html')" data-i18n="nav.menuWan._4">LTE 상태 정보</a></li>
+								</ul>
+							</li>
+							<li id="menu_lan">
+								<a href="#">LAN</span></a>
+								<ul>
+									<li id="menu_basic_setup"><a href="javascript:go1('./lan/lan_basic.html')" data-i18n="nav.menuLan._1">기본 설정</a></li>
+								</ul>
+							</li>
+							<li id="menu_24g">
+								<a href="#"><span data-i18n="nav.wireless24">2.4G 무선랜 설정</span></a>
+								<ul>
+									<li id="menu_wireless24_setup"><a href="javascript:go1('./wireless24/wireless24_setup.html')" data-i18n="nav.menu24G._1">무선 설정</a></li>
+									<li id="menu_wireless24_vap_list"><a href="javascript:go1('./wireless/wireless_vap_list.html&band=1')" data-i18n="nav.menu24G._2">VAP 설정</a></li>
+									<li id="menu_wireless24_macfilter"><a href="javascript:go1('./wireless24/wireless24_macfilter.html')" data-i18n="nav.menu24G._3">무선 MAC 차단</a></li>
+									<li id="menu_wireless24_connect_limit"><a href="javascript:go1('./wireless24/wireless24_connect_limit.html')" data-i18n="nav.menu24G._4">무선 접속수 제한</a></li>
+									<!--
+									<li id="menu_wireless24_ssid_priority"><a href="javascript:go1('./wireless24/wireless24_ssid_priority.html')"  data-i18n="nav.menu24G._5">무선 SSID 우선 순위</a></li>
+									<li id="menu_wireless24_wmm"><a href="javascript:go1('./wireless24/wireless24_wmm.html')" data-i18n="nav.menu24G._6">WMM 설정</a></li>
+									-->
+									<li id="menu_wireless24_channel_scan"><a href="javascript:go1('./wireless24/wireless24_channel_scan.html')" data-i18n="nav.menu24G._7">2.4G 채널 스캔</a></li>
+								</ul>
+							</li>
+							<li id="menu_5g">
+								<a href="#"><span data-i18n="nav.wireless5">5G 무선랜 설정</span></a>
+								<ul>
+									<li id="menu_wireless5_setup"><a href="javascript:go1('./wireless5/wireless5_setup.html')" data-i18n="nav.menu5G._1">무선 설정</a></li>
+									<li id="menu_wireless5_vap_list"><a href="javascript:go1('./wireless/wireless_vap_list.html&band=0')" data-i18n="nav.menu5G._2">VAP 설정</a></li>
+									<li id="menu_wireless5_macfilter"><a href="javascript:go1('./wireless5/wireless5_macfilter.html')" data-i18n="nav.menu5G._3">무선 MAC 차단</a></li>
+									<li id="menu_wireless5_connect_limit"><a href="javascript:go1('./wireless5/wireless5_connect_limit.html')" data-i18n="nav.menu5G._4">무선 접속수 제한</a></li>
+									<!--
+									<li id="menu_wireless5_ssid_priority"><a href="javascript:go1('./wireless5/wireless5_ssid_priority.html')" data-i18n="nav.menu5G._5">무선 SSID 우선 순위</a></li>
+									<li id="menu_wireless5_wmm"><a href="javascript:go1('./wireless5/wireless5_wmm.html')" data-i18n="nav.menu5G._6">WMM 설정</a></li>
+									-->
+									<li id="menu_wireless5_channel_scan"><a href="javascript:go1('./wireless5/wireless5_channel_scan.html')" data-i18n="nav.menu5G._7">5G 채널 스캔</a></li>
+								</ul>
+							</li>
+							<li id="menu_firewall">
+								<a href="#"><span data-i18n="nav.firewall">방화벽</span></a>
+								<ul>
+									<li id="menu_portfw"><a href="javascript:go1('./firewall/portfw.html')" data-i18n="nav.menuFirewall._1">포트포워딩 설정</a></li>
+									<li id="menu_dmz_set"><a href="javascript:go1('./firewall/dmz.html')" data-i18n="nav.menuFirewall._3">DMZ 설정</a></li>
+									<li id="menu_firewall_set"><a href="javascript:go1('./firewall/firewall.html')" data-i18n="nav.menuFirewall._2">방화벽 설정</a></li>
+								</ul>
+							</li>
+							<li id="menu_advanced">
+								<a href="#"><span data-i18n="nav.advanced">고급 설정</span></a>
+								<ul>
+								<!--
+									<li id="menu_aaa"><a href="javascript:go1('./advanced/aaa.html')" data-i18n="nav.menuAdvanced._1">인증/과금 설정</a></li>
+									<li id="menu_hotspot_setting"><a href="javascript:go1('./advanced/hotspot_setting.html')" data-i18n="nav.menuAdvanced._2">HOTSPOT 설정</a></li>
+									<li id="menu_web_auth"><a href="javascript:go1('./advanced/web_auth.html')" data-i18n="nav.menuAdvanced._3">Web Auth 설정</a></li>
+									<li id="menu_white_list"><a href="javascript:go1('./advanced/white_list.html')" data-i18n="nav.menuAdvanced._4">White List</a></li>
+									-->
+									<li id="menu_ntp"><a href="javascript:go1('./advanced/ntp.html')" data-i18n="nav.menuAdvanced._5">NTP 설정</a></li>
+									<li id="menu_remote_access"><a href="javascript:go1('./advanced/remote_access.html')" data-i18n="nav.menuAdvanced._6">원격 접속</a></li>
+									
+									<!--
+									<li id="menu_cwmp"><a href="javascript:go1('./advanced/cwmp.html')">CWMP</a></li>
+									<li id="menu_band_steering_setting"><a href="javascript:go1('./advanced/band_steering_setting.html')" data-i18n="nav.menuAdvanced._7">Band Steering 설정</a></li>
+									<li id="menu_backhaul_search"><a href="javascript:go1('./advanced/backhaul_search.html')" data-i18n="nav.menuAdvanced._8">백홀 Search</a></li>
+									<li id="menu_auto_reboot"><a href="javascript:go1('./advanced/auto_reboot.html')" data-i18n="nav.menuAdvanced._9">자동 재시작</a></li>
+									-->
+									<li id="menu_system_setup"><a href="javascript:go1('./advanced/system_setup.html')" data-i18n="nav.menuAdvanced._10">시스템 설정</a></li>
+									<li id="menu_upgrade"><a href="javascript:go1('./advanced/upgrade.html')" data-i18n="nav.menuAdvanced._11">펌웨어 업그레이드</a></li>
+									<!--
+									<li id="menu_ap_search"><a href="javascript:go1('./advanced/ap_search.html')" data-i18n="nav.menuAdvanced._12">AP 육안식별 기능</a></li>
+									<li id="menu_speed_check_fin"><a href="javascript:go1('./advanced/speed_check_fin.html')" data-i18n="nav.menuAdvanced._13">Speed Check</a></li>
+									<li id="menu_ip_detective"><a href="javascript:go1('./advanced/ip_detective.html')" data-i18n="nav.menuAdvanced._14">IP Detective</a></li>
+									<li id="menu_atf"><a href="javascript:go1('./advanced/atf.html')" data-i18n="nav.menuAdvanced._15">AirTIme Fairness</a></li>
+									-->
+								</ul>
+							</li>
+							<li id="menu_state">
+								<a href="#"><span data-i18n="nav.state">상태 정보</span></a>
+								<ul>
+									<li id="menu_terminal_info"><a href="javascript:go1('./state/terminal_info.html')" data-i18n="nav.menuState._1">단말 정보</a></li>
+									<li id="menu_ap_info"><a href="javascript:go1('./state/ap_info.html')" data-i18n="nav.menuState._2">AP 정보</a></li>
+									<!--
+									<li id="menu_net_statistics"><a href="javascript:go1('./state/net_statistics.html')" data-i18n="nav.menuState._3">네트워크 통계</a></li>
+									<li id="menu_asso_statistics"><a href="javascript:go1('./state/asso_statistics.html')" data-i18n="nav.menuState._4">접속 통계</a></li>
+									-->
+									<li id="menu_log_info"><a href="javascript:go1('./state/log_info.html')" data-i18n="nav.menuState._5">로그 정보</a></li>
+								</ul>
+							</li>
+							<!-- /main -->
+						</ul>
+					</div>
+				</div>
+				<!-- /main navigation -->
+			</div>
+		</div>
+		<!-- /main sidebar -->
+	</div>
+	<!-- //Page content -->
+</div>
+<!-- //Page container -->
+</nav>

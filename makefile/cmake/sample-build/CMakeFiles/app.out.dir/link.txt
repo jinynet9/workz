@@ -1,0 +1,1 @@
+/usr/bin/cc      CMakeFiles/app.out.dir/foo.c.o CMakeFiles/app.out.dir/main.c.o CMakeFiles/app.out.dir/bar.c.o  -o app.out -rdynamic 

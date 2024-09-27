@@ -1,0 +1,637 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+<script language="javascript" type="text/javascript">
+
+    var _lang_file = "../lang/lang_sysinfo.json";
+
+    function page_init() {
+        var url = "/cgi-bin/getinfo.cgi?Command=netinfo";
+        XHRGet(getinfohandle, url, true);
+    }
+
+    function device_info(xmlDoc) {
+        var ethernet_state = getDataFromTag(xmlDoc, "getEternetState");
+
+        document.getElementById("model_name").innerHTML = getDataFromTag(xmlDoc, "hostname");
+        document.getElementById("fw_Version").innerHTML = getDataFromTag(xmlDoc, "version");
+        document.getElementById("sw_update_date").innerHTML = getDataFromTag(xmlDoc, "SwUpDate");
+    }
+
+    function OPERATION_INFO(xmlDoc) {
+        var buf;
+        var uptime;
+
+        var day = 0, hour = 0, min = 0, sec = 0;
+        var caltime = "";
+
+        uptime = getDataFromTag(xmlDoc, "UPTIME_SEC");
+        buf = uptime.split('.');
+        uptime = buf[0];
+
+        if (!isNaN(uptime)) // if it's number
+        {
+            if (uptime > 86400) {
+                day = parseInt(uptime / 86400);
+                uptime = uptime % 86400;
+                caltime = day + i18next.store.data[i18next.language].translation.text['day'] + "  ";
+            }
+            if (uptime > 3600 && uptime > 0) {
+                hour = parseInt(uptime / 3600);
+                uptime = uptime % 3600;
+                caltime = caltime + hour + i18next.store.data[i18next.language].translation.text['hour'] + "  ";
+            }
+            if (uptime > 60 && uptime > 0) {
+                min = parseInt(uptime / 60);
+                uptime = uptime % 60;
+                caltime = caltime + min + i18next.store.data[i18next.language].translation.text['min'] + " ";
+            }
+            if (uptime > 0) {
+                sec = parseInt(uptime);
+                caltime = caltime + sec + i18next.store.data[i18next.language].translation.text['sec'] + " ";
+            }
+        }
+
+        document.getElementById("sys_up_time").innerHTML = getDataFromTag(xmlDoc, "SysUptime");
+        document.getElementById("sys_running_time").innerHTML = caltime;
+        document.getElementById("current_time").innerHTML = getDataFromTag(xmlDoc, "SysCurtime");
+        document.getElementById("memory_use").innerHTML = getDataFromTag(xmlDoc, "MemoryUse");
+        document.getElementById("Cpu_use").innerHTML = getDataFromTag(xmlDoc, "CpuUse");
+        document.getElementById("load_AVG").innerHTML = getDataFromTag(xmlDoc, "LoadAVG");
+    }
+
+    function init_info() {
+        document.getElementById("lte_state").firstChild.nodeValue = "-";
+        document.getElementById("lte_ipaddr").firstChild.nodeValue = "-";
+        document.getElementById("lte_macaddr").firstChild.nodeValue = "-";
+        document.getElementById("lte_phone_num").firstChild.nodeValue = "-";
+        document.getElementById("lte_netmask").firstChild.nodeValue = "-";
+        document.getElementById("lte_gateway").firstChild.nodeValue = "-";
+        document.getElementById("ether_ipaddr").firstChild.nodeValue = "-";
+        document.getElementById("ether_netmask").firstChild.nodeValue = "-";
+        document.getElementById("ether_gateway").firstChild.nodeValue = "-";
+        document.getElementById("lte_fw_version").firstChild.nodeValue = "-";
+    }
+
+    function INTERNET_CONNECT_STATE(xmlDoc) {
+        var lan_dhcp = getDataFromTag(xmlDoc, "lan_dhcp");
+
+        document.getElementById("lan_ipaddr").innerHTML = getDataFromTag(xmlDoc, "lan_ip");
+        document.getElementById("lan_netmask").innerHTML = getDataFromTag(xmlDoc, "lan_netmask");
+        document.getElementById("lan_gateway").innerHTML = getDataFromTag(xmlDoc, "lan_gateway");
+        document.getElementById("lan_macaddr").innerHTML = getDataFromTag(xmlDoc, "lan_macaddr");
+
+        if (lan_dhcp == "1") {
+            document.getElementById("lan_dhcp").value = "Off";
+        } else {
+            document.getElementById("lan_dhcp").value = "On";
+        }
+
+        init_info();
+    }
+
+    function display_lte_fw_info(xmlDoc) {
+        var lte_state = getDataFromTag(xmlDoc, "lte_ds_ue_state");
+        var lte_fw_version = getDataFromTag(xmlDoc, "lte_ds_fw_version");
+
+        if (lte_state == "") {
+            document.getElementById("lte_state").firstChild.nodeValue = "Not Connected";
+            document.getElementById("lte_fw_version").firstChild.nodeValue = "-";
+        } else {
+            document.getElementById("lte_state").firstChild.nodeValue = lte_state;
+            document.getElementById("lte_fw_version").firstChild.nodeValue = lte_fw_version;
+        }
+    }
+
+    function display_lte_info(xmlDoc) {
+        var lte_state = getDataFromTag(xmlDoc, "lte_ds_ue_state");
+        var lte_ipaddr = getDataFromTag(xmlDoc, "PRE_LTE_IP");
+        var lte_macaddr = getDataFromTag(xmlDoc, "PRE_LTE_MAC");
+        var lte_phone_num = getDataFromTag(xmlDoc, "lte_status_uicc_dialnum");
+        var lte_netmask = getDataFromTag(xmlDoc, "PRE_LTE_NETMASK");
+        var lte_gateway = getDataFromTag(xmlDoc, "PRE_LTE_GW");
+        var lte_fw_version = getDataFromTag(xmlDoc, "lte_ds_fw_version");
+
+        document.getElementById("disp_lte_info").style.display = "";
+
+        document.getElementById("lte_macaddr").firstChild.nodeValue = lte_macaddr;
+
+        if (lte_state == "") {
+            document.getElementById("lte_state").firstChild.nodeValue = "Not Connected";
+            document.getElementById("lte_fw_version").firstChild.nodeValue = "-";
+        } else {
+            document.getElementById("lte_state").firstChild.nodeValue = lte_state;
+            document.getElementById("lte_fw_version").firstChild.nodeValue = lte_fw_version;
+        }
+
+        if (lte_state == "SRV" || lte_state == "LIMITED") {
+            document.getElementById("lte_ipaddr").firstChild.nodeValue = lte_ipaddr;
+            document.getElementById("lte_phone_num").firstChild.nodeValue = lte_phone_num;
+            document.getElementById("lte_netmask").firstChild.nodeValue = lte_netmask;
+            document.getElementById("lte_gateway").firstChild.nodeValue = lte_gateway;
+        } else {
+            document.getElementById("lte_ipaddr").firstChild.nodeValue = "-";
+            document.getElementById("lte_phone_num").firstChild.nodeValue = "-";
+            document.getElementById("lte_netmask").firstChild.nodeValue = "-";
+            document.getElementById("lte_gateway").firstChild.nodeValue = "-";
+        }
+    }
+
+    function display_ethernet_info(xmlDoc) {
+        var ether_mode = getDataFromTag(xmlDoc, "wm_ds_state");
+        var ether_macaddr = getDataFromTag(xmlDoc, "ether_macaddr");
+        var ethernet_state = getDataFromTag(xmlDoc, "getEternetState");
+
+        document.getElementById("disp_ether_info").style.display = "";
+        document.getElementById("ether_macaddr").firstChild.nodeValue = ether_macaddr;
+
+        if (ether_mode == "dhcp" && ethernet_state == "yes") {
+            var buf = getDataFromTag(xmlDoc, "ETH_INFO");
+            var buf1 = buf.split(',');
+
+            document.getElementById("ether_ipaddr").firstChild.nodeValue = buf1[0];
+            document.getElementById("ether_netmask").firstChild.nodeValue = buf1[1];
+            document.getElementById("ether_gateway").firstChild.nodeValue = buf1[2];
+        } else {
+            var ether_ipaddr = getDataFromTag(xmlDoc, "wan_ip");
+            var ether_netmask = getDataFromTag(xmlDoc, "wan_netmask");
+            var ether_gateway = getDataFromTag(xmlDoc, "wan_gateway");
+
+            document.getElementById("ether_ipaddr").firstChild.nodeValue = ether_ipaddr;
+            document.getElementById("ether_netmask").firstChild.nodeValue = ether_netmask;
+            document.getElementById("ether_gateway").firstChild.nodeValue = ether_gateway;
+        }
+    }
+
+    function WAN_SET(xmlDoc) {
+        var wan_mode = getDataFromTag(xmlDoc, "wan_mode");
+        var show_lte = (wan_mode == "2") ? false : true;
+        var show_eth = (wan_mode == "1") ? false : true;
+
+        if (wan_mode == "1") {
+            document.getElementById("wan_mode").firstChild.nodeValue = "LTE WAN";
+        } else if (wan_mode == "2") {
+            document.getElementById("wan_mode").firstChild.nodeValue = "Ethernet WAN";
+        } else if (wan_mode == "3") {
+            document.getElementById("wan_mode").firstChild.nodeValue = "Hybrid (Load Balancing)";
+        } else if (wan_mode == "4") {
+            document.getElementById("wan_mode").firstChild.nodeValue = "Hybrid (LTE Prefer)";
+        } else if (wan_mode == "5") {
+            document.getElementById("wan_mode").firstChild.nodeValue = "Hybrid (Etherner Prefer)";
+        } else {
+            document.getElementById("wan_mode").firstChild.nodeValue = i18next.store.data[i18next.language].translation.text['unknown'];
+        }
+
+        if (show_lte)
+            display_lte_info(xmlDoc);
+
+        if (wan_mode == "2")
+            display_lte_fw_info(xmlDoc);
+
+        if (show_eth)
+            display_ethernet_info(xmlDoc);
+    }
+
+    function WIRELESS_LAN(xmlDoc) {
+        var channel_freq = getDataFromTag(xmlDoc, "wifi_chinfo");
+        var ch_freq = channel_freq.split(";");
+        var wifi24_band = getDataFromTag(xmlDoc, "wifi24_band");
+        var wifi5_band = getDataFromTag(xmlDoc, "wifi5_band");
+        var wifi24_band_num = wifi24_band.substring(2, 4);
+        var wifi5_band_num = wifi5_band.substring(2, 4);
+        var wifi24_chan = getDataFromTag(xmlDoc, "wifi24_chan");
+        var wifi5_chan = getDataFromTag(xmlDoc, "wifi5_chan");
+
+        if (wifi5_chan == "auto") {
+            document.getElementById("ath0_channel").firstChild.nodeValue = wifi5_chan + "/" + ch_freq[0] + "(" + wifi5_band_num + "MHz" + ")";
+        } else {
+            document.getElementById("ath0_channel").firstChild.nodeValue = ch_freq[0] + "(" + wifi5_band_num + "MHz" + ")";
+        }
+
+        if (wifi24_chan == "auto") {
+            document.getElementById("ath1_channel").firstChild.nodeValue = wifi24_chan + "/" + ch_freq[1] + "(" + wifi24_band_num + "MHz" + ")";
+        } else {
+            document.getElementById("ath1_channel").firstChild.nodeValue = ch_freq[1] + "(" + wifi24_band_num + "MHz" + ")";
+        }
+    }
+
+    function dump_ssid_list (xmlDoc, bandstr) {
+
+        var objTable = document.getElementById("wifi" + bandstr + "_info");
+        var vap_data = getDataFromTag(xmlDoc, "getNetworkInfo" + bandstr).split(";");
+        var vap_array = [];
+
+        for (i = 0; i < vap_data.length; i++) {
+            var list = vap_data[i].split(",");
+            vap_array.push(list);
+        }
+
+        for (i = 0; i < vap_array.length - 1; i++) {
+
+            var _width = [ "65", "156", "65", "110", "52", "52", "143" ];
+            var _boolflag = [ false, false, true, false, true, true, false ];
+
+            var objTR = document.createElement("tr");
+            var objTD;
+            var objTXT;
+
+            objTable.appendChild(objTR);
+
+            for (var col = 0; col < 7; col++) {
+
+                 objTD = document.createElement("td");
+                 objTXT = vap_array[i][col]; 
+                
+                if (_boolflag[col])
+                    objTXT = (objTXT == 1) ? i18next.store.data[i18next.language].translation.text['enable'] : i18next.store.data[i18next.language].translation.text['disable'];
+
+                objTR.appendChild (objTD);
+                objTD.style.width = _width[col];
+                objTD.appendChild(document.createTextNode(objTXT));
+            }
+        }
+    }
+
+    function LAN_SSID(xmlDoc) {
+        var wifi24_disabled = getDataFromTag(xmlDoc, "wifi24_enable");
+        var wifi5_disabled = getDataFromTag(xmlDoc, "wifi5_enable");
+
+        if (wifi24_disabled == 0) {
+            dump_ssid_list (xmlDoc, "24");
+        }
+        if (wifi5_disabled == 0) {
+            dump_ssid_list (xmlDoc, "5");
+        }
+    }
+
+    function getinfohandle(xmlDoc) {
+        if (hasError(xmlDoc)) {
+            showError(xmlDoc);
+            return;
+        }
+
+        parent._lang = getDataFromTag(xmlDoc, "lang");
+        commonInit(parent._lang);
+        parent.lang_refresh();
+
+        document.getElementById("main_page").style.display = "";
+        device_info(xmlDoc);
+        OPERATION_INFO(xmlDoc);
+        INTERNET_CONNECT_STATE(xmlDoc);
+        WAN_SET(xmlDoc);
+        WIRELESS_LAN(xmlDoc);
+        LAN_SSID(xmlDoc);
+        parent.callResize();
+    }
+
+    function init() {
+	    prevent_enterkey ();
+        languageFileLoad ( _lang_file );
+        CheckLogin(page_init);
+    }
+
+</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="home">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Overview.title">시스템 정보</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Overview.path1">Overview</span>
+                        <span class="path_arrow focus_on" data-i18n="Overview.path2">시스템 정보</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <!-- 단말 정보 -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.Device_info.title">단말 정보</div>
+                <div class="home_tbl">
+                    <table class="list_noline">
+                        <colgroup>
+                            <col class="td_width1">
+                            <col class="td_width2">
+                        </colgroup>
+                        <tr>
+                            <td data-i18n="Overview.content.Device_info.model">
+                                모델명
+                            </td>
+                            <td id="model_name">KWD-AH2000</td>
+                        </tr>
+
+                        <tr>
+                            <td data-i18n="Overview.content.Device_info.Firmware_Version">
+                                펌웨어 버전
+                            </td>
+                            <td id="fw_Version">ver 3.1.8.0</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Device_info.LTE_Firmware_Version">
+                                LTE 펌웨어 버전
+                            </td>
+                            <td id="lte_fw_version">-</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Device_info.SW_Update_Date">
+                                SW 업데이트 날짜
+                            </td>
+                            <td id="sw_update_date">2018-11-24_15:43:37</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //단말 정보 -->
+
+        <!-- 동작 정보 -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.Operation_Info.title">동작 정보</div>
+                <div class="home_tbl">
+                    <table class="list_noline">
+                        <colgroup>
+                            <col class="td_width1">
+                            <col class="td_width2">
+                        </colgroup>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.System_Up_Time">
+                                시스템 업타임
+                            </td>
+                            <td id="sys_up_time">-</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.System_Running_Time">
+                                시스템 가동 시간
+                            </td>
+                            <td id="sys_running_time">1분 36초</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.Current_Time">
+                                현재 시간
+                            </td>
+                            <td id="current_time">-</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.Memory_Use_Amount">
+			    	<!-- DMC_WOO 200904: temp remove (1분/5분/15분) -->
+                                메모리 사용량
+                            </td>
+                            <td id="memory_use">24.88 / 23.71 / 23.71</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.CPU_Use_Amount">
+			    	<!-- DMC_WOO 200904: temp remove (1분/5분/15분) -->
+                                CPU 사용량
+                            </td>
+                            <td id="Cpu_use">26.88 / 27.01 / 27.01</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Operation_Info.System_Load_Average">
+                                시스템 부하율(1분/5분/15분)
+                            </td>
+                            <td id="load_AVG">1.56 / 0.56 / 0.20</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //동작 정보 -->
+
+        <!-- 네트웍 정보 -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.Network_Info.title">네트웍 정보</div>
+                <div class="home_tbl">
+                    <table class="list_noline">
+                        <colgroup>
+                            <col class="td_width1">
+                            <col class="td_width2">
+                        </colgroup>
+                        <tr>
+                            <td colspan="2" class="minititle" data-i18n="Overview.content.Network_Info.LAN_Set.title">
+                                LAN 설정
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LAN_Set.IP_Address">
+                                IP 주소
+                            </td>
+                            <td id="lan_ipaddr">172.30.1.254</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LAN_Set.Subnet_Mask">
+                                서브넷 마스크
+                            </td>
+                            <td id="lan_netmask">255.255.0.0</td>
+                        </tr>
+                        <tr >
+                            <td data-i18n="Overview.content.Network_Info.LAN_Set.Default_Gateway">
+                                기본 게이트웨이
+                            </td>
+                            <td id="lan_gateway">172.30.1.254</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LAN_Set.Mac_Address">
+                                MAC 주소
+                            </td>
+                            <td id="lan_macaddr">00:17:C3:1F:86:2A</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LAN_Set.DHCP_Server">
+                                DHCP 서버
+                            </td>
+                            <td id="lan_dhcpserver">
+                                <input type="text" id="lan_dhcp" maxlength="15" size="25" value=""
+                                       style="border:none;" readOnly placeholder="On">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="minititle" data-i18n="Overview.content.Network_Info.WAN_Set.title">
+                                WAN 설정
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.WAN_Set.Connection_Method">
+                                연결 방식
+                            </td>
+                            <td id="wan_mode">이더넷 WAN 모드</td>
+                        </tr>
+                        <tbody id="disp_lte_info" style="display:none">
+                        <tr>
+                            <td colspan="2" class="minititle" data-i18n="Overview.content.Network_Info.LTE_Information.title">
+                                LTE 정보
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.State">
+                                상태
+                            </td>
+                            <td id="lte_state">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.IP_Address">
+                                IP 주소
+                            </td>
+                            <td id="lte_ipaddr">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.Mac_Address">
+                                MAC 주소
+                            </td>
+                            <td id="lte_macaddr">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.TEL">
+                                전화번호
+                            </td>
+                            <td id="lte_phone_num">&nbsp;</td>
+                        </tr>
+
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.Subnet_Mask">
+                                서브넷 마스크
+                            </td>
+                            <td id="lte_netmask">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.LTE_Information.Default_Gateway">
+                                기본 게이트웨이
+                            </td>
+                            <td id="lte_gateway">&nbsp;</td>
+                        </tr>
+                        </tbody>
+                        <tbody id="disp_ether_info" style="display:none">
+                        <tr>
+                            <td colspan="2" class="minititle" data-i18n="Overview.content.Network_Info.Ethernet_Information.title">
+                                Ethernet 정보
+                            </td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.Ethernet_Information.IP_Address">
+                                IP 주소
+                            </td>
+                            <td id="ether_ipaddr">219.249.204.106</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.Ethernet_Information.Mac_Address">
+                                MAC 주소
+                            </td>
+                            <td id="ether_macaddr">00:1D:93:78:BC:24</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.Ethernet_Information.Subnet_Maske">
+                                서브넷 마스크
+                            </td>
+                            <td id="ether_netmask">255.255.255.192</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.Network_Info.Ethernet_Information.Default_Gateway">
+                                기본 게이트웨이
+                            </td>
+                            <td id="ether_gateway">219.249.204.65</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //인터넷 연결 상태 -->
+
+        <!-- 무선랜 -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.WIRELESS.title">무선랜</div>
+                <div class="home_tbl">
+                    <table class="list_noline">
+                        <colgroup>
+                            <col class="td_width1">
+                            <col class="td_width2">
+                        </colgroup>
+                        <tr>
+                            <td data-i18n="Overview.content.WIRELESS.Wireless_Channel_24">
+                                2.4G 무선 랜 채널
+                            </td>
+                            <td id="ath1_channel">2.452 GHz (Channel 9)(20MHz)</td>
+                        </tr>
+                        <tr>
+                            <td data-i18n="Overview.content.WIRELESS.Wireless_Channel_5">
+                                5G 무선 랜 채널
+                            </td>
+                            <td id="ath0_channel">auto/5.32 GHz (Channel 64)(80MHz)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //무선랜 -->
+
+        <!-- 2.4G 무선 랜 SSID -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.Wireless_SSID_24.title">2.4G 무선 랜 SSID</div>
+                <div class="home_tbl">
+                    <table class="list" id="wifi24_info">
+                        <thead>
+                        <tr>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.VAP">VAP</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.SSID">SSID</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.Use">사용</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.Security_Set">보안 설정</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.WMM">WMM</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.HIDDEN">숨김</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_24.MAC_Address">MAC Address</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //2.4G 무선 랜 SSID -->
+
+        <!-- 5G 무선 랜 SSID -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Overview.content.Wireless_SSID_5.title">5G 무선 랜 SSID</div>
+                <div class="home_tbl">
+                    <table class="list" id="wifi5_info">
+                        <thead>
+                        <tr>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.VAP">VAP</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.SSID">SSID</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.Use">사용</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.Security_Set">보안 설정</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.WMM">WMM</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.HIDDEN">숨김</th>
+                            <th data-i18n="Overview.content.Wireless_SSID_5.MAC_Address">MAC Address</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- //5G 무선 랜 SSID -->
+    </section>
+</div>
+</body>
+</html>

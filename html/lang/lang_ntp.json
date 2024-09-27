@@ -1,0 +1,44 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "SntpContent": {
+          "title": "NTP",
+          "path1": "ADVANCED SETUP",
+          "path2": "NTP",
+          "content": {
+            "Set_Up" : {
+              "title" : "Set Up",
+              "Time_Zone_Select" : "Time Zone Select",
+              "Asia_Seoul" : "(KST-9)Asia/Seoul",
+              "NTP_Server" : "NTP Server 1",
+              "NTP_Server_2" : "NTP Server 2",
+              "Cancel" : "Cancel",
+              "Apply" : "Apply"
+            }
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "SntpContent": {
+          "title": "NTP",
+          "path1": "고급 설정",
+          "path2": "NTP",
+          "content": {
+            "Set_Up" : {
+              "title" : "설정",
+              "Time_Zone_Select" : "타임존 선택",
+              "Asia_Seoul" : "(KST-9)Asia/Seoul",
+              "NTP_Server" : "NTP 서버 1",
+              "NTP_Server_2" : "NTP 서버 2",
+              "Cancel" : "취소",
+              "Apply" : "적용"
+            }
+          }
+        }
+      }
+    }
+  }
+}

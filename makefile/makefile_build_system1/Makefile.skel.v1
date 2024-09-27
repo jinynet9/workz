@@ -1,0 +1,99 @@
+#
+# make
+# make clean
+#
+
+################################################################################
+#
+# Redefine (.cpp) Default Compile rules
+#
+
+# Compiler
+CC           = gcc
+
+#PreProcessor
+DEFLIST          = -DLINUX
+
+#Library List
+LIBLIST         =
+
+# Version
+VERSION          = 1.0.0.0
+# Compiler Flag, ex) -fPIC -shared
+CFLAGS           = -c -g
+
+# Header File Path
+IPATHS       = $(EXTRA_IPATHS) -I./ -I$(INCLUDE_DIR)
+
+# Library File Path
+LPATHS       = $(EXTRA_LPATHS) -L./
+
+
+################################################################################
+#
+# Object List
+#
+C_SRCS		= $(wildcard *.c)
+CPP_SRCS	= $(wildcard *.cpp)
+SRCS		= $(C_SRCS)+$(CPP_SRCS)
+OBJS		= $(C_SRCS:.c=.o)
+OBJS		+= $(CPP_SRCS:.cpp=.o)
+
+################################################################################
+#
+# Build Rules
+#
+.SUFFIXES : .c .cpp .o
+
+.c.o :
+#	@echo "src: $<"
+	$(CC) $(CFLAGS) $(IPATHS) $(DEFLIST) $< -o $@
+
+.cpp.o :
+	@echo "src> $<"
+	$(CC) $(CFLAGS) $(IPATHS) $(DEFLIST) $< -o $@
+
+################################################################################
+#
+# build
+#
+
+#all : $(TARGET)
+#	@echo "(skel) TARGET: $(TARGET)"
+
+$(TARGET) : $(OBJS)
+	@echo "Release build start..."
+#	$(CC) $(OBJS) $(LIBLIST) -o $@
+	@echo "complete build..."
+	@echo "Output file -> $@"
+	@echo "OBJS: $(OBJS)"
+	@echo ""
+
+clean ::
+	@echo "Delete object files..."
+	rm -f $(OBJS)
+	rm -f $(TARGET)
+
+
+distclean :: clean
+	@echo "Delete dependency files..."
+	rm -f $(DEPS)
+
+
+################################################################################
+#
+# dependency
+#
+.SUFFIXES : .dep
+
+.c.dep :
+	gcc -MM -o $@ $(CFLAGS) $(INC) $<
+
+DEPS = $(OBJS:.o=.dep)
+
+ifneq ($(MAKECMDGOALS), clean)
+ifneq ($(MAKECMDGOALS), distclean)
+-include $(DEPS)
+endif
+endif
+

@@ -1,0 +1,9 @@
+define onerule
+$(target) : $(prerequisites) ;@echo target: $$@, prerequisites: $$^
+endef
+
+target = t1
+prerequisites = p1 p2 p3
+$(onerule)                # 여기서 함수에 의해 t1 룰이 동적으로 정의되어
+
+.DEFAULT: ;

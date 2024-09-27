@@ -1,0 +1,58 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "IpDetectiveContent": {
+          "title": "IP Detective",
+          "path1": "ADVANCED SET",
+          "path2": "IP Detective",
+          "content": {
+            "IP_detective" : {
+              "title" : "IP Detective",
+              "IP_detective" : "IP_Detective",
+              "Active" : "Active",
+              "detective_IP_1" : "Detective IP 1",
+              "detective_IP_2" : "Detective IP 2",
+              "detective_IP_3" : "Detective IP 3",
+              "detective_IP_4" : "Detective IP 4",
+              "detective_IP_5" : "Detective IP 5",
+              "Cancel" : "Cancel",
+              "Save" : "Save",
+              "Apply" : "Apply"
+            }
+          }
+        },
+        "alert" : {
+          "Invalid_IP_Address" : "Invalid IP Address"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "IpDetectiveContent": {
+          "title": "IP Detective",
+          "path1": "고급 설정",
+          "path2": "IP Detective",
+          "content": {
+            "IP_detective" : {
+              "title" : "IP Detective",
+              "IP_detective" : "IP_Detective",
+              "Active" : "활성",
+              "detective_IP_1" : "Detective IP 1",
+              "detective_IP_2" : "Detective IP 2",
+              "detective_IP_3" : "Detective IP 3",
+              "detective_IP_4" : "Detective IP 4",
+              "detective_IP_5" : "Detective IP 5",
+              "Cancel" : "취소",
+              "Save" : "저장",
+              "Apply" : "적용"
+            }
+          }
+        },
+        "alert" : {
+          "Invalid_IP_Address" : "유효하지 않은 IP 주소 입니다."
+        }
+      }
+    }
+  }
+}

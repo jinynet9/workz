@@ -1,0 +1,102 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "AtfContent": {
+          "title": "AirTime Fairness",
+          "path1": "ADVANCED SET",
+          "path2": "AirTime Fairness",
+          "content": {
+            "AirTime_Fairness" : {
+              "title" : "AirTime Fairness",
+              "AirTime_Fairness" : {
+                "title" : "AirTime Fairness",
+                "Active" : "Active"
+              },
+              "Save" : "Save",
+              "Apply" : "Apply"
+            },
+            "AirTime_Fairness_MAC_List" : {
+              "title" : "AirTime Fairness MAC List",
+              "VAP" : {
+                "title" : "VAP:SSID"
+              },
+              "MAC" : {
+                "title" : "MAC",
+                "add_mac" : "ex) FF:FF:FF:FF:FF:FF"
+              },
+              "Percentage" : {
+                "title" : "Percentage",
+                "add_percent" : "% (default:0, range:0~100)"
+              },
+              "Cancel" : "Cancel",
+              "Add" : "Add",
+              "table" : {
+                "No" : "No",
+                "MAC_address" : "MAC Address",
+                "Percentage" : "Percentage",
+                "Delete" : "Delete"
+              }
+            }
+          }
+        },
+        "alert" : {
+          "input_mac_address" : "Please Input MAC Address",
+          "invalid_mac_address" : "Invalid MAC Address",
+          "exceeded_range" : "It exceeded the range.",
+          "Duplicate_check" : "This MAC address is overlaped",
+          "enrollment_mac_list" : "MAC list enrollment please"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "AtfContent": {
+          "title": "AirTime Fairness",
+          "path1": "고급 설정",
+          "path2": "AirTime Fairness",
+          "content": {
+            "AirTime_Fairness" : {
+              "title" : "AirTime Fairness",
+              "AirTime_Fairness" : {
+                "title" : "AirTime Fairness",
+                "Active" : "활성"
+              },
+              "Save" : "저장",
+              "Apply" : "적용"
+            },
+            "AirTime_Fairness_MAC_List" : {
+              "title" : "AirTime Fairness MAC List",
+              "VAP" : {
+                "title" : "VAP:SSID"
+              },
+              "MAC" : {
+                "title" : "MAC",
+                "add_mac" : "ex) FF:FF:FF:FF:FF:FF"
+              },
+              "Percentage" : {
+                "title" : "Percentage",
+                "add_percent" : "% (default:0, range:0~100)"
+              },
+              "Cancel" : "취소",
+              "Add" : "추가",
+              "table" : {
+                "No" : "번호",
+                "MAC_address" : "MAC Address",
+                "Percentage" : "백분율",
+                "Delete" : "삭제"
+              }
+            }
+          }
+        },
+        "alert" : {
+          "input_mac_address" : "MAC 주소를 입력해 주세요",
+          "invalid_mac_address" : "유효하지 않은 MAC 주소 입니다",
+          "exceeded_range" : "설정 범위를 초과 하였습니다.",
+          "Duplicate_check" : "등록되어있는 MAC 주소 입니다.",
+          "enrollment_mac_list" : "MAC 주소를 먼저 등록해 주세요."
+        }
+      }
+    }
+  }
+}

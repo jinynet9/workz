@@ -1,0 +1,92 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "UploadContent": {
+          "title": "Firmware Upgrade",
+          "path1": "ADVANCED SETUP",
+          "path2": "Firmware Update",
+          "content": {
+            "Firmware_Status" : {
+              "title" : "Firmware Status"
+            },
+            "FOTA" : {
+              "title" : "Firmware Auto Upgrade"
+            },
+            "Firmware_Update" : {
+              "title" : "Firmware Manual Upgrade",
+              "config_option" : "User Default",
+              "Preserve_settings" : "Keep Setting",
+              "Reset" : "Factory Reset"
+            },
+	    "FW_ver" : "Firmware Version :",
+	    "Module_FW_ver" : "Module Firmware Version :",
+            "Apply" : "Apply",
+            "setting" : "<br>Updating the software<br><br>Do not turn the power off during the update.<br>",
+            "Progress":{
+              "Upgrade_Title":"Preparing for upgrade.",
+              "Update_Title": "The system upgrade is starting.",
+              "Content": "This operation will take several minutes.",
+              "Content2": "The system restarts after the upgrade completes.",
+              "Content3": "Please reconnect after system restart.",
+              "MoveToLogin":"Go to Login page"
+            }
+          }
+        },
+	"common" : {
+	    "Enable" : "Enable"
+	},
+        "alert" : {
+          "select_file" : "Please select a file.",
+          "file_size" : "The file size is too large to update. Please try again as a regular file.",
+          "conf_upgrade" : "It will run the system upgrade.\n\nDo you want to continue?",
+          "problem" : "Problem in Progress"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "UploadContent": {
+          "title": "펌웨어 업그레이드",
+          "path1": "고급 설정",
+          "path2": "펌웨어 업그레이드",
+          "content": {
+            "Firmware_Status" : {
+              "title" : "펌웨어 상태"
+            },
+            "FOTA" : {
+              "title" : "펌웨어 자동 업그레이드"
+            },
+            "Firmware_Update" : {
+              "title" : "펌웨어 수동 업그레이드",
+              "config_option" : "사용자 초기값",
+              "Preserve_settings" : "설정 유지",
+              "Reset" : "공장 초기값"
+            },
+	    "FW_ver" : "펌웨어 버전 :",
+	    "Module_FW_ver" : "모듈 펌웨어 버전 :",
+            "Apply" : "적용",
+            "setting" : "<br>소프트웨어 업데이트 중<br><br>업데이트 중 페이지 이동이나 본제품의 전원을 끄지 마시기 바랍니다.<br>",
+            "Progress":{
+              "Upgrade_Title":"Upgrade 준비중 입니다.",
+              "Update_Title": "Upgrade를 시작합니다.",
+              "Content": "작업에 수 분 소요됩니다.",
+              "Content2": "Upgrade 완료 후 시스템이 재시작됩니다.",
+              "Content3": "시스템이 재시작된 후 다시 접속하여 주십시오.",
+              "MoveToLogin":"Login 페이지 이동"
+            }
+          }
+        },
+	"common" : {
+	    "Enable" : "활성"
+	},
+        "alert" : {
+          "select_file" : "파일을 선택하여 주시기 바랍니다.",
+          "file_size" : "파일 크기가 커서 업데이트를 할 수 없습니다. 정상적인 파일로 다시 시도해 주시기 바랍니다.",
+          "conf_upgrade" : "Upgrade를 실행합니다.\n\n계속 하시겠습니까?",
+          "problem" : "진행중 문제 발생"
+        }
+      }
+    }
+  }
+}

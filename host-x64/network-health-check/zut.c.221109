@@ -1,0 +1,443 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <string.h>
+#include <limits.h>
+#include <ctype.h>
+
+#include <time.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/file.h>
+#include <syslog.h>
+#include <math.h>
+#include <errno.h>
+
+#include <fcntl.h>
+
+#include "zut.h"
+
+
+/*
+ *
+ */
+int
+Rand ( void )
+{
+    static unsigned long cn = 0;
+    static int ret = 0;
+    unsigned int seed;
+
+    cn += ret;
+    seed = time(NULL) + cn;
+
+    srand ( seed );
+
+    ret = rand ();
+
+    return ret;
+}
+
+/*
+ * RETURN: the number of bytes read
+ */
+int
+shell_read (
+    char 		*b,
+    int 		blen,
+    uint32_t		flags,
+    const char 		*fmt, ... )
+{
+    FILE *fp;
+    va_list ap;
+    char buf[BUFSIZ];
+    int n = 0, l;
+
+    if ( ! b || ! fmt )
+	return -1;
+
+    va_start ( ap, fmt );
+
+    vsnprintf ( buf, sizeof buf, fmt, ap );
+
+    va_end ( ap );
+
+    fp = popen ( buf, "r" );
+    if ( ! fp )
+	return -1;
+
+    *b = '\0';
+
+    blen--;	/* for NULL */
+
+    while ( fgets(buf, sizeof buf, fp) )
+    {
+	l = strlen ( buf );
+	if ( l > blen )
+	    break;
+
+	strcpy ( b, buf );
+	n += l;
+	b += l;
+	blen -= l;
+    }
+
+    pclose ( fp );
+
+    if ( n && FLAG_ISSET(flags, SF_TRIM_NEWLINE) )
+    {
+	char *p = b - 1;
+
+	if ( *p == '\n' )
+	{
+	    *p = '\0';
+	    n--;
+	}
+    }
+
+    return n;
+}
+
+/*
+ *
+ */
+void
+skeleton_daemon ( void )
+{
+    pid_t pid;
+    int x;
+
+    /* Fork off the parent process */
+    pid = fork();
+
+    /* An error occurred */
+    if (pid < 0)
+        exit(EXIT_FAILURE);
+
+    /* Success: Let the parent terminate */
+    if (pid > 0)
+        exit(EXIT_SUCCESS);
+
+    /* On success: The child process becomes session leader */
+    if (setsid() < 0)
+        exit(EXIT_FAILURE);
+
+    /* Catch, ignore and handle signals */
+    //TODO: Implement a working signal handler */
+    signal(SIGCHLD, SIG_IGN);
+    signal(SIGHUP, SIG_IGN);
+
+    /* Fork off for the second time*/
+    pid = fork();
+
+    /* An error occurred */
+    if (pid < 0)
+        exit(EXIT_FAILURE);
+
+    /* Success: Let the parent terminate */
+    if (pid > 0)
+        exit(EXIT_SUCCESS);
+
+    /* Set new file permissions */
+    umask(0);
+
+    /* Change the working directory to the root directory */
+    /* or another appropriated directory */
+    chdir("/");
+
+    /* Close all open file descriptors */
+    for (x = sysconf(_SC_OPEN_MAX); x>=0; x--)
+    {
+        close (x);
+    }
+
+#if 0
+    /* Open the log file */
+    openlog ("firstdaemon", LOG_PID, LOG_DAEMON);
+#endif
+}
+
+/*
+ *
+ */
+void
+single_instance ( char *lock_file )
+{
+    int fd;
+    int rv;
+
+    fd = open ( lock_file, O_CREAT | O_RDWR, 0666 );
+    if ( fd < 0 )
+    {
+	perror ( "open" );
+	exit ( 1 );
+    }
+
+    rv = flock ( fd, LOCK_EX | LOCK_NB );
+    if ( rv < 0 )
+    {
+	if ( errno == EWOULDBLOCK )
+	    printf ( "another instance is running\n" );
+	else
+	    perror ( "flock" );
+
+	exit ( 2 );
+    }
+
+    // don't close fd as it will be unlocked
+    //close ( fd );
+}
+
+/*
+ *
+ */
+int
+sys_mem_usage ( void )
+{
+    char s_total[64];
+    char s_used[64];
+    uint64_t total, used, usage;
+
+    shell_read_tnl ( s_total, sizeof s_total,
+	    "free | grep ^Mem | awk '{print $2}'" );
+    shell_read_tnl ( s_used, sizeof s_used,
+	    "free | grep ^Mem | awk '{print $3}'" );
+
+    total = atoll ( s_total );
+    used  = atoll ( s_used );
+
+    usage = used * 100 / total;
+
+    return usage;
+}
+
+/*
+ *
+ */
+#define CPU_USAGE_FILE	"/var/state/cpu_usage"
+int
+sys_cpu_usage ( int *min1, int *min5, int *min15 )
+{
+#if 0
+    char buf[128];
+    float f1, f5, f15;
+    int rv;
+
+    *min1 = *min5 = *min15 = 0;
+
+    CAT_READ ( buf, "%s 2> /dev/null", CPU_USAGE_FILE );
+
+    rv = sscanf ( buf, "%f%%%% / %f%%%% / %f%%%%", &f1, &f5, &f15 );
+    if ( rv != 3 )
+	return -1;
+
+    *min1  = roundf ( f1 );
+    *min5  = roundf ( f5 );
+    *min15 = roundf ( f15 );
+#endif
+
+    return 0;
+}
+
+/*
+ *
+ */
+uint32_t
+sys_uptime ( void )
+{
+    char buf[64];
+    uint32_t uptime;
+
+    CAT_READ ( buf, "/proc/uptime | awk '{print $1}'" );
+
+    uptime = atoi ( buf );
+
+    return uptime;
+}
+
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
+#include <arpa/inet.h>
+
+/*
+ *
+ */
+static int
+_net_if_stats_get (
+    char *ifname,
+    struct net_stats_s *rx,
+    struct net_stats_s *tx
+    )
+{
+    int rv;
+
+#define NET_STATS_GET(IFNAME, ITEM, VAR, NVAR)				\
+    do {								\
+	rv = CAT_READ ( VAR, "/sys/class/net/%s/statistics/"ITEM, IFNAME );\
+	if ( rv < 0 )							\
+	    return -1;							\
+    	NVAR = strtoll ( VAR, NULL, 10 );				\
+    } while (0)
+
+    NET_STATS_GET ( ifname, "rx_bytes",   rx->bytes,   rx->nbytes   );
+    NET_STATS_GET ( ifname, "rx_packets", rx->packets, rx->npackets );
+    NET_STATS_GET ( ifname, "rx_errors",  rx->errors,  rx->nerrors  );
+
+    NET_STATS_GET ( ifname, "tx_bytes",   tx->bytes,   tx->nbytes   );
+    NET_STATS_GET ( ifname, "tx_packets", tx->packets, tx->npackets );
+    NET_STATS_GET ( ifname, "tx_errors",  tx->errors,  tx->nerrors  );
+
+    return 0;
+
+    /*
+     * 211005
+     */
+#if 0
+    FILE *fp;
+    char *hp;
+    char buf[512];
+    char ifheader[32];
+    char noused[16];
+    int rv = -1;
+
+    fp = fopen ( "/proc/net/dev", "r" );
+    if ( ! fp )
+	return -1;
+
+    sprintf ( ifheader, "%s:", ifname );
+
+    while ( fgets(buf, sizeof buf, fp) )
+    {
+	hp = strstr ( buf, ifheader );
+	if ( ! hp )
+	    continue;
+
+	hp += strlen ( ifheader );
+
+	sscanf ( hp,
+		"%s %s %s %s %s %s %s %s %s %s %s",
+		rx->bytes, rx->packets, rx->errors,
+		noused, noused, noused, noused, noused,
+		tx->bytes, tx->packets, tx->errors );
+
+	rv = 0;
+
+	break;
+    }
+
+    fclose ( fp );
+
+    if ( rv == 0 )
+    {
+	rx->nbytes   = strtoll ( rx->bytes,   NULL, 10 );
+	rx->npackets = strtoll ( rx->packets, NULL, 10 );
+	rx->nerrors  = strtoll ( rx->errors,  NULL, 10 );
+
+	tx->nbytes   = strtoll ( tx->bytes,   NULL, 10 );
+	tx->npackets = strtoll ( tx->packets, NULL, 10 );
+	tx->nerrors  = strtoll ( tx->errors,  NULL, 10 );
+    }
+
+    return rv;
+#endif	/* 0 */
+}
+
+/*
+ *
+ */
+int
+net_if_info_get (
+    char                 *ifname,	/* in */
+    struct net_if_info_s *info,
+    uint32_t		 flags
+    )
+{
+    char val[256];
+    int fd, rv;
+    struct ifreq ifreq;
+    struct sockaddr_in *sain = (struct sockaddr_in *)&ifreq.ifr_addr;
+
+    if ( ! ifname )
+        return -1;
+
+    memset ( info, 0, sizeof(*info) );
+
+    if ( FLAG_ISSET(flags, IFINFO_LINK) )
+    {
+	IF_ERRET ( CAT_READ(val, "/sys/class/net/%s/carrier", ifname) );
+
+	info->link = atoi ( val );
+    }
+
+    if ( FLAG_ISSET(flags, IFINFO_STATS) )
+    {
+	rv = _net_if_stats_get ( ifname, &info->rx_stats, &info->tx_stats );
+	if ( rv < 0 )
+	    return -2;
+    }
+
+    if ( flags < IFINFO_SOCK )
+	return 0;
+
+    fd = socket ( AF_INET, SOCK_STREAM, 0 );
+    if ( fd < 0 )
+        return -3;
+
+    strncpy ( ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name) );
+
+    /* interface address */
+    if ( FLAG_ISSET(flags, IFINFO_IPADDR) )
+    {
+        rv = ioctl ( fd, SIOCGIFADDR, &ifreq );
+        if ( rv < 0 )
+	{
+	    rv = -4;
+            goto err;
+	}
+
+        info->addr = sain->sin_addr;
+    }
+
+    /* network mask */
+    if ( FLAG_ISSET(flags, IFINFO_IPMASK) )
+    {
+        rv = ioctl ( fd, SIOCGIFNETMASK, &ifreq );
+        if ( rv < 0 )
+	{
+	    rv = -5;
+            goto err;
+	}
+
+        info->mask = sain->sin_addr;
+    }
+
+    /* mac address */
+    if ( FLAG_ISSET(flags, IFINFO_MACADDR) )
+    {
+        rv = ioctl ( fd, SIOCGIFHWADDR, &ifreq );
+        if ( rv < 0 )
+	{
+	    rv = -6;
+            goto err;
+	}
+
+        memcpy ( info->mac, ifreq.ifr_hwaddr.sa_data, IFHWADDRLEN );
+    }
+
+err:
+    close ( fd );
+
+    return rv;
+}
+

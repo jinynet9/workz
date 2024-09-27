@@ -1,0 +1,241 @@
+<!--
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+<script language="javascript" type="text/javascript">
+
+    var _lang_file = "../lang/lang_cwmp.json";
+
+    function page_init() {
+        var url = "/cgi-bin/advanceinfo.cgi?Command=cwmp";
+        XHRGet(getinfohandle, url, true);
+    }
+
+    function getinfohandle(xmlDoc) {
+        if (hasError(xmlDoc)) {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.getElementById("main_page").style.display = "";
+
+        page_value_rebuild(xmlDoc);
+
+        SetButtons( ["btn_acs_save", "btn_cpe_save"] );
+
+        var wan_proto = getDataFromTag(xmlDoc, "wan_proto");
+        var location = getDataFromTag(xmlDoc, "ap_location");
+        var location_detail = getDataFromTag(xmlDoc, "ap_location_detail");
+        var ap_code = getDataFromTag(xmlDoc, "egg_code");
+
+        parent.callResize();
+    }
+
+    function page_value_rebuild(xmlDoc) {
+        document.getElementById("acs_url").value  = getDataFromTag(xmlDoc, "acs_url");
+        document.getElementById("acs_user").value = getDataFromTag(xmlDoc, "acs_user");
+        document.getElementById("acs_pass").value = getDataFromTag(xmlDoc, "acs_pass");
+    }
+
+    function acs_form_check() {
+        document.form_acs.acs_url.value = document.form_acs.acs_url.value.trim();
+        if (document.form_acs.acs_url.value == "") {
+            alert(i18next.store.data[i18next.language].translation.alert['ACS_URL']);
+            return false;
+        }
+
+        return true;
+    }
+
+    function acs_save() {
+        if (acs_form_check()) {
+            var url = "/cgi-bin/advanceset.cgi";
+            var param = "Command=cwmp"
+                + "&"
+                + serializeFormElement("form_acs");
+            
+            XHRPost ( err_handle_reload, url, param, true );
+        }
+    }
+
+
+    function init() {
+        languageFileLoad ( _lang_file );
+        CheckLogin(page_init);
+    }
+</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+
+    <!--
+    ACS
+    -->
+    <section id="sect_acs" class="setting">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="contents.title">ACS</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="contents.path1">Advanced</span>
+                        <span class="path_arrow focus_on" data-i18n="contents.path2">CWMP</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+
+	<!--
+	ACS Attributes
+	-->
+        <form method="post" name="form_acs" id="form_acs">
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl">ACS Attributes</div>
+                    <div class="setting_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td>URL</td>
+                                <td>
+                                    <input type="text" id="acs_url" name="acs_url"
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="http://free.acs.net/acs">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>User name</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="acs_user" name="acs_user"
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Password</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="acs_pass" name="acs_pass" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+			    <!--
+                            <tr>
+                                <td>Periodic Inform</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;Enable</td>
+                                <td>
+				    <input type="checkbox" name="acs_inform_enable" id="acs_inform_enable">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;Interval</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="acs_inform_interval" name="acs_inform_interval" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&emsp;Time</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="acs_inform_time" name="acs_inform_time" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+			    -->
+			    <!--
+                            <tr>
+                                <td>Connect retry times</td>
+                                <td>
+                                    <input type="text" id="cpe_pass"" name="cpe_pass" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="0">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Close-Wait timeout</td>
+                                <td>
+                                    <input type="text" id="cpe_user" name="cpe_user" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="30">
+                                </td>
+                            </tr>
+			    -->
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_setting">
+                    <button type="button" class="btn_default btn_save" id="btn_acs_save" onclick="acs_save()"
+                            data-i18n="common.Apply">저장</button>
+                </div>
+            </div>
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+        </form>
+    </section>
+
+    <!--
+    CPE
+    -->
+    <section id="sect_cpe" class="setting" style="display:none">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l">CPE</li>
+                <li class="titl_r">
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+
+	<!--
+	CPE Attributes
+	-->
+        <form method="POST" name="form_cpe" id="form_cpe">
+            <div class="cont_grp">
+                <div class="cont_grp_white">
+                    <div class="cont_stitl">CPE Attributes</div>
+                    <div class="advanced_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td>User name</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="cpe_user" name="cpe_user" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Password</td>
+                                <td>
+                                    <input type="text" class="inputbox_sm" id="cpe_pass" name="cpe_pass" 
+				    	onkeydown="IgnoreEnterKey( event );" placeholder="">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+	    <div class="btm_btn_setting">
+		<button type="button" class="btn_default btn_save" id="btn_cpe_save" onclick="cpe_save()"
+			data-i18n="common.Apply">저장</button>
+	    </div>
+        </form>
+
+    </section>
+
+</div>
+</body>
+</html>

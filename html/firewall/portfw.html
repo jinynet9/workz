@@ -1,0 +1,489 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/14 - 누락 id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        var Group = new Array();
+        var isportfw
+
+	//DMC_WOO 200911
+	TIMEOUT_DEFAULT_TIME = 1;
+
+        function auth() {
+            var url = "/cgi-bin/auth.cgi";
+            param = "Command=LoginCheck";
+            XHRPost(authCheckhandle, url, param, true);
+        }
+
+        function authCheckhandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            var authcheck = getDataFromTag(xmlDoc, "LoginMode");
+            var Session_name = getDataFromTag(xmlDoc, "session");
+            setCookie(Session_name, getDataFromTag(xmlDoc, "sessionkey"));
+            var objSessionKeys = document.getElementsByName("SessionKey");
+            for (i = 0; i < objSessionKeys.length; i++) {
+                objSessionKeys[i].value = getDataFromTag(xmlDoc, "sessionkey");
+            }
+            if (authcheck == "1") {
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+                //page_init();
+            } else {
+                parent.location.href="/login.html";
+            }
+        }
+
+        function page_init() {
+            var url = "/cgi-bin/firewall.cgi?Command=portfwinfo";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+            SetButtons(["btn_try_add", "btn_all_delete", "btn_select_delete", "btn_apply"]);
+            Group["Pw"] = [document.formPortFw.protocol, document.formPortFw.ExfromPort,
+                document.formPortFw.ExtoPort, document.formPortFw.ip, document.formPortFw.fromPort,
+                document.formPortFw.itoPort];
+
+            maketable(xmlDoc);
+            parent.callResize();
+        }
+
+        function maketable(xmlDoc) {
+            isportfw = parseInt(getDataFromTag(xmlDoc, "table_row_num"));
+
+            if (isportfw != 0) {
+                var inner_ipaddr_set = getDataFromTag(xmlDoc, "inner_ipaddr_set");
+                var external_port_set = getDataFromTag(xmlDoc, "external_port_set");
+                var inner_port_set = getDataFromTag(xmlDoc, "inner_port_set");
+                var portfw_protocol_set = getDataFromTag(xmlDoc, "portfw_protocol_set");
+
+                var inner_ipaddr_array = inner_ipaddr_set.split(',');
+                var external_port_array = external_port_set.split(',');
+                var inner_port_array = inner_port_set.split(',');
+                var portfw_protocol_array = portfw_protocol_set.split(',');
+
+                var table_name = document.getElementById("portfwListTable");
+
+                for (i = 0; i < isportfw; i++) {
+                    trs = document.createElement("tr");
+
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "checkbox");
+                    element.setAttribute("id", "element" + i);
+                    td.innerHTML = i + 1;
+                    td.appendChild(element);
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.innerHTML = external_port_array[i];
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.innerHTML = inner_ipaddr_array[i];
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    td.innerHTML = inner_port_array[i];
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+
+                    if (portfw_protocol_array[i] == "udp")
+                        td.innerHTML = "UDP";
+                    else if (portfw_protocol_array[i] == "tcp")
+                        td.innerHTML = "TCP";
+                    else if (portfw_protocol_array[i] == "tcpudp")
+                        td.innerHTML = "TCPUDP";
+                    else
+                        td.innerHTML = "";
+
+                    trs.appendChild(td);
+
+                    table_name.appendChild(trs);
+                }
+            }
+        }
+
+        function fromCheck() {
+            //if( document.formPortFw.enabled.value != "ON" )
+            //{
+            //	return true;
+            //}
+
+            if (document.formPortFw.ExfromPort.value == "" &&
+                document.formPortFw.ExtoPort.value == "" &&
+                document.formPortFw.ip.value == "" &&
+                document.formPortFw.fromPort.value == "" &&
+                document.formPortFw.itoPort.value == "") {
+                alert(i18next.store.data[i18next.language].translation.alert['not_configured_Port_range']);
+                return false;
+            }
+
+            //exam IP address valid
+            if (document.formPortFw.ip.value == "") {
+                document.formPortFw.ip.select();
+                alert(i18next.store.data[i18next.language].translation.alert['not_configured_IP_address']);
+                return false;
+            }
+
+            if (!checkIPAddr(document.formPortFw.ip)) {
+                document.formPortFw.ip.select();
+                alert(i18next.store.data[i18next.language].translation.alert['incorrect_IP_address']);
+                return false;
+            }
+
+            //exam port
+            if (document.formPortFw.ExfromPort.value == "") {
+                document.formPortFw.ExfromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['enter_port_number']);
+                return false;
+            }
+            if (isAllNum(document.formPortFw.ExfromPort.value) == 0) {
+                document.formPortFw.ExfromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                return false;
+            }
+
+            d1 = atoi(document.formPortFw.ExfromPort.value, 1);
+            if (d1 > 65535 || d1 < 1) {
+                document.formPortFw.ExfromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                return false;
+            }
+
+            if (document.formPortFw.ExtoPort.value != "") {
+                if (isAllNum(document.formPortFw.ExtoPort.value) == 0) {
+                    document.formPortFw.ExtoPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                    return false;
+                }
+                d2 = atoi(document.formPortFw.ExtoPort.value, 1);
+                if (d2 > 65535 || d2 < 1) {
+                    document.formPortFw.ExtoPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                    return false;
+                }
+                if (d1 > d2) {
+                    document.formPortFw.ExfromPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                    return false;
+                }
+            } else {
+                document.formPortFw.ExtoPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['enter_port_number']);
+                return false;
+            }
+
+            if (document.formPortFw.fromPort.value == "") {
+                document.formPortFw.fromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['enter_port_number']);
+                return false;
+            }
+            if (isAllNum(document.formPortFw.fromPort.value) == 0) {
+                document.formPortFw.fromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                return false;
+            }
+
+            d3 = atoi(document.formPortFw.fromPort.value, 1);
+            if (d3 > 65535 || d3 < 1) {
+                document.formPortFw.fromPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['exceeded_the_range']);
+                return false;
+            }
+
+            if (document.formPortFw.itoPort.value != "") {
+                if (isAllNum(document.formPortFw.itoPort.value) == 0) {
+                    document.formPortFw.itoPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                    return false;
+                }
+                d4 = atoi(document.formPortFw.itoPort.value, 1);
+                if (d4 > 65535 || d4 < 1) {
+                    document.formPortFw.itoPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['exceeded_the_range']);
+                    return false;
+                }
+                if (d3 > d4) {
+                    document.formPortFw.fromPort.select();
+                    alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                    return false;
+                }
+            } else {
+                document.formPortFw.itoPort.select();
+                alert(i18next.store.data[i18next.language].translation.alert['enter_port_number']);
+                return false;
+            }
+
+
+            if ((d2 - d1) != (d4 - d3)) {
+                alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                return false;
+            }
+
+            /*
+             if ( (d1 != d3) && (d2 != d4) )
+                 {
+                     alert( i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                    return false;
+                 }
+            */
+
+            if ((d1 > d2) || (d3 > d4)) {
+                alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+                return false;
+            }
+
+            if ((d3 - d1) < 0) {
+                res1 = -1 * (d3 - d1);
+            } else {
+                res1 = (d3 - d1);
+            }
+
+            if ((d4 - d2) < 0) {
+                res2 = -1 * (d4 - d2);
+            } else {
+                res2 = (d4 - d2);
+            }
+
+            if (res1 != res2) {
+                alert(i18next.store.data[i18next.language].translation.alert['incorrect_Port_range']);
+
+                return false;
+            }
+
+
+            return true;
+        }
+
+	// DMC_WOO 200910
+        function pfsubmit() {
+	// DAYOU_MKSHIN_210708
+		EnableButtons(false);
+		TimeoutReload(20); 
+		var url = "/cgi-bin/firewall.cgi";
+		var param = "Command=applyportfw"
+
+		XHRPost(null, url, param, true);
+	}
+	
+        function pfadd() {
+            if (fromCheck()) {
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/firewall.cgi";
+                var param = "Command=portfw"
+                    + "&"
+                    + serializeFormElement("formPortFw");
+
+                XHRPost(null, url, param, true);
+            }
+        }
+
+        function alldelete() {
+            if (confirm(i18next.store.data[i18next.language].translation.alert['delete_rule'])) {
+                document.getElementById("submit_type").value = "1";
+                document.getElementById("total_num").value = isportfw;
+
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+                var url = "/cgi-bin/firewall.cgi";
+                var param = "Command=deleteportfw"
+                    + "&"
+                    + serializeFormElement("deletePWTable");
+
+                XHRPost(null, url, param, true);
+            }
+
+        }
+
+        function deleteClick() {
+            var pass = false;
+            for (k = 0; k < isportfw; k++) {
+                var tmp = document.getElementById("element" + k);
+                if (tmp.checked == true) {
+                    pass = true;
+                    tmp.value = "1";
+                }
+            }
+            if (!pass) {
+                alert(i18next.store.data[i18next.language].translation.alert['select_a_rule_to_delete']);
+                return false;
+            }
+            return true;
+        }
+
+        function delete_apply() {
+            if (deleteClick()) {
+                document.getElementById("submit_type").value = "0";
+                document.getElementById("total_num").value = isportfw;
+
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+                var url = "/cgi-bin/firewall.cgi";
+                var param = "Command=deleteportfw"
+                    + "&"
+                    + serializeFormElement("deletePWTable");
+
+                XHRPost(null, url, param, true);
+            }
+        }
+
+        function init() {
+	    prevent_enterkey ();
+            languageFileLoad("../lang/lang_portfw.json");
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="nat">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l"  data-i18n="PortFWContent.title">포트 포워딩 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet"  data-i18n="PortFWContent.path1">방화벽</span>
+                        <span class="path_arrow focus_on"  data-i18n="PortFWContent.path2">포트 포워딩 설정</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <form method="POST" name="formPortFw" id="formPortFw" novalidate="novalidate">
+            <!-- 설정 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl"  data-i18n="PortFWContent.content.SetUpContent.title">설정</div>
+                    <div class="nat_tbl">
+
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="PortFWContent.content.SetUpContent.Protocol">프로토콜</td>
+                                <td>
+                                    <select name="protocol" id="protocol">
+                                        <option value="1">TCP</option>
+                                        <option value="2">UDP</option>
+                                        <option value="3">TCPUDP</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  data-i18n="PortFWContent.content.SetUpContent.ExternalPort">외부 포트</td>
+                                <td>
+                                    <input type="text" name="ExfromPort" id="ExfromPort" maxlength="5" range=""
+                                           class="inputbox_sm">
+                                    ~
+                                    <input type="text" name="ExtoPort" id="ExtoPort" maxlength="5" range=""
+                                           class="inputbox_sm">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  data-i18n="PortFWContent.content.SetUpContent.InnerAddress">내부 주소</td>
+                                <td>
+                                    <input type="text" name="ip" id="ip" maxlength="15" ipv4="true"
+                                           class="inputbox_sm">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td  data-i18n="PortFWContent.content.SetUpContent.InnerPort">내부 포트</td>
+                                <td>
+                                    <input type="text" name="fromPort" id="fromPort" maxlength="5" range=""
+                                           class="inputbox_sm">
+                                    ~
+                                    <input type="text" name="itoPort" id="itoPort" maxlength="5" range=""
+                                           class="inputbox_sm">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <button type="button" class="btn_default btn_save_sm" id="btn_try_add" onClick="pfadd()">
+                        <span  data-i18n="common.Add"></span>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+            <!-- //설정 -->
+        </form>
+
+        <form method="POST" name="deletePWTable" id="deletePWTable">
+            <!-- 포트 포워딩 테이블 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="PortFWContent.content.PortFW_Table_Content.title">포트 포워딩 테이블</div>
+                    <div class="nat_tbl">
+                        <table class="list" id="portfwListTable" name="portfwListTable">
+                            <thead>
+                            <tr>
+                                <th data-i18n="PortFWContent.content.PortFW_Table_Content.Select">선택</th>
+                                <th data-i18n="PortFWContent.content.PortFW_Table_Content.ExternalPort">외부 포트</th>
+                                <th data-i18n="PortFWContent.content.PortFW_Table_Content.InnerAddress">내부 주소</th>
+                                <th data-i18n="PortFWContent.content.PortFW_Table_Content.InnerPort">내부 포트</th>
+                                <th data-i18n="PortFWContent.content.PortFW_Table_Content.Protocol">프로토콜</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <input id="submit_type" name="submit_type" type="hidden" value="">
+                    <input id="total_num" name="total_num" type="hidden">
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    <button type="button" class="btn_default btn_save_sm" id="btn_select_delete"
+                            name="btn_select_delete" onclick="delete_apply()" data-i18n="PortFWContent.content.PortFW_Table_Content.SelectCancel">선택 삭제
+                    </button>
+                    <button type="button" class="btn_default btn_save_sm" id="btn_all_delete"
+                            name="btn_all_delete" onclick="alldelete()" data-i18n="PortFWContent.content.PortFW_Table_Content.AllCancel">모두 삭제
+                    </button>
+                    <button type="button" class="btn_default btn_save_sm" id="btn_apply" name="apply" onClick="pfsubmit()">
+                        <span  data-i18n="common.Apply"></span>
+                    <!--<button type="button" class="btn_default btn_cancel_sm" id="btn_reset" name="reset"
+                            onclick="javescript : window.location.reload()"><span  data-i18n="common.Cancel"></span> -->
+                    </button>
+                </div>
+                <p class="txt_info" data-i18n="[html]PortFWContent.content.PortFW_Table_Content.PortFW_Help">
+                    ※ 포트 포워딩 설정<br>
+                    1. WAN/LAN 포트번호는 단일 포트로 입력 할 시 개별 설정 할 수 있으며, 범위로 포트를 입력 할 경우 동일한 값을 설정해야 합니다.
+                </p>
+            </div>
+            <!-- //포트 포워딩 테이블 -->
+        </form>
+    </section>
+</div>
+</body>
+</html>

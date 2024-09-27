@@ -1,0 +1,17 @@
+, := ,          # comma 변수 정의
+
+define onerule
+$(if $(filter foo,$(MYVAR)),
+$1 : $2
+    @echo target: $$@$(,) prerequisites: $$^
+,    
+$3 : $4
+    @echo target: $$@$(,) prerequisites: $$^
+)
+endef
+
+MYVAR := bar
+$(eval $(call onerule,t1,p1 p2 p3, \
+                      t2,r1 r2 r3))
+
+.DEFAULT: ;

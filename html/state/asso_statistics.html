@@ -1,0 +1,216 @@
+<!--
+7.14 - 누락된 table id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+		function page_init()
+		{
+			var url = "/cgi-bin/stateinfo.cgi?Command=asso_statistics";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+
+			maketable(xmlDoc);
+            parent.callResize();
+		}
+
+		function maketable(xmlDoc)
+		{
+			for(var i=0;i<3;i++)
+			{
+				var line_num = parseInt(getDataFromTag(xmlDoc, i == 0 ? "stats_line" : "stats"+ i +"day_line"));
+				var table_name = document.getElementById("asso_state"+i);
+				for(var k=1; k<=line_num; k++)
+				{
+					var ifstat = getDataFromTag(xmlDoc, i == 0 ? "stats"+k : "stats" + i + "day" + k);
+					var ifstat_array = ifstat.split(",");
+					trs = document.createElement("tr");
+
+					for(var n=0; n<11; n++)
+					{
+						switch(n) {
+							case 0:
+                                td = document.createElement("td");
+                                td.innerHTML = k;
+                                trs.appendChild(td);
+
+                                td = document.createElement("td");
+                                td.innerHTML = ifstat_array[n].split("=")[1] + "<br/>" + ifstat_array[n+1].split("=")[1];
+                                trs.appendChild(td);
+                                break;
+							case 2:
+							case 4:
+							case 6:
+                                td = document.createElement("td");
+                                td.setAttribute("colspan","2")
+                                td.innerHTML = ifstat_array[n].split("=")[1] + " / " + ifstat_array[n+1].split("=")[1];
+                                trs.appendChild(td);
+                                break;
+							case 8:
+                                td = document.createElement("td");
+                                td.innerHTML = ifstat_array[n].split("=")[1] + "(" + ifstat_array[n+1].split("=")[1] + ")" + "/" + ifstat_array[n+2].split("=")[1] + "(" + ifstat_array[n+3].split("=")[1] + ")";
+                                trs.appendChild(td);
+							    break;
+							default:
+                                break;
+						}
+					}
+					table_name.appendChild(trs);
+				}
+				trs = document.createElement("tr");
+				table_name.appendChild(trs);
+			}
+		}
+
+		function init()
+		{
+            languageFileLoad("../lang/lang_asso_statistics.json");
+			CheckLogin(page_init);
+		}
+	</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="AssociateStatsContent.title">접속 통계</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="AssociateStatsContent.path1">상태 정보</span>
+						<span class="path_arrow focus_on" data-i18n="AssociateStatsContent.path2">접속 통계</span>
+					</p>
+					<button type="button" class="btn_default btn_refresh" name="refresh" onclick="javascript: window.location.reload()" data-i18n="AssociateStatsContent.refresh">새로 고침</button>
+				</li>
+			</ul>
+		</div>
+
+		<div class="cont_grp">
+			<div class="cont_inner_check">
+				<div class="cont_stitl" data-i18n="AssociateStatsContent.content.today">Connected Statistics(Today)</div>
+				<div class="advanced_tbl">
+					<table class="view" id="asso_state0">
+						<colgroup>
+							<col width="5%">
+							<col width="27%">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+						</colgroup>
+						<tr>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.No">No</th>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.DateAndTime">Date and Time</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.24G">2.4G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.5G">5G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Total">Total Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Usage">Usage<br>Packet(Bytes)</th>
+						</tr>
+						<tr>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.TxRx">TX / RX</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="cont_grp">
+			<div class="cont_inner_check">
+				<div class="cont_stitl" data-i18n="AssociateStatsContent.content.1day">Connected Statistics(1 day ago)</div>
+				<div class="advanced_tbl">
+					<table class="view" id="asso_state1">
+						<colgroup>
+							<col width="5%">
+							<col width="27%">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+						</colgroup>
+						<tr>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.No">No</th>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.DateAndTime">Date and Time</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.24G">2.4G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.5G">5G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Total">Total Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Usage">Usage<br>Packet(Bytes)</th>
+						</tr>
+						<tr>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.TxRx">TX / RX</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="cont_grp">
+			<div class="cont_inner_check">
+				<div class="cont_stitl" data-i18n="AssociateStatsContent.content.2day">Connected Statistics(2 day ago)</div>
+				<div class="advanced_tbl">
+					<table class="view" id="asso_state2">
+						<colgroup>
+							<col width="5%">
+							<col width="27%">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+							<col width="*">
+						</colgroup>
+						<tr>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.No">No</th>
+							<th rowspan="2" data-i18n="AssociateStatsContent.content.DateAndTime">Date and Time</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.24G">2.4G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.5G">5G Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Total">Total Connected<br>Statistics</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.Usage">Usage<br>Packet(Bytes)</th>
+						</tr>
+						<tr>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.ConnAuth">Conn / Auth</th>
+							<th colspan="2" data-i18n="AssociateStatsContent.content.TxRx">TX / RX</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+</body>
+</html>

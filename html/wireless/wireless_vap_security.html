@@ -1,0 +1,677 @@
+<!doctype html>
+<html>
+<link href="../css/reset.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+    var _lang_file = "../lang/lang_wireless_vap_security.json";
+
+    var current_band = 0;
+    var current_ssid = 0;
+
+    var E_sec_mode = Object.freeze({ E_SEC_NONE:0, E_SEC_WPA:1 });
+    var E_wpa_type = Object.freeze({ E_WPA3_MIXED:0, E_WPA2_MIXED:1, E_WPA3:2, E_WPA2:3, E_WPA:4 });
+//    var E_auth_type = Object.freeze({ E_AUTH_1X:0, E_AUTH_PSK_SAE:1, E_AUTH_OWE:2 });
+    var E_auth_type = Object.freeze({ E_AUTH_PSK_SAE:0, E_AUTH_OWE:1 });
+    var E_enc_type = Object.freeze({ E_ENC_AUTO:0, E_ENC_TKIP:1, E_ENC_CCMP:2 })
+
+    function page_init()
+    {
+        var params = getURLParams(location.search);
+        var url;
+
+        current_band = parseInt(params['band'], 10);
+        current_ssid = parseInt(params['ssid'], 10);
+
+        url = "/cgi-bin/wirelessinfo.cgi?Command=wireless_vap_security&band=" + current_band + "&ssid=" + current_ssid;
+        XHRGet(getinfohandle, url, true);
+    }
+    
+    function getinfohandle(xmlDoc)
+    {
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.getElementById("main_page").style.display="";
+
+        SetButtons( ["btn_apply_back","btn_apply_save"] );
+
+        document.getElementById("ssid").innerText = getDataFromTag(xmlDoc,"ssid");
+        document.getElementById("new_ssid").value = getDataFromTag(xmlDoc,"ssid");
+
+        // Fill text values
+/*
+        document.getElementById("auth_server").value = getDataFromTag(xmlDoc,"auth_server");
+        document.getElementById("auth_port").value = getDataFromTag(xmlDoc,"auth_port");
+        document.getElementById("auth_secret").value = getDataFromTag(xmlDoc,"auth_secret");
+        document.getElementById("auth_server2").value = getDataFromTag(xmlDoc,"auth_server2");
+        document.getElementById("auth_port2").value = getDataFromTag(xmlDoc,"auth_port2");
+        document.getElementById("auth_secret2").value = getDataFromTag(xmlDoc,"auth_secret2");
+        document.getElementById("acct_server").value = getDataFromTag(xmlDoc,"acct_server");
+        document.getElementById("acct_port").value = getDataFromTag(xmlDoc,"acct_port");
+        document.getElementById("acct_secret").value = getDataFromTag(xmlDoc,"acct_secret");
+        document.getElementById("acct_server2").value = getDataFromTag(xmlDoc,"acct_server2");
+        document.getElementById("acct_port2").value = getDataFromTag(xmlDoc,"acct_port2");
+        document.getElementById("acct_secret2").value = getDataFromTag(xmlDoc,"acct_secret2");
+*/
+        // Apply security settins
+        document.security_setting.sec_mode.selectedIndex = getDataFromTag(xmlDoc,"sec_mode");
+
+        // Apply WPA settings
+        document.security_setting.wpa_type.selectedIndex = getDataFromTag(xmlDoc,"wpa_type");
+        document.security_setting.auth_type.selectedIndex = getDataFromTag(xmlDoc,"auth_type");
+        document.security_setting.enc_type.selectedIndex = getDataFromTag(xmlDoc,"enc_type");
+    
+        // Apply OWE transition mode
+/*	
+        document.getElementById("owe_transition_mode").checked = (getDataFromTag(xmlDoc,"owe_transition_mode") == "1") ? true : false;
+        var ssidList = document.getElementById("owe_transition_ssid_list");
+        var ssidOTR;
+        for (var i = 0; ; i++)
+        {
+            ssidOTR = getDataFromTag(xmlDoc,"owe_transition_ssid_" + i);
+            if (ssidOTR.length <= 0)
+                break;
+
+            var ssidOPT = new Option (ssidOTR, ssidOTR);
+            ssidList.add (ssidOPT, undefined);
+        }
+        ssidList.selectedIndex = getDataFromTag(xmlDoc,"owe_transition_ssid_index")
+*/
+        // Apply NONE settings
+/*
+        document.getElementById("mac_auth").checked = (getDataFromTag(xmlDoc,"mac_auth") == "1") ? true : false;
+        document.getElementById("eap_auth").checked = (getDataFromTag(xmlDoc,"eap_auth") == "1") ? true : false;
+
+        // Apply other settings
+        document.getElementById("acct_enable").checked = getDataFromTag(xmlDoc,"acct_enable") == "1" ? true : false;
+*/
+        // Apply SAE/PSK settings
+        document.getElementById("passphrase").value = getDataFromTag(xmlDoc,"passphrase");
+
+        // Arrange displaying according to setting values
+        on_sec_mode_change();
+/*
+        on_acct_enable_change();
+    
+        radiusDisplayLock (getDataFromTag(xmlDoc,"radius_global_lock") == "1" ? true : false);
+*/
+
+        parent.callResize();
+    }
+
+    function radiusDisplayLock(is_locked)
+    {
+        document.getElementById("auth_server").disabled = is_locked;
+        document.getElementById("auth_port").disabled = is_locked;
+        document.getElementById("auth_secret").disabled = is_locked;
+        document.getElementById("auth_server2").disabled = is_locked;
+        document.getElementById("auth_port2").disabled = is_locked;
+        document.getElementById("auth_secret2").disabled = is_locked;
+        document.getElementById("acct_server").disabled = is_locked;
+        document.getElementById("acct_port").disabled = is_locked;
+        document.getElementById("acct_secret").disabled = is_locked;
+        document.getElementById("acct_server2").disabled = is_locked;
+        document.getElementById("acct_port2").disabled = is_locked;
+        document.getElementById("acct_secret2").disabled = is_locked;
+    }
+
+    function adjust_open_auth_section_display(show)
+    {
+        document.getElementById("open_auth_section").style.display = show ? "" : "none";
+
+        if (show)
+            on_open_auth_change();
+    }
+
+    function adjust_wpa_auth_section_display(show)
+    {
+        document.getElementById("wpa_auth_section").style.display = show ? "" : "none";
+    }
+
+    function adjust_owe_transition_display (show)
+    {
+        var opt = show ? "" : "none";
+
+        on_owe_transition_mode_change();
+
+        document.getElementById("owe_transition_section").style.display = opt;
+        if (!show)
+            document.getElementById("owe_transition_ssid_section").style.display = "none";
+    }
+
+    function on_sec_mode_change()
+    {
+        var sec_mode = document.getElementById("sec_mode").selectedIndex;
+
+        switch(sec_mode)
+        {
+            case E_sec_mode.E_SEC_NONE:
+		/*
+                adjust_open_auth_section_display (true);
+                adjust_owe_transition_display (true);
+                on_open_auth_change();
+		*/
+                adjust_wpa_auth_section_display (false);
+                break;
+            
+            case E_sec_mode.E_SEC_WPA:
+		/*
+                adjust_open_auth_section_display (false);
+                adjust_owe_transition_display (false);
+		*/
+                adjust_wpa_auth_section_display (true);
+                on_wpa_type_change();
+                break;
+        }
+
+        parent.callResize();
+    }
+    
+    function on_open_auth_change()
+    {
+        var check_mac_auth = document.getElementById("mac_auth");
+        var check_eap_auth = document.getElementById("eap_auth");
+
+        var show_auth = (check_mac_auth.checked == true  || check_eap_auth.checked == true) ? "" : "none";
+
+        document.getElementById("auth_server_section").style.display = show_auth;
+
+        on_acct_enable_change();
+
+        parent.callResize();
+    }
+    
+    function on_owe_transition_mode_change()
+    {
+        var check_transition = document.getElementById("owe_transition_mode");
+
+        document.getElementById("owe_transition_ssid_section").style.display = (check_transition.checked == true) ? "" : "none";
+
+        parent.callResize();
+    }
+    
+    function on_owe_transition_ssid_list_change()
+    {
+    }
+    
+    function on_acct_enable_change()
+    {
+        var show_acct_server = document.getElementById("acct_enable").checked == true ? "" : "none";
+
+        document.getElementById("acct_server_section").style.display = show_acct_server;
+
+        parent.callResize();
+    }
+    
+//    var prev_auth_type = E_auth_type.E_AUTH_1X;
+    var prev_auth_type = E_auth_type.E_AUTH_PSE_SAE;
+
+    function on_wpa_type_change()
+    {
+        var wpa_type = document.security_setting.wpa_type.selectedIndex;
+        var auth_type = document.security_setting.auth_type.selectedIndex;
+        var enc_type = document.security_setting.enc_type.selectedIndex;
+        var auth_1x_disabled = false;
+        var auth_owe_disabled = false;
+        var psk_sae_text = "SAE/PSK";
+
+        switch(wpa_type) {
+            case E_wpa_type.E_WPA3_MIXED:
+                psk_sae_text = "SAE/PSK";
+                enc_type = E_enc_type.E_ENC_CCMP;
+                auth_owe_disabled = true;
+                break;
+            case E_wpa_type.E_WPA3:
+                psk_sae_text = "SAE";
+                enc_type = E_enc_type.E_ENC_CCMP;
+                break;
+            case E_wpa_type.E_WPA2_MIXED:
+            case E_wpa_type.E_WPA2:
+            case E_wpa_type.E_WPA:
+                auth_owe_disabled = true;
+                psk_sae_text = "PSK";
+                break;
+        }
+
+//        document.security_setting.auth_type[E_auth_type.E_AUTH_1X].disabled = auth_1x_disabled;
+        document.security_setting.auth_type[E_auth_type.E_AUTH_OWE].disabled = auth_owe_disabled;
+
+        document.security_setting.auth_type[E_auth_type.E_AUTH_PSK_SAE].innerText = psk_sae_text;
+/*
+        if ((auth_type == E_auth_type.E_AUTH_OWE) && (wpa_type != E_wpa_type.E_WPA3))
+            document.security_setting.auth_type.selectedIndex = E_auth_type.E_AUTH_1X;
+*/
+
+        on_auth_type_change();
+
+        document.security_setting.enc_type.selectedIndex = enc_type;
+
+        parent.callResize();
+    }
+
+    function check_wpa_and_auth_type ()
+    {
+        var wpa_type = document.security_setting.wpa_type.selectedIndex;
+        var auth_type = document.security_setting.auth_type.selectedIndex;
+
+        if ((auth_type == E_auth_type.E_AUTH_OWE) && (wpa_type != E_wpa_type.E_WPA3))
+            return prev_auth_type;
+
+        return auth_type;
+    }
+
+    function on_auth_type_change()
+    {
+        var sec_mode = document.security_setting.sec_mode.selectedIndex;
+        var wpa_type = document.security_setting.wpa_type.selectedIndex;
+        var auth_type = document.security_setting.auth_type.selectedIndex;
+        var show_pass = 0;
+        var show_auth = 0;
+        var show_open = (sec_mode == E_sec_mode.E_SEC_NONE) ? 1 : 0;
+
+        auth_type = check_wpa_and_auth_type ();
+        document.security_setting.auth_type.selectedIndex = auth_type;
+
+        switch (auth_type)
+        {
+	    /*
+            case E_auth_type.E_AUTH_1X:
+                show_auth = 1;
+                break;
+	    */
+            case E_auth_type.E_AUTH_PSK_SAE:
+                show_pass = 1;
+                break;
+            case E_auth_type.E_AUTH_OWE:
+                show_open = 1;
+                break;
+        }
+
+        document.getElementById("key_passphrase_display").style.display = show_pass ? "" : "none";
+
+        document.getElementById("special_char_display").style.display = show_pass ? "" : "none";
+	/*
+        document.getElementById("auth_server_section").style.display = show_auth ? "" : "none";
+
+        adjust_open_auth_section_display (show_open);
+	*/
+
+        prev_auth_type = document.security_setting.auth_type.selectedIndex;
+
+        parent.callResize();
+    }
+
+    function on_show_pass_change ()
+    {
+        var show_pass = document.getElementById("show_pass");
+        var key_value = document.getElementById("passphrase");
+
+        key_value.type = show_pass.checked ? "text" : "password";
+    }
+
+    var allowedPassChars = "~!@#$%^&*()_+-=;:,./? ";
+
+    function isAllowedPassword(str) {   
+        var ch;
+        var i;
+
+        for (i = 0; i < str.length; i++) {
+
+            ch = str.charAt(i);
+            
+            if ((ch >= 'A') && (ch <= 'Z'))
+                continue;
+            if ((ch >= 'a') && (ch <= 'z'))
+                continue;
+            if ((ch >= '0') && (ch <= '9'))
+                continue;
+          
+            if (allowedPassChars.indexOf(ch) < 0)
+                return false;
+        }
+
+        return true;
+    }
+
+    function Key_Check()
+    {
+        var secu_mode = document.getElementById("sec_mode").selectedIndex;
+        var auth_type = document.getElementById("auth_type").selectedIndex;
+        var key_value = document.getElementById("passphrase");
+
+        if ((secu_mode == E_sec_mode.E_SEC_WPA) && (auth_type == E_auth_type.E_AUTH_PSK_SAE))
+        {
+            if( key_value.value == "" )
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['key_null']);
+                return false;
+            }
+
+            if ((key_value.value.length < 8) || (key_value.value.length > 63))
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['key_length']);
+                return false;
+            }
+
+            if( !isAllowedPassword( key_value.value ))
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['key_value']);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function submit_value_setting()
+    {
+        document.getElementById("sec_mode").value = document.getElementById("sec_mode").selectedIndex;
+        document.getElementById("wpa_type").value = document.getElementById("wpa_type").selectedIndex;
+        document.getElementById("auth_type").value = document.getElementById("auth_type").selectedIndex;
+        document.getElementById("enc_type").value = document.getElementById("enc_type").selectedIndex;
+
+	/*
+        document.getElementById("owe_transition_mode").value = document.getElementById("owe_transition_mode").checked == true ? "1" : "0";
+
+        document.getElementById("mac_auth").value = document.getElementById("mac_auth").checked == true ? "1" : "0";
+        document.getElementById("eap_auth").value = document.getElementById("eap_auth").checked == true ? "1" : "0";
+
+        document.getElementById("acct_enable").value = document.getElementById("acct_enable").checked == true ? "1" : "0";
+	*/
+    }
+
+    function checkServerSettings (svr_type, svr_index)
+    {
+        var idstr = (svr_index > 1) ? svr_index : "";
+        var obj_addr = document.getElementById(svr_type + "_server" + idstr);
+        var obj_port = document.getElementById(svr_type + "_port" + idstr);
+        var obj_secret = document.getElementById(svr_type + "_secret" + idstr);
+
+        if (obj_addr.value == "") {
+            obj_port.value = "";
+            obj_secret.value = "";
+            return true;
+        }
+
+        if (!checkIPAddr(obj_addr)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+            return false;
+        }
+
+        var portnum = atoi(obj_port.value, 1);
+
+        if ((portnum <= 0) || (portnum >= 65535)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_Port_Number']);
+            return false;
+        }
+
+        if (obj_secret.value.length < 16) {
+            alert(i18next.store.data[i18next.language].translation.alert['Short_Shared_Secret']);
+            return false;
+        }
+
+        if (!checkSharedSecret(obj_secret.value)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_Shared_Secret']);
+            return false;
+        }
+
+        return true;
+    }
+
+    function checkServerValidate() {
+
+        if (checkServerSettings ("auth", 1) == false)
+            return false;
+        if (checkServerSettings ("auth", 2) == false)
+            return false;
+        if (checkServerSettings ("acct", 1) == false)
+            return false;
+        if (checkServerSettings ("acct", 2) == false)
+            return false;
+
+        return true;
+    }
+
+    function submit_apply_security()
+    {
+	/*
+        if (!checkServerValidate()) {
+            return false;
+        }
+	*/
+        if (!Key_Check())
+            return;
+
+        submit_value_setting();
+
+        EnableButtons( false );
+        TimeoutReload( TIMEOUT_DEFAULT_TIME );
+
+        var url = "/cgi-bin/wirelessset.cgi";
+        var param = "Command=apply_vap_security&band=" + current_band + "&ssid=" + current_ssid;
+
+        param += "&" + serializeFormElement("security_setting");
+
+        XHRPost(null, url, param, true);
+    }
+
+    function init()
+    {
+    	prevent_enterkey ();
+        languageFileLoad(_lang_file);
+        CheckLogin(page_init);
+    }
+</script>
+    
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="WirelessSSIDSettingContent.title">Security Setup</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_arrow focus_on" data-i18n="WirelessSSIDSettingContent.path">Security Setup</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi 적용</button>-->
+                </li>
+            </ul>
+        </div>
+        <div class="cont_grp">
+            <form method="post" name="security_setting" id="security_setting">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" id="ssid" data-i18n="WirelessSSIDSettingContent.content.title">Security Setup</div>
+                    <div class="wireless_tbl">
+                        <table>
+                            <colgroup>
+                                <col class="td_width25per">
+                            </colgroup>
+                            <tr>
+                                <td>SSID</td>
+                                <td>
+                                    <input type="text" name="new_ssid" id="new_ssid" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="inputbox_sm4">
+                                </td>
+                            </tr>
+                            <tr id="ssid_special_char_display" style="">
+                                <td><p class="txt_info" type="hidden"></p></td>
+                                <td><p class="txt_info" data-i18n="WirelessSSIDSettingContent.content.SSID_valid_char"></p></td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="WirelessSSIDSettingContent.content.Security_Mode">보안모드</td>
+                                <td>
+                                    <select name="sec_mode" id="sec_mode" onChange="on_sec_mode_change()" class="wirelessmode_select">
+                                        <option value="0" data-i18n="WirelessSSIDSettingContent.content.Open">Open</option>
+                                        <option value="1" data-i18n="WirelessSSIDSettingContent.content.WPA">WPA</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tbody id="wpa_auth_section" style="display:none">
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.WPA_Type">WPA 타입</td>
+                                    <td>
+                                        <select name="wpa_type" id="wpa_type" onChange="on_wpa_type_change()" class="wirelessmode_select">
+                                            <option value="0">WPA3/WPA2</option>
+                                            <option value="1">WPA2/WPA</option>
+                                            <option value="2">WPA3</option>
+                                            <option value="3">WPA2</option>
+                                            <option value="4">WPA</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.Auth">인증</td>
+                                    <td>
+                                        <select name="auth_type" id="auth_type" onChange="on_auth_type_change()" class="wirelessmode_select">
+                                            <!--<option value="0">1X</option> -->
+                                            <option value="1">SAE/PSK</option>
+                                            <option value="2">Enhanced Open</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.Password_Type">암호화 타입</td>
+                                    <td>
+                                        <select name="enc_type" id="enc_type" class="wirelessmode_select">
+                                            <option value="0">AUTO</option>
+                                            <option value="1">TKIP</option>
+                                            <option value="2">CCMP</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr id="key_passphrase_display" style="display:none;">
+                                    <td data-i18n="WirelessSSIDSettingContent.content.Key_passphrase">Key passphrase</td>
+                                    <td>
+                                        <input type="password" name="passphrase" id="passphrase" size="32" maxlength="128" onkeypress="IgnoreEnterKey( event );" class="wirelessmode_input">
+                                        <input type="checkbox" id="show_pass" name="show_pass" valign="middle" onChange="on_show_pass_change()">
+                                        <span data-i18n="WirelessSSIDSettingContent.content.ShowPassword">암호보이기</span>
+                                    </td>
+                                </tr>
+				<tr id="special_char_display" style="display:none;">
+				    <td>
+					<p class="txt_info" type="hidden"></p>
+				   </td>
+				    <td>
+					<p class="txt_info" data-i18n="WirelessSSIDSettingContent.content.Help"></p>
+				   </td>
+				</tr>
+                            </tbody>
+			    <!--
+                            <tbody id="owe_transition_section" style="display:none;">
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.OWE_transition_mode">OWE transition mode</td>
+                                    <td>
+                                        <input type="checkbox" id="owe_transition_mode" name="owe_transition_mode" valign="middle" onChange="on_owe_transition_mode_change()">
+                                        <span data-i18n="WirelessSSIDSettingContent.content.OWE_transition_mode">Enable OWE transition</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <tbody id="owe_transition_ssid_section" style="display:none;">
+                                        <td data-i18n="WirelessSSIDSettingContent.content.OWE_transition_ssid">OWE transition SSID</td>
+                                        <td>
+                                            <select name="owe_transition_ssid_list" id="owe_transition_ssid_list" onChange="on_owe_transition_ssid_list_change()" class="ssid_list_select">
+                                            </select>
+                                        </td>
+                                    </tbody>
+                                </tr>
+                            </tbody>
+                            <tbody id="open_auth_section" style="display:none;">
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.EAP_auth">EAP 인증</td>
+                                    <td>
+                                        <input type="checkbox" id="eap_auth" name="eap_auth" valign="middle" onChange="on_open_auth_change()">
+                                        <span data-i18n="WirelessSSIDSettingContent.content.EAP_auth_Active">EAP 인증</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.MAC_auth">MAC 인증</td>
+                                    <td>
+                                        <input type="checkbox" id="mac_auth" name="mac_auth" valign="middle" onChange="on_open_auth_change()">
+                                        <span data-i18n="WirelessSSIDSettingContent.content.MAC_auth_Active">MAC 인증</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody id="acct_enable_section" >
+                                <tr>
+                                    <td data-i18n="WirelessSSIDSettingContent.content.Acct_Enable">과금 동작</td>
+                                    <td>
+                                        <input type="checkbox" id="acct_enable" name="acct_enable" valign="middle" onChange="on_acct_enable_change()">
+                                        <span data-i18n="WirelessSSIDSettingContent.content.Acct_Enable_Active">과금 활성</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+			    -->
+                        </table>
+                    </div>
+                </div>
+		<!--
+                <div class="cont_grp_inner">
+                    <div class="wireless_tbl">
+                        <table>
+                            <colgroup>
+                                <col class="td_width25per">
+                            </colgroup>
+                            <tbody id="radius_server_title_section">
+                                <tr>
+                                    <td><label data-i18n="Server_Global_Setup.content.AuthAcctServer">Auth/Acct Server</label></td>
+                                    <td> IP Address</td>
+                                    <td> Port</td>
+                                    <td> Shared Secret</td>
+                                </tr>
+                            </tbody>
+                            <tbody id="auth_server_section" style="display:none;">
+                                <tr>
+                                    <td><label data-i18n="Server_Global_Setup.content.AuthServer">인증서버</label> #1</td>
+                                    <td><input type="text" name="auth_server" id="auth_server" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="text" name="auth_port" id="auth_port" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="password" name="auth_secret" id="auth_secret" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                </tr>
+                                <tr>
+                                    <td><label data-i18n="Server_Global_Setup.content.AuthServer">인증서버</label> #2</td>
+                                    <td><input type="text" name="auth_server2" id="auth_server2" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="text" name="auth_port2" id="auth_port2" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="password" name="auth_secret2" id="auth_secret2" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                </tr>
+                            </tbody>
+                            <tbody id="acct_server_section" style="display:none;">
+                                <tr>
+                                    <td><label data-i18n="Server_Global_Setup.content.AcctServer">과금서버</label> #1</td>
+                                    <td><input type="text" name="acct_server" id="acct_server" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="text" name="acct_port" id="acct_port" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="password" name="acct_secret" id="acct_secret" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                </tr>
+                                <tr>
+                                    <td><label data-i18n="Server_Global_Setup.content.AcctServer">과금서버</label> #2</td>
+                                    <td><input type="text" name="acct_server2" id="acct_server2" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="text" name="acct_port2" id="acct_port2" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                    <td><input type="password" name="acct_secret2" id="acct_secret2" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+		-->
+                <div class="btm_btn_wireless">
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    <button id="btn_apply_back" type="button" class="btn_default btn_cancel_sm" data-i18n="WirelessSSIDSettingContent.content.Back" onclick="goto_vap_setting(current_band);">뒤로</button>
+                    <button id="btn_apply_save" type="button" class="btn_default btn_save_sm" data-i18n="WirelessSSIDSettingContent.content.Save" onclick="submit_apply_security();">저장</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+</body>
+</html>

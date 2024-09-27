@@ -1,0 +1,2 @@
+/home/jinynet9/work/makefile/cmake/sample-build/CMakeFiles/app.out.dir
+/home/jinynet9/work/makefile/cmake/sample-build/CMakeFiles/distclean.dir

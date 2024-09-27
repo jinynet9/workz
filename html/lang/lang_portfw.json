@@ -1,0 +1,102 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+	  "Add" : "Add",
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Modify" : "Modify",
+          "Cancel" : "Cancel",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "PortFWContent": {
+          "title": "Port Forwarding Setting",
+          "path1": "FIREWALL",
+          "path2": "Port Forwarding Setting",
+          "content": {
+            "SetUpContent" : {
+              "title" :"Set Up",
+              "Protocol" : "Protocol",
+              "ExternalPort" : "External Port",
+              "InnerAddress" : "Inner Address",
+              "InnerPort" : "Inner Port"
+            },
+            "PortFW_Table_Content": {
+              "title" :"Port Forwading Table",
+              "Select" : "Select",
+              "ExternalPort" : "External Port",
+              "InnerAddress" : "Inner Address",
+              "InnerPort" : "Inner Port",
+              "Protocol" : "Protocol",
+              "SelectCancel" : "Select Cancel",
+              "AllCancel" : "All Cancel",
+              "PortFW_Help" : "※ Port Forwarding Set<br/>1. WAN/LAN port number can be set individually when you enter a single port, if you want to enter the port range should be set to the same value.<br/>2. Must set the port-fowarding rules and click the Apply button."
+            }
+          }
+        },
+        "alert" : {
+          "not_configured_Port_range" : "Port range is not configured.",
+          "not_configured_IP_address" : "IP address is not configured.",
+          "incorrect_IP_address" : "IP address is incorrect.",
+          "enter_port_number" : "Please enter the port number.",
+          "only_number" : "Please enter numbers.",
+          "exceeded_the_range" : "It exceeded the range.",
+          "incorrect_Port_range" : "Port range is incorrect.",
+          "select_a_rule_to_delete" : "Please select a rule to delete.",
+          "delete_rule" : "Delete to ALL PortForwarding Rule?"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Add" : "추가",
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Modify" : "수정",
+          "Cancel" : "취소",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "PortFWContent": {
+          "title": "포트 포워딩 설정",
+          "path1": "방화벽",
+          "path2": "포트 포워딩 설정",
+          "content": {
+            "SetUpContent" : {
+              "title" :"설정",
+              "Protocol" : "프로토콜",
+              "ExternalPort" : "외부 포트",
+              "InnerAddress" : "내부 주소",
+              "InnerPort" : "내부 포트"
+            },
+            "PortFW_Table_Content": {
+              "title" :"포트 포워딩 테이블",
+              "Select" : "선택",
+              "ExternalPort" : "외부 포트",
+              "InnerAddress" : "내부 주소",
+              "InnerPort" : "내부 포트",
+              "Protocol" : "프로토콜",
+              "SelectCancel" : "선택 삭제",
+              "AllCancel" : "모두 삭제",
+              "PortFW_Help" : "※ 포트 포워딩 설정<br/>1. WAN/LAN 포트번호는 단일 포트로 입력 할 시 개별 설정 할 수 있으며, 범위로 포트를 입력 할 경우 동일한 값을 설정해야 합니다.<br/>2. 포트 포워딩 룰을 설정 한 후 반드시 적용 버튼을 눌러야 설정이 적용됩니다."
+            }
+          }
+        },
+        "alert" : {
+          "not_configured_Port_range" : "포트 범위가 설정되어 있지 않습니다.",
+          "not_configured_IP_address" : "IP 주소가 설정되어 있지 않습니다.",
+          "incorrect_IP_address" : "IP 주소가 올바르지 않습니다.",
+          "enter_port_number" : "Port를 입력해 주세요",
+          "only_number" : "값을 숫자로 입력해주세요.",
+          "exceeded_the_range" : "설정 범위를 초과 하였습니다.",
+          "incorrect_Port_range" : "포트 범위가 잘못되었습니다.",
+          "select_a_rule_to_delete" : "삭제할 규칙을 선택해주세요.",
+          "delete_rule" : "모든 포트 포워딩 규칙을 삭제하시겠습니까?"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common" : {
+          "Advanced_Setting" : "Advanced Setting"
+        },
+        "WirelessVapSettingContent": {
+          "title": "SSID Setup",
+          "path1": "WIRELESS SETUP",
+          "path2": "SSID Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "VAP_Setup" : {
+              "title" : "SSID Setup",
+              "Setting" : "Setting",
+              "Select" : "Select",
+              "Hidden" : "Hidden",
+              "SSID" : "SSID",
+              "Isolate" : "Isolate",
+              "WMM" : "WMM",
+              "Save" : "Save",
+              "Help_Font" : "※ SSID Setup<br>1. If you disable the Isolate function, you may be vulnerable to ARP related security.<br>2. Available special characters: ~!@#$%^&*()_+-=<>?/.,:; and SPACE,KOREAN"
+            }
+          }
+        },
+        "alert":{
+          "ssid_null":"SSID name cannot be null",
+          "ssid_length":"Please check the length of SSID.",
+          "ssid_invalid":"Please check SSID name.",
+          "ssid_check":"Please check at least one SSID."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common" : {
+          "Advanced_Setting" : "상세설정"
+        },
+        "WirelessVapSettingContent": {
+          "title": "SSID 설정",
+          "path1": "무선랜 설정",
+          "path2": "SSID 설정",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "VAP_Setup" : {
+              "title" : "SSID 설정",
+              "Setting" : "설정",
+              "Select" : "선택",
+              "Hidden" : "숨김",
+              "SSID" : "SSID",
+              "Isolate" : "Isolate",
+              "WMM" : "WMM",
+              "Save" : "저장",
+              "Help_Font" : "※ SSID 설정<br>1. Isolate 기능을 비활성화 하면, ARP 관련 보안에 취약할 수 있습니다.<br>2. 사용가능 특수문자: ~!@#$%^&*()_+-=<>?/.,:; 및 한글,공백"
+            }
+          }
+        },
+        "alert":{
+          "ssid_null":"SSID 명은 공백이 될 수 없습니다.",
+          "ssid_length":"SSID 길이를 체크하여 주시기 바랍니다.",
+          "ssid_invalid":"SSID 이름을 체크하여 주시기 바랍니다.",
+          "ssid_check":"하나 이상 SSID를 체크하여 주시기 바랍니다."
+        }
+      }
+    }
+  }
+}

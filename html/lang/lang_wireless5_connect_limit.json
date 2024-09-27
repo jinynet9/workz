@@ -1,0 +1,55 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless5ConnectLimitContent": {
+          "title": "5G Station Setup",
+          "path1": "5G WIRELESS SETUP",
+          "path2": "Station Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "5G_Station_Setup" : {
+              "title" : "5G Station Setup",
+              "Wireless_Connect_Restrict" : "Wireless Connect Restrict (1 ~ 245 )",
+              "SSID" : "SSID",
+              "Max_Connect_Restrict" : "Max Connect Restrict",
+              "Save" : "Save"
+            }
+          }
+        },
+        "alert" : {
+          "connect_restrict" : "Connect Restrict Range Over.",
+          "only_number" : "Input Number Only",
+          "max_connect_restrict" : "접속자수는 0으로 설정할수 없습니다. 1이상의 값으로 재분배 하여주십시오.",
+          "over_restrict" : "Max Connect Restrict more then Connect Restrict."
+
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless5ConnectLimitContent": {
+          "title": "5G 무선 접속수 제한",
+          "path1": "5G 무선랜 설정",
+          "path2": "무선 접속수 제한",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "5G_Station_Setup" : {
+              "title" : "5G 무선 접속수 제한",
+              "Wireless_Connect_Restrict" : "5G 무선 접속수 제한 (1 ~ 245)",
+              "SSID" : "SSID",
+              "Max_Connect_Restrict" : "최대 허용 접속자 수",
+              "Save" : "저장"
+            }
+          }
+        },
+        "alert" : {
+          "connect_restrict" : "무선 접속수의 범위를 초과하였습니다.",
+          "only_number" : "숫자만 입력 가능합니다.",
+          "max_connect_restrict" : "접속자수는 0으로 설정할수 없습니다. 1이상의 값으로 재분배 하여주십시오.",
+          "over_restrict" : "최대 허용 접속자수가 무선 접속수의 범위를 초과하였습니다."
+        }
+      }
+    }
+  }
+}

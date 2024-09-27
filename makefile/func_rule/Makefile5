@@ -1,0 +1,13 @@
+define onerule
+$T : $($T_prerequisites)
+    @echo target: $$@, prerequisites: $$^
+endef
+
+targets = t1 t2
+
+t1_prerequisites = p1 p2 p3
+t2_prerequisites = r1 r2 r3
+
+$(foreach T,$(targets),$(eval $(onerule))) 
+
+.DEFAULT: ;

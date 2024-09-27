@@ -1,0 +1,222 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Overview": {
+          "title": "System Infomation",
+          "path1": "DA1024XL",
+          "path2": "System Info",
+          "content": {
+            "Device_info": {
+              "title": "Device Infomation",
+              "model": "Model",
+              "Firmware_Version": "Firmware Version",
+              "LTE_Firmware_Version": "LTE Firmware Version",
+              "SW_Update_Date": "SW Update Date",
+              "Power_State": "Power State"
+            },
+            "Operation_Info": {
+              "title": "Operation Infomation",
+              "System_Up_Time": "System Up Time",
+              "System_Running_Time": "System Running Time",
+              "Current_Time": "Current Time",
+              "Memory_Use_Amount": "Memory Use Amount",
+              "CPU_Use_Amount": "CPU Use Amount",
+              "System_Load_Average": "System Load Average (1min/5min/15min)"
+            },
+            "Network_Info": {
+              "title": "Network Infomation",
+              "LAN_Set": {
+                "title": "LAN Set",
+                "IP_Address": "IP Address",
+                "Subnet_Mask": "Subnet Mask",
+                "Default_Gateway": "Default Gateway",
+                "Mac_Address": "MAC Address",
+                "DHCP_Server": "DHCP Server"
+              },
+              "WAN_Set": {
+                "title": "WAN Set",
+                "Connection_Method": "Connection Method"
+              },
+              "LTE_Information": {
+                "title": "LTE Information",
+                "State": "State",
+                "IP_Address": "IP Address",
+                "Mac_Address": "MAC Address",
+                "TEL": "TEL",
+                "Subnet_Mask": "Subnet Mask",
+                "Default_Gateway": "Default Gateway"
+              },
+              "WiBro_Information": {
+                "title": "WiBro Information",
+                "State": "State",
+                "IP_Address": "IP Address",
+                "Mac_Address": "MAC Address",
+                "Subnet_Mask": "Subnet Mask",
+                "Default_Gateway": "Default Gateway"
+              },
+              "Ethernet_Information": {
+                "title": "Ethernet Information",
+                "IP_Address": "IP Address",
+                "Mac_Address": "MAC Address",
+                "Subnet_Mask": "Subnet Mask",
+                "Default_Gateway": "Default Gateway"
+              }
+            },
+            "Install_Location": {
+              "title": "Install Location",
+              "Business_Location": "Business Location",
+              "Detail_Location": "Detail Location",
+              "EGG_CODE": "EGG CODE"
+            },
+            "WIRELESS": {
+              "title": "WIRELESS",
+              "Wireless_Channel_24": "2.4G Wireless Channel",
+              "Wireless_Channel_5": "5G Wireless Channel"
+            },
+            "Wireless_SSID_24": {
+              "title": "2.4G Wireless SSID",
+              "VAP": "VAP",
+              "SSID": "SSID",
+              "Use": "Use",
+              "Security_Set": "Security Set",
+              "WMM": "WMM",
+              "HIDDEN": "Hidden",
+              "MAC_Address": "MAC Address"
+            },
+            "Wireless_SSID_5": {
+              "title": "5G Wireless SSID",
+              "VAP": "VAP",
+              "SSID": "SSID",
+              "Use": "Use",
+              "Security_Set": "Security Set",
+              "WMM": "WMM",
+              "HIDDEN": "Hidden",
+              "MAC_Address": "MAC Address"
+            }
+          }
+        },
+        "text":{
+          "connection": "Connected",
+          "disconnection" : "Disconnected",
+          "day": "Day",
+          "hour": "Hour",
+          "min": "Min",
+          "sec": "Sec",
+          "unknown": "Unknown",
+          "enable" : "Enable",
+          "disable": "Disable"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Overview": {
+          "title": "시스템 정보",
+          "path1": "DA1024XL",
+          "path2": "시스템 정보",
+          "content": {
+            "Device_info": {
+              "title": "단말 정보",
+              "model": "모델명",
+              "Firmware_Version": "펌웨어 버전",
+              "LTE_Firmware_Version": "LTE 펌웨어 버전",
+              "SW_Update_Date": "SW 업데이트 날짜",
+              "Power_State": "전원 상태"
+            },
+            "Operation_Info": {
+              "title": "동작 정보",
+              "System_Up_Time": "시스템 업타임",
+              "System_Running_Time": "시스템 가동 시간",
+              "Current_Time": "현재 시간",
+              "Memory_Use_Amount": "메모리 사용량",
+              "CPU_Use_Amount": "CPU 사용량",
+              "System_Load_Average": "시스템 부하율(1분/5분/15분)"
+            },
+            "Network_Info": {
+              "title": "네트웍 정보",
+              "LAN_Set": {
+                "title": "LAN 설정",
+                "IP_Address": "IP 주소",
+                "Subnet_Mask": "서브넷 마스크",
+                "Default_Gateway": "기본 게이트웨이",
+                "Mac_Address": "MAC 주소",
+                "DHCP_Server": "DHCP 서버"
+              },
+              "WAN_Set": {
+                "title": "WAN 설정",
+                "Connection_Method": "연결 방식"
+              },
+              "LTE_Information": {
+                "title": "LTE 정보",
+                "State": "상태",
+                "IP_Address": "IP 주소",
+                "Mac_Address": "MAC 주소",
+                "TEL": "전화번호",
+                "Subnet_Mask": "서브넷 마스크",
+                "Default_Gateway": "기본 게이트웨이"
+              },
+              "WiBro_Information": {
+                "title": "WiBro 정보",
+                "State": "상태",
+                "IP_Address": "IP 주소",
+                "Mac_Address": "MAC 주소",
+                "Subnet_Mask": "서브넷 마스크",
+                "Default_Gateway": "기본 게이트웨이"
+              },
+              "Ethernet_Information": {
+                "title": "Ethernet 정보",
+                "IP_Address": "IP 주소",
+                "Mac_Address": "MAC 주소",
+                "Subnet_Mask": "서브넷 마스크",
+                "Default_Gateway": "기본 게이트웨이"
+              }
+            },
+            "Install_Location": {
+              "title": "설치 위치",
+              "Business_Location": "사업장 위치",
+              "Detail_Location": "상세 내역",
+              "EGG_CODE": "EGG CODE"
+            },
+            "WIRELESS": {
+              "title": "무선랜",
+              "Wireless_Channel_24": "2.4G 무선 랜 채널",
+              "Wireless_Channel_5": "5G 무선 랜 채널"
+            },
+            "Wireless_SSID_24": {
+              "title": "2.4G 무선 랜 SSID",
+              "VAP": "VAP",
+              "SSID": "SSID",
+              "Use": "사용",
+              "Security_Set": "보안 설정",
+              "WMM": "WMM",
+              "HIDDEN": "숨김",
+              "MAC_Address": "MAC Address"
+            },
+            "Wireless_SSID_5": {
+              "title": "5G 무선 랜 SSID",
+              "VAP": "VAP",
+              "SSID": "SSID",
+              "Use": "사용",
+              "Security_Set": "보안 설정",
+              "WMM": "WMM",
+              "HIDDEN": "숨김",
+              "MAC_Address": "MAC Address"
+            }
+          }
+        },
+        "text":{
+          "connection": "연결",
+          "disconnection" : "연결 끊김",
+          "day": "일",
+          "hour": "시간",
+          "min": "분",
+          "sec": "초",
+          "unknown": "알수없음",
+          "enable" : "활성화",
+          "disable": "비활성화"
+        }
+      }
+    }
+  }
+}

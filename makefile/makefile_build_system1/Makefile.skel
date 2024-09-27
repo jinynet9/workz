@@ -1,0 +1,180 @@
+#
+# make
+# make clean
+# make RELEASE=1
+#
+
+################################################################################
+#
+# Redefine (.cpp) Default Compile rules
+#
+
+# Compiler
+CC		= gcc
+AR 		= ar
+RANLIB		= ranlib
+
+#PreProcessor
+DEFINES		= -DLINUX
+
+ifeq ($(RELEASE), 1)
+DBGFLAGS = -O2
+else
+DBGFLAGS = -g -O0 -DDEBUG
+endif
+
+# Version
+VERSION		= 1.0.0
+# Compiler Flag, ex) -fPIC -shared
+CFLAGS		= -c $(DBGFLAGS)
+
+# Header File Path
+INC_DIRS		= $(EXTRA_INC_DIRS) -I./ -I$(INCLUDE_DIR)
+
+# Library File Path
+LIB_DIRS		= $(EXTRA_LIB_DIRS) -L./
+
+#Library List
+ifneq ($(LIB_NAME),)
+LIBS		+= -l$(LIB_NAME)
+endif
+
+#
+# $1	SUBDIRS
+# $2	TARGET
+#
+define subdirdo
+	@for DIR in $(1); do \
+		$(MAKE) -C $$DIR $(2); \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+endef
+
+#	@for DIR in $(SUBDIRS); do \
+#		$(MAKE) -C $$DIR $@; \
+#		if [ $$? != 0 ]; then exit 1; fi; \
+#	done
+
+################################################################################
+#
+# Object List
+#
+OBJDIR		= $(TOP_DIR)/obj
+ifneq ($(SUBDIR_PREFIX),)
+OBJDIR		:= $(OBJDIR)/$(SUBDIR_PREFIX)
+endif
+C_SRCS		= $(wildcard *.c)
+CPP_SRCS	= $(wildcard *.cpp)
+SRCS		= $(join $(C_SRCS),$(CPP_SRCS))
+#OBJS		= $(C_SRCS:.c=.o)
+#OBJS		+= $(CPP_SRCS:.cpp=.o)
+
+OBJS = $(foreach src,$(SRCS),$(OBJDIR)/$(src:.c=.o))
+
+
+################################################################################
+#
+# 
+#
+
+TARGET := $(OBJDIR)/$(TARGET)
+
+target : $(TARGET)
+
+################################################################################
+#
+# Build Rules
+#
+
+$(OBJDIR)/%.o : %.c
+#	@echo "SRCS: $(SRCS)"
+#	@echo "OBJS: $(OBJS)"
+	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(INC_DIRS) $(DEFINES) $< -o $@
+
+
+################################################################################
+#
+# build
+#
+
+#all : $(TARGET)
+#	@echo "(skel) TARGET: $(TARGET)"
+
+$(TARGET) : $(OBJS)
+	@echo "Release build start..."
+	$(CC) $(OBJS) $(LIB_DIRS) $(LIBS) -o $@
+	@echo "complete build..."
+	@echo "Output file -> $@"
+	@echo ""
+
+#
+# TARGET_NAMES = test1 test2 test3
+#
+.SECONDEXPANSION:
+$(TARGET_NAMES): $$@.o
+	$(CC) -o $@ $< $(LIB_DIRS) $(LIBS)
+
+clean ::
+	@echo "Delete object files..."
+	rm -f $(OBJS)
+	rm -f $(TARGET)
+
+	$(call subdirdo,$(SUBDIRS),$@)
+
+
+distclean :: clean
+	@echo "Delete dependency files..."
+	rm -f $(DEPS)
+
+	$(call subdirdo,$(SUBDIRS),$@)
+
+
+################################################################################
+#
+# library
+#
+LIB_NAME =
+LIB_FULL_NAME = lib$(LIB_NAME).a
+LIB_SRCS =
+LIB_OBJS =
+
+$(LIB_FULL_NAME) : $(LIB_OBJS)
+	$(AR) rcv $@ $(LIB_OBJS)
+	$(RANLIB) $@
+
+
+################################################################################
+#
+# dependency
+#
+#.SUFFIXES : .dep
+#
+#.c.dep :
+
+DEPDIR = $(TOP_DIR)/dep
+ifneq ($(SUBDIR_PREFIX),)
+DEPDIR := $(DEPDIR)/$(SUBDIR_PREFIX)
+endif
+DEPS   = $(foreach src,$(SRCS),$(DEPDIR)/$(src:.c=.dep))
+
+$(DEPDIR)/%.dep : %.c
+	@test -d $(DEPDIR) || mkdir -p $(DEPDIR)
+	gcc -MM $(CFLAGS) $(INC_DIRS) $(DEFINES) $< -o $@ 
+
+ifneq ($(MAKECMDGOALS), clean)
+ifneq ($(MAKECMDGOALS), distclean)
+-include $(DEPS)
+endif
+endif
+
+################################################################################
+#
+
+vardump:
+	@echo PWD=\"$(PWD)\"
+	@echo DIR=\"$(shell pwd)\"
+	@echo TOP_DIR=\"$(TOP_DIR)\"
+	@echo DEPDIR=\"$(DEPDIR)\"
+
+	$(call subdirdo,$(SUBDIRS),$@)

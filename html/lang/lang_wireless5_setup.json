@@ -1,0 +1,325 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common" : {
+          "Active": "Active",
+          "Enable": "Enable",
+          "Disable": "Disable",
+          "Long": "Long",
+          "Short": "Short",
+          "On": "On",
+          "Off": "Off",
+          "chain0_Left": "chain0(Left)",
+          "chain1": "chain1",
+          "chain2": "chain2",
+          "chain1_Right": "chain1(Right)"
+        },
+        "Wireless5SetupContent": {
+          "title": "5G WiFi Setup",
+          "path1": "5G WIRELESS SETUP",
+          "path2": "WiFi Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "5G_WiFi_Setup" : {
+              "title" : "5G WiFi Setup",
+              "Radio_Enable" : "Radio Enable",
+              "Mode" : {
+                "title" : "Mode",
+                "options" : {
+                  "11a" : "802.11a only",
+                  "11n" : "802.11n only",
+                  "11ac" : "802.11ac only",
+                  "11an" : "802.11a+n",
+                  "11anac" : "802.11a+n+ac",
+                  "11axa" : "802.11a+n+ac+ax"
+                }
+              },
+              "BandWidth" : {
+                "title" : "BandWidth",
+                "options" : {
+                  "HT20" : "20MHz",
+                  "HT40" : "40MHz",
+                  "HT80" : "80MHz"
+                }
+              },
+              "Channel" : {
+                "title" : "Channel",
+                "options" : {
+                  "Auto" : "Auto",
+                  "36" : "36CH",
+                  "40" : "40CH",
+                  "44" : "44CH",
+                  "48" : "48CH",
+                  "52" : "52CH",
+                  "56" : "56CH",
+                  "60" : "60CH",
+                  "64" : "64CH",
+                  "100" : "100CH",
+                  "104" : "104CH",
+                  "108" : "108CH",
+                  "112" : "112CH",
+                  "116" : "116CH",
+                  "120" : "120CH",
+                  "124" : "124CH",
+                  "149" : "149CH",
+                  "153" : "153CH",
+                  "157" : "157CH",
+                  "161" : "161CH"
+                }
+              },
+              "BAND_A" : {
+                "title" : "BAND A",
+                "CH36" : "CH36",
+                "CH40" : "CH40",
+                "CH44" : "CH44",
+                "CH48" : "CH48"
+              },
+              "BAND_B" : {
+                "title" : "BAND B",
+                "CH52" : "CH52",
+                "CH56" : "CH56",
+                "CH60" : "CH60",
+                "CH64" : "CH64"
+              },
+              "BAND_C" : {
+                "title" : "BAND C",
+                "CH100" : "CH100",
+                "CH104" : "CH104",
+                "CH108" : "CH108",
+                "CH112" : "CH112",
+                "CH116" : "CH116",
+                "CH120" : "CH120",
+                "CH124" : "CH124"
+              },
+              "BAND_D" : {
+                "title" : "BAND D",
+                "CH149" : "CH149",
+                "CH153" : "CH153",
+                "CH157" : "CH157",
+                "CH161" : "CH161"
+              },
+              "Guard_Interval" : "Guard Interval",
+              "Fragmentation_Threshold" : "Fragmentation Threshold",
+              "RTS_Threshold" : "RTS Threshold",
+              "DTIM_Threshold" : "DTIM Threshold",
+              "Beacon_Interval" : "Beacon Interval",
+              "Preamble_Type" : "Preamble Type",
+              "TX_Power" : "TX Power",
+              "ICC" : {
+                "title" : "TX Power for Management",
+                "Beacon_Tx_Power" : "Beacon_Tx_Power",
+                "Probe_Tx_Power" : "Probe Tx Power"
+              },
+              "Probe_Auth_Req_Limit" : {
+                "title" : "Probe & Auth Req Limit",
+                "Power" : "Power"
+              },
+              "STBC_Transmission" : "STBC Transmission",
+              "LDPC_Transmission" : "LDPC Transmission",
+              "AMPDU_Mode" : {
+                "title" : "AMPDU Mode",
+                "options" : {
+                  "Static" : "Static",
+                  "Auto" : "Auto",
+                  "Disable" : "Disable"
+                },
+                "AMPDU_Packets" : "AMPDU(Packets)",
+                "AMPDU_Max_Frame_Byte" : "AMPDU Max Frame Byte"
+              },
+              "AMSDU_Enable" : {
+                "title" : "AMSDU Enable",
+                "AMSDU_Max_Frame_Byte" : "AMSDU Max Frame Byte"
+              },
+              "WIAA_Enable" : {
+                "title" : "WIAA Enable",
+                "OFDM_Level" : "OFDM Level",
+                "CCK_Level" : "CCK Level",
+                "level" : "(Default:4, 0~6)"
+              },
+              "Beamforming" : "Beamforming",
+              "MU-MIMO" : "MU-MIMO",
+              "DFS" : "DFS",
+              "Tx_Chainmask" : "Tx Chainmask",
+              "Rx_Chainmask" : "Rx Chainmask",
+              "GiGA_Indicator" : "GiGA Indicator",
+	      "Apply": "Apply",
+              "Save" : "Save"
+            }
+          }
+        },
+        "alert" : {
+          "frag_threshold": "Fragmentation Threshold : Please input (off, 256 ~ 2346)",
+          "rts_threshold": "RTS Threshold : Please input (off, 0 ~ 2347)",
+          "dtim_threshold":"DTIM Threshold : Please input (1 ~ 255)",
+          "beacon_threshold":"Beacon Threshold : Please input (20 ~ 1024)",
+          "enable_ampdu_threshold":"AMPDU Threshold : Please input (1 ~65535)",
+          "ampdu":"AMPDU : Please input (1 ~ 64)",
+          "amsdu":"AMSDU Threshold : Please input (1 ~65535)",
+          "ofdm_level":"OFDM Level : Please input (0 ~ 6)",
+          "cck_level":"CCK Level : Please input (0 ~ 6)"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common" : {
+          "Active" : "활성",
+          "Enable" : "활성화",
+          "Disable" : "비활성화",
+          "Long" : "Long",
+          "Short" : "Short",
+          "On" : "On",
+          "Off" : "Off",
+          "chain0_Left" : "chain0(좌)",
+          "chain1" : "chain1",
+          "chain2" : "chain2",
+          "chain1_Right" : "chain1(우)"
+        },
+        "Wireless5SetupContent": {
+          "title": "5G 무선 설정",
+          "path1": "5G 무선랜 설정",
+          "path2": "무선 설정",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "5G_WiFi_Setup" : {
+              "title" : "5G 무선 설정",
+              "Radio_Enable" : "라디오 활성",
+              "Mode" : {
+                "title" : "Mode",
+                "options" : {
+                  "11a" : "802.11a only",
+                  "11n" : "802.11n only",
+                  "11ac" : "802.11ac only",
+                  "11an" : "802.11a+n",
+                  "11anac" : "802.11a+n+ac",
+                  "11axa" : "802.11a+n+ac+ax"
+                }
+              },
+              "BandWidth" : {
+                "title" : "BandWidth",
+                "options" : {
+                  "HT20" : "20MHz",
+                  "HT40" : "40MHz",
+                  "HT80" : "80MHz"
+                }
+              },
+              "Channel" : {
+                "title" : "Channel",
+                "options" : {
+                  "Auto" : "Auto",
+                  "36" : "36CH",
+                  "40" : "40CH",
+                  "44" : "44CH",
+                  "48" : "48CH",
+                  "52" : "52CH",
+                  "56" : "56CH",
+                  "60" : "60CH",
+                  "64" : "64CH",
+                  "100" : "100CH",
+                  "104" : "104CH",
+                  "108" : "108CH",
+                  "112" : "112CH",
+                  "116" : "116CH",
+                  "120" : "120CH",
+                  "124" : "124CH",
+                  "149" : "149CH",
+                  "153" : "153CH",
+                  "157" : "157CH",
+                  "161" : "161CH"
+                }
+              },
+              "BAND_A" : {
+                "title" : "BAND A",
+                "CH36" : "CH36",
+                "CH40" : "CH40",
+                "CH44" : "CH44",
+                "CH48" : "CH48"
+              },
+              "BAND_B" : {
+                "title" : "BAND B",
+                "CH52" : "CH52",
+                "CH56" : "CH56",
+                "CH60" : "CH60",
+                "CH64" : "CH64"
+              },
+              "BAND_C" : {
+                "title" : "BAND C",
+                "CH100" : "CH100",
+                "CH104" : "CH104",
+                "CH108" : "CH108",
+                "CH112" : "CH112",
+                "CH116" : "CH116",
+                "CH120" : "CH120",
+                "CH124" : "CH124"
+              },
+              "BAND_D" : {
+                "title" : "BAND D",
+                "CH149" : "CH149",
+                "CH153" : "CH153",
+                "CH157" : "CH157",
+                "CH161" : "CH161"
+              },
+              "Guard_Interval" : "Guard Interval",
+              "Fragmentation_Threshold" : "Fragmentation Threshold",
+              "RTS_Threshold" : "RTS Threshold",
+              "DTIM_Threshold" : "DTIM Threshold",
+              "Beacon_Interval" : "Beacon Interval",
+              "TX_Power" : "TX Power",
+              "ICC" : {
+                "title" : "TX Power for Management",
+                "Beacon_Tx_Power" : "Beacon_Tx_Power",
+                "Probe_Tx_Power" : "Probe Tx Power"
+              },
+              "Probe_Auth_Req_Limit" : {
+                "title" : "Probe & Auth Req Limit",
+                "Power" : "Power"
+              },
+              "STBC_Transmission" : "STBC Transmission",
+              "LDPC_Transmission" : "LDPC Transmission",
+              "AMPDU_Mode" : {
+                "title" : "AMPDU Mode",
+                "options" : {
+                  "Static" : "Static",
+                  "Auto" : "Auto",
+                  "Disable" : "Disable"
+                },
+                "AMPDU_Packets" : "AMPDU(Packets)",
+                "AMPDU_Max_Frame_Byte" : "AMPDU Max Frame Byte"
+              },
+              "AMSDU_Enable" : {
+                "title" : "AMSDU Enable",
+                "AMSDU_Max_Frame_Byte" : "AMSDU Max Frame Byte"
+              },
+              "WIAA_Enable" : {
+                "title" : "WIAA Enable",
+                "OFDM_Level" : "OFDM Level",
+                "CCK_Level" : "CCK Level",
+                "level" : "(기본:4, 0~6)"
+              },
+              "Beamforming" : "Beamforming",
+              "MU-MIMO" : "MU-MIMO",
+              "DFS" : "DFS",
+              "Tx_Chainmask" : "Tx Chainmask",
+              "Rx_Chainmask" : "Rx Chainmask",
+              "GiGA_Indicator" : "GiGA Indicator",
+	      "Apply": "적용",
+              "Save" : "저장"
+            }
+          }
+        },
+        "alert" : {
+          "frag_threshold": "Fragmentation Threshold : off,256 ~ 2346 의 값을 입력해 주세요",
+          "rts_threshold": "RTS Threshold : off, 0 ~ 2347 의 값을 입력해 주세요",
+          "dtim_threshold":"DTIM Threshold : 1 ~ 255 의 값을 입력해 주세요",
+          "beacon_threshold":"Beacon Threshold : 20 ~ 1024 의 값을 입력해 주세요",
+          "enable_ampdu_threshold":"AMPDU Threshold : 1 ~65535 의 값을 입력해 주세요",
+          "ampdu":"AMPDU : 1 ~ 64 의 값을 입력해 주세요",
+          "amsdu":"AMSDU Threshold : 1 ~65535 의 값을 입력해 주세요",
+          "ofdm_level":"OFDM Level : 0 ~ 6 의 값을 입력해 주세요",
+          "cck_level":"CCK Level : 0 ~ 6 의 값을 입력해 주세요"
+        }
+      }
+    }
+  }
+}

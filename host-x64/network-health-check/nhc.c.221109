@@ -1,0 +1,238 @@
+/*
+ * network healthy check
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include <inttypes.h>
+#include <syslog.h>
+
+#include "zut.h"
+#include "nhc.h"
+
+#define DEBUG	1
+
+/*
+   interval
+   <---------------------->
+   ^ ^ ^                  ^ ^ ^
+   | | |                  | | |
+   | | |                  | | |
+   <->
+   period
+   <--->
+   count
+*/
+
+#define SCONF_SH	"./sconf.sh"
+#define CONF_FILE	"/tmp/nhc.conf"
+#define LOCK_FILE	"./nhc_lock.cnt"
+
+#define CONF_GET(V, VAR) 	\
+  ({				\
+    shell_read_tnl ( V, sizeof(V), SCONF_SH " " CONF_FILE " get %s", VAR ); \
+    V; 				\
+  })
+
+int lock_count;
+
+#define MAX_PEER_NUM	4
+#define MAX_PEER_LEN	60
+
+struct conf_s {
+    int enable;
+    int	interval;
+    int check_count;
+    int period;
+
+    int ping_count;
+    int ping_timeout;
+
+    int peer_count;
+    char peers[MAX_PEER_NUM][MAX_PEER_LEN];
+
+    int lock_count;	/* 0:disable */
+    int lock_timeout;
+
+} _conf = {
+};
+
+struct conf_s *conf = &_conf;
+
+/*
+ *
+ */
+static int
+_nhc_init ( void )
+{
+    int i, j;
+    char value[80];
+    char var[80];
+
+    CAT_READ ( value, LOCK_FILE );
+    lock_count = atoi ( value );
+
+    conf->enable       = atoi ( CONF_GET(value, "enable") );
+    conf->interval     = atoi ( CONF_GET(value, "interval") );
+    conf->check_count  = atoi ( CONF_GET(value, "check_count") );
+    conf->period       = atoi ( CONF_GET(value, "period") );
+    conf->ping_count   = atoi ( CONF_GET(value, "ping_count") );
+    conf->ping_timeout = atoi ( CONF_GET(value, "ping_timeout") );
+    conf->lock_count   = atoi ( CONF_GET(value, "lock_count") );
+    conf->lock_timeout = atoi ( CONF_GET(value, "lock_timeout") );
+
+    for ( i = 0, j = 0; i < MAX_PEER_NUM; i++ )
+    {
+	sprintf ( var, "peer%d", i+1 );
+	CONF_GET ( value, var );
+	if ( value[0] )
+	    strcpy ( conf->peers[j++], value );
+    }
+
+    conf->peer_count = j;
+
+    //SYSTEM ( "rm -f %s", CONF_FILE );
+
+    return 0;
+}
+
+/*
+ *
+ */
+static void
+_show_conf ( void )
+{
+    int i;
+
+    printf ( "enable       : %d\n", conf->enable );
+    printf ( "interval     : %d\n", conf->interval );
+    printf ( "check count  : %d\n", conf->check_count );
+    printf ( "period       : %d\n", conf->period );
+    printf ( "ping count   : %d\n", conf->ping_count );
+    printf ( "ping timeout : %d\n", conf->ping_timeout );
+    printf ( "peer count   : %d\n", conf->peer_count );
+    for ( i = 0; i < conf->peer_count; i++ )
+        printf ( "  %s\n", conf->peers[i] );
+    printf ( "lock file    : %d\n", lock_count );
+    printf ( "lock count   : %d\n", conf->lock_count );
+    printf ( "lock timeout : %d\n", conf->lock_timeout );
+}
+
+/*
+ *
+ */
+static int
+_network_online ( void )
+{
+    int i, j, n, rv;
+    int online = false;
+    char buf[BUFSIZ];
+
+    for ( i = 0; i < conf->check_count; i++ )
+    {
+	for ( j = 0; j < conf->peer_count; j++ )
+	{
+	    n = sprintf ( buf, "ping -c %d -W %d",
+		    conf->ping_count, conf->ping_timeout );
+	    sprintf ( &buf[n], " %s", conf->peers[j] );
+
+#if DEBUG
+	    printf ( "%s", buf );
+	    fflush ( stdout );
+#endif
+
+	    rv = SYSTEM ( "%s", buf );
+#if DEBUG
+	    printf ( " = %d\n", rv );
+#endif
+	    if ( rv == 0 )
+	    {
+		online = true;
+		break;
+	    }
+	}
+
+	if ( online == true )
+	    break;
+
+	/* ! last */
+	if ( i != conf->check_count - 1 )
+	    sleep ( conf->period );
+    }
+
+    return online;
+}
+
+/*
+ *
+ */
+void
+_single_check ( void )
+{
+    conf->check_count = 1;
+    conf->ping_count = 1;
+    conf->ping_timeout = 2;
+
+    printf ( "%d\n", _network_online () );
+
+    exit ( 0 );
+}
+
+/*
+ *
+ */
+int
+main ( int argc, char **argv, char **envp )
+{
+    int rv;
+    int i, n;
+
+    _nhc_init ();
+
+    if ( argc > 1 )
+	_single_check ();
+
+    if ( ! conf->enable )
+    {
+	printf ( "Disabled. bye.\n" );
+	exit (0);
+    }
+
+#if DEBUG
+    _show_conf ();
+#endif
+
+    if ( conf->lock_count && conf->lock_count >= lock_count )
+    {
+	sleep ( conf->lock_timeout );
+
+	lock_count = 0;
+    }
+    else
+	sleep ( RAND_RANGE(1, conf->interval) );
+
+    while ( true )
+    {
+	if ( _network_online() != true )
+	{
+	    if ( conf->lock_count )
+	    {
+		lock_count++;
+		SYSTEM ( "echo %d > %s", lock_count, LOCK_FILE );
+	    }
+
+	    syslog ( LOG_CRIT, "Fail to check Network Healthy !!!" );
+	    /* reboot */
+	}
+
+#if DEBUG
+	printf ( "SLEEP for interval: %d\n", conf->interval );
+#endif
+	sleep ( conf->interval );
+    }
+
+    return 0;
+}
+

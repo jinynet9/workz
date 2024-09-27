@@ -1,0 +1,43 @@
+-rw-r--r--    1 root     root      70238245 Jul  7 09:10 /data/www/upload/nms.fw
+----------------------------------------
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT TX BUF: {"IMEI":"862678060002649","message":"fota_query","model":"DW1014-5G-MODEM","device_fw_ver":"0.0.0"}
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT RX BUF: {"result":"updatable","info":{"model":"DW1014-5G-MODEM","version":"1.1.0","size":70238245,"checksum":"fc75a8282251b578f68fb6789c6dbd141afb44247ee38b4e638f39001e6ae7fa","url":"https://nms.dwkcm
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] === FW INFO ===
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] model   : DW1014-5G-MODEM
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] version : 1.1.0
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] size    : 70238245
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] checksum: fc75a8282251b578f68fb6789c6dbd141afb44247ee38b4e638f39001e6ae7fa
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] url     : https://nms.dwkcm5.dayouplus.co.kr:1409/api/media/file?fileClass=FwModel&resourceIdx=646b33ddad076393769defbb&fileId=O3OAvRSM3x
+Jul  7 09:10:11 dw1014-5g local7.err nms: NMS: _cbt_almmon():: ### ALARM MONITORING ###
+Jul  7 09:10:35 dw1014-5g user.err root: [NMS] FOTA TEST SUCCESSFULLY COMPLETED
+----------------------------------------
+Jul  7 09:08:42 dw1014-5g local7.err nms: NMS: _rest_api():: _rest_api() msg_type: report
+Jul  7 09:08:44 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT TX BUF: {"IMEI":"862678060002649","message":"report","status":{"MAC_ADDR":"00:0A:DE:F6:C9:02","vendor":"DAYOU PLUS","model":"DW1014-5G","serial":"","system_defconf_ver":"0","device_fw_ver":"1.1.3","mo
+Jul  7 09:08:44 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT RX BUF: {"result":"success","report_interval":"600"}
+Jul  7 09:08:44 dw1014-5g local7.err nms: NMS: _rest_api():: rx_message: [51,srv_report-ack], rx_result[success], result[success], recur: 1
+Jul  7 09:08:45 dw1014-5g local7.err nms: NMS: agent_rx():: agent_rx: set-online
+Jul  7 09:09:11 dw1014-5g local7.err nms: NMS: _cbt_almmon():: ### ALARM MONITORING ###
+Jul  7 00:09:25 dw1014-5g user.notice qwesd: INFO:invoke_over_ioctl, obj.context = 0x580608, fd = 19, op = 0, counts = 0x1002
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:got the req here! ret=0
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:command id, time_cmd_id = 770
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:time_getutcsec starts!
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:QSEE Time Listener: time_getutcsec
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:QSEE Time Listener: get_utc_seconds
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:QSEE Time Listener: seconds: 1688688565
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:QSEE Time Listener: nano seconds: 480181635
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:time_getutcsec returns 0, sec = 1688688565; nsec = 480181635
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:time_getutcsec finished! 
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:iotcl_continue_command finished! and return 0 
+Jul  7 00:09:25 dw1014-5g user.debug qseecomd: DBG:before calling ioctl to read the next time_cmd
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: agent_rx():: agent_rx: modem-fota
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: _rest_api():: _rest_api() msg_type: modem-fota
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT TX BUF: {"IMEI":"862678060002649","message":"fota_query","model":"DW1014-5G-MODEM","device_fw_ver":"0.0.0"}
+Jul  7 09:09:59 dw1014-5g local7.err nms: NMS: _rest_api():: *** AGENT RX BUF: {"result":"updatable","info":{"model":"DW1014-5G-MODEM","version":"1.1.0","size":70238245,"checksum":"fc75a8282251b578f68fb6789c6dbd141afb44247ee38b4e638f39001e6ae7fa","url":"https://nms.dwkcm
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] === FW INFO ===
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] model   : DW1014-5G-MODEM
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] version : 1.1.0
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] size    : 70238245
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] checksum: fc75a8282251b578f68fb6789c6dbd141afb44247ee38b4e638f39001e6ae7fa
+Jul  7 09:10:00 dw1014-5g user.err root: [NMS] url     : https://nms.dwkcm5.dayouplus.co.kr:1409/api/media/file?fileClass=FwModel&resourceIdx=646b33ddad076393769defbb&fileId=O3OAvRSM3x
+Jul  7 09:10:11 dw1014-5g local7.err nms: NMS: _cbt_almmon():: ### ALARM MONITORING ###
+Jul  7 09:10:35 dw1014-5g user.err root: [NMS] FOTA TEST SUCCESSFULLY COMPLETED

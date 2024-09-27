@@ -1,0 +1,142 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common" : {
+          "Save" : "Save",
+          "Cancel" : "Cancel",
+          "Apply" : "Apply"
+        },
+        "SystemSetupContent": {
+          "title": "System Setting",
+          "path1": "ADVANCED SETUP",
+          "path2": "System Setting",
+          "content": {
+            "Set_Save_Restore" : {
+              "title" : "Back Up & Restore",
+              "Set_Save" : "Back Up Configuration",
+              "Set_Restore" : "Restore Configuration",
+              "Help_Font" : "※ After restoring the terminal will automatically reboot."
+            },
+            "Language_Set" : {
+              "title" : "Language Setting",
+              "Language_Set": "Language Setting",
+              "Korean" : "Korean",
+              "English": "English"
+            },
+            "Reboot_Factory_Reset" : {
+              "title" : "Reboot & Factory Reset",
+              "Set_Reset": "Default Reboot",
+              "Reset" : "Reset",
+              "System_Reboot" : "System Reboot",
+              "Reboot" : "Reboot"
+            },
+            "Account_Setting" : {
+              "title" : "Account Setting",
+              "Admin_Name" : "Admin Name",
+              "Cur_Password" : "Current Password",
+              "New_Password" : "New Password",
+              "New_Password_Confirm" : "New Password Confirm",
+	      "Help_Font" : "※ Account Setting<br/>Admin Name : Only allowed letters, numbers and special characters with 6~63 characters<br/>Password : Only allowed combination of letters, numbers and special characters with 8~63 characters, 3 combination with 8 char, 2 combination with 10 char<br/>Special Characters : _-+ !@#$%^&*()"
+            },
+            "Watchdog_Setting_on_Usermode" : {
+              "title" : "Watchdog Setting on Usermode",
+              "Watchdog_Setting_on_Usermode" : "Watchdog Setting on Usermode",
+              "Watchdog_Enable_on_Usermode" : "Watchdog Enable on Usermode"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"Restart the system.",
+          "Content": "This will take a few minutes. Reconnect after restarting the system.",
+          "MoveToLogin":"Go to Login page"
+        },
+        "alert" : {
+          "select_file" : "Please select a file.",
+          "admin_name_combination" : "Admin name is allowed only English letters, numbers and special characters",
+          "admin_name_length" : "Please enter at least 6 characters and maximum of 63 characters for admin name.",
+          "new_password" : "Please enter a new password.",
+          "current_password" : "Please enter a current password",
+          "new_password_again" : "Please enter the new password again.",
+          "password_length" : "Please enter at least 4 characters and maximum of 63 characters for password.",
+          "password_combination" : "Password is allowed only combination of letters, numbers and special characters.",
+          "password_check" : "Re-entered password is different from entered password.",
+          "passwd_mismatch" : "Password mismatch.",
+          "passwd_invalid" : "Invalid password",
+          "same_pass" : "Enter other password.",
+          "problem" : "Problem in Progress",
+          "reset"  : "It will reset system configuration.\n\nDo you want to continue?"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common" : {
+          "Save" : "저장",
+          "Cancel" : "취소",
+          "Apply" : "적용"
+        },
+        "SystemSetupContent": {
+          "title": "시스템 설정",
+          "path1": "고급 설정",
+          "path2": "시스템 설정",
+          "content": {
+            "Set_Save_Restore" : {
+              "title" : "설정 저장 및 복원",
+              "Set_Save" : "설정 저장",
+              "Set_Restore" : "설정 복원",
+              "Help_Font" : "※ 복원후에는 단말이 자동 재부팅 합니다."
+            },
+            "Language_Set" : {
+              "title" : "언어 설정",
+              "Language_Set": "언어 설정",
+              "Korean" : "한국어",
+              "English": "영어"
+            },
+            "Reboot_Factory_Reset" : {
+              "title" : "재부팅 설정 및 설정값 초기화",
+              "Set_Reset": "설정값 초기화",
+              "Reset" : "초기화",
+              "System_Reboot" : "시스템 재시작",
+              "Reboot" : "재시작"
+            },
+            "Account_Setting" : {
+              "title" : "계정 설정",
+              "Admin_Name" : "관리자 이름",
+              "Cur_Password" : "현재 비밀번호",
+              "New_Password" : "새 비밀번호",
+              "New_Password_Confirm" : "비밀번호 확인",
+	      "Help_Font" : "※ 비밀번호 설정<br/>관리자 이름 : 6~63자리의 영 대/소문자, 숫자, 특수문자 허용<br/>비밀번호 : 8~63자리의 영 대/소문자, 숫자, 특수문자 조합 허용, 3가지 조합 8자리, 2가지 조합 10자리<br/>특수문자 : _-+ !@#$%^&*()"
+            },
+            "Watchdog_Setting_on_Usermode" : {
+              "title" : "유저모드 Watchdog 설정",
+              "Watchdog_Setting_on_Usermode" : "유저모드 Watchdog 설정",
+              "Watchdog_Enable_on_Usermode" : "유저모드 Watchdog 활성화"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"시스템을 재시작 합니다.",
+          "Content": "이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.",
+          "MoveToLogin":"Login 페이지 이동"
+        },
+        "alert" : {
+          "select_file" : "파일을 선택하여 주시기 바랍니다.",
+          "admin_name_combination" : "관리자 이름은 영문 대소문자, 숫자, 특수문자로 설정 가능합니다.",
+          "admin_name_length" : "관리자 이름은 최소 6 자리에서 최대 63 자리까지 입력 가능합니다.",
+          "new_password" : "변경할 암호를 입력해주세요.",
+          "current_password" : "현재 암호를 입력해주세요.",
+          "new_password_again" : "암호 확인란에 한번 더 입력해주세요.",
+          "password_length" : "암호는 최소 8 자리에서 최대 63 자리까지 입력 가능합니다.",
+          "password_combination" : "암호는 영문자, 숫자, 특수문자 조합으로만 가능합니다.",
+          "password_check" : "암호를 확인 바랍니다.",
+          "passwd_mismatch" : "암호가 일치하지 않습니다.",
+          "passwd_invalid" : "유효한 암호가 아닙니다.",
+          "same_pass" : "다른 암호를 입력바랍니다.",
+          "problem" : "진행중 문제 발생",
+          "reset"  : "설정값을 초기화 합니다.\n\n계속 하시겠습니까?"
+        }
+      }
+    }
+  }
+}

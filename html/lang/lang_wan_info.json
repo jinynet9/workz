@@ -1,0 +1,50 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Refresh" : "Refresh",
+          "RateMode" : "Measure Traffic",
+          "RateModeOff" : "Stop Measure",
+          "Delete" : "Delete",
+          "Select" : "Select",
+          "Selectall" : "Select all",
+	  "Clearall" : "Clear all",
+          "Noselect" : "Select device to delete",
+          "Auth" : "ID<br/>(Auth)"
+        },
+        "Content": {
+          "title": "Terminal Information",
+          "path1": "State Info",
+          "path2": "Terminal Info",
+          "24GTitle" : "2.4G Terminal Info( Total: <span id='total_24g'></span>, Channel: <span id='channel_24g'></span> )",
+          "5GTitle" : "5G Terminal Info( Total: <span id='total_5g'></span>, Channel: <span id='channel_5g'></span>)",
+          "WiredTitle" : "Wired Connected Device Info"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Refresh" : "새로 고침",
+          "RateMode" : "속도 측정",
+          "RateModeOff" : "측정 중지",
+          "Delete" : "삭제",
+          "Select" : "선택",
+          "Selectall" : "전체 선택",
+          "Clearall" : "전체 해제",
+          "Noselect" : "삭제할 단말을 선택해주세요",
+          "Auth" : "ID<br/>(인증)"
+        },
+        "Content": {
+          "title": "단말 정보",
+          "path1": "상태 정보",
+          "path2": "단말정보",
+          "24GTitle" : "2.4G 단말 정보 ( Total: <span id='total_24g'></span>, Channel: <span id='channel_24g'></span> )",
+          "5GTitle" : "5G 단말 정보( Total: <span id='total_5g'></span>, Channel: <span id='channel_5g'></span>)",
+          "WiredTitle" : "유선 단말 정보"
+        }
+      }
+    }
+  }
+}

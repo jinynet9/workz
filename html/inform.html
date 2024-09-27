@@ -1,0 +1,187 @@
+<!--
+-->
+<!doctype html>
+<html>
+<head>
+    <link href="../css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+    <link href="../css/components.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../js/ajaxbasic.js"></script>
+    <script type="text/javascript" src="../common/functions.js"></script>
+    <script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../js/i18n.js"></script>
+    <script type="text/javascript" src="../js/jquery-i18n.js"></script>
+    <script type="text/javascript" src="../common/multilang.js"></script>
+    <script type="text/javascript" src="../js/jquery.form.min.js"></script>
+    <script type="text/javascript" src="../js/jquery.bpopup.min.js"></script>
+
+    <link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+    <script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+    <script type="text/javascript" src="../js/error.js"></script>
+
+    <script language="javascript" type="text/javascript">
+
+    var _lang_file = "/lang/lang_inform.json";
+    var _jump_inform_type;
+    var _alive_chk_timer = null;
+    var _alive_chk_cnt;
+
+    var RELEASE_VERSION = 1;
+    var ALIVE_CHK_TIME = 7;
+    var ALIVE_CHK_TIME_MAX = 45;
+
+    $(document).ready( function() {
+	languageFileLoad ( _lang_file );
+    });
+
+    function fnGetParameterByName(name)
+    {
+	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	results = regex.exec(location.search);
+
+	var result = results === null ? "G" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	return result;
+    } 
+
+    function page_init()
+    {
+	var type = fnGetParameterByName ( "type" );
+	var e = document.getElementById ( "inform" );
+	var str;
+
+	_jump_inform_type = type;
+
+	switch ( _jump_inform_type )
+	{
+	case 'reboot':
+	case 'upgrade':
+	    elm_remove ( 'btn_reconnect' );
+	    break;
+
+	default:
+	    elm_remove ( 'btn_login' );
+	    break;
+	}
+
+	for ( var i = 1; true; i++ )
+	{
+	    switch ( type )
+	    {
+	    case 'reboot':		str = xlang_reboot ("String" + i);	break;
+	    case 'upgrade':		str = xlang_upgrade("String" + i);	break;
+	    case 'wifi_restart':	str = xlang_wifi_restart("String" + i);	break;
+	    }
+
+	    if ( empty_(str) )
+		break;
+
+	    e.appendChild ( document.createTextNode( str ) );
+
+	    for ( var j = 0; j < 3; j++ )
+		e.appendChild ( document.createElement ( "br" ) );
+	}
+
+	document.getElementById("main_page").style.display="";
+	parent.callResize();
+
+	if ( type == "wifi_restart" )
+	{
+	    var url = "/cgi-bin/wirelessset.cgi";
+	    var param = "Command=submit_wifi";
+
+	    XHRPost ( null, url, param, true );
+	}
+
+	if ( RELEASE_VERSION )
+	    return;
+
+	/* start timer */
+	_alive_chk_cnt = 0;
+	_alive_chk_timer = setInterval ( alive_check, ALIVE_CHK_TIME * 1000 );
+    }
+
+    function alive_check ()
+    {
+	var url = "/cgi-bin/getinfo.cgi";
+	var param = "Command=uptime";
+
+	XHRPost ( alive_check_stop, url, param, true );
+    }
+
+    function alive_check_stop ( xmlDoc, request )
+    {
+	var uptime = getDataFromTag ( xmlDoc, "uptime" );
+	var result = true;
+	var chk_reboot = false;
+
+	/* undefined */
+	if ( ! empty_(request) && request.status == 0 )
+	    return;
+
+	switch ( _jump_inform_type )
+	{
+	case 'reboot':
+	case 'upgrade':
+	    chk_reboot = true;
+	    break;
+	}
+
+	if ( chk_reboot )
+	{
+	    /* not rebooted */
+	    if ( Number(uptime) > Number(parent._uptime) )
+	    {
+		_alive_chk_cnt++;
+		if ( _alive_chk_cnt * ALIVE_CHK_TIME <= ALIVE_CHK_TIME_MAX )
+		    return;
+
+		/* something wrong */
+		result = false;
+	    }
+	}
+
+	/* stop timer */
+	clearInterval ( _alive_chk_timer );
+
+	_alive_chk_timer = null;
+
+	if ( result == true )
+	    parent.jump_home ();
+	else
+	    alert ( "Fail to last command" );
+    }
+
+    function init()
+    {
+	languageFileLoad ( _lang_file );
+	CheckLogin(page_init);
+
+	/* hide login button */
+	if ( ! RELEASE_VERSION )
+	    elm_remove ( 'div_button' );
+    }
+    </script>
+</head>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section id="progress_display" class="advanced">
+	<!--  -->
+	<div class="cont_grp" id="">
+	    <!--  -->
+	    <div class="cont_progressbar">
+		<p class="progress_txt1" id="inform"></p>
+		<div class="login_link" id="div_button">
+		    <button type="button" class="btn_default btn_login_link" id="btn_login" onclick="parent.location.href='/login.html'">Login</button>
+		    <button type="button" class="btn_default btn_login_link" id="btn_reconnect" onclick="parent.location.href='/home.html'">Reconnect</button>
+		</div>
+	    </div>
+	    <!--  -->
+	</div>
+	<!--  -->
+    </section>
+</div>
+</body>
+</html>

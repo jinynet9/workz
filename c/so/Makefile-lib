@@ -1,0 +1,21 @@
+
+CFLAGS+= -fPIC -g -c -Wall
+
+LIBSRCS = a.c
+LIBOBJS = $(LIBSRCS:.c=.o)
+
+SONAME = libmystuff.so
+
+TARGET = $(SONAME).1.0.3
+
+all: $(TARGET)
+
+$(TARGET): $(LIBOBJS)
+	$(CC) -shared -Wl,-soname,$(SONAME) -o $(TARGET) $(LIBOBJS)
+
+%.o: %.c
+	$(CC) -o $@ $< $(CFLAGS)
+	ln -s $(TARGET) $(SONAME)
+
+clean:
+	rm -f *.o *.so.* $(TARGET)

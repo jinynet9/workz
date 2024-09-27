@@ -1,0 +1,104 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "WirelessSSIDSettingContent": {
+          "title": "SSID Security Setup",
+          "path": "SSID Security Setup",
+          "content": {
+            "Security_Mode": "Security Mode",
+            "Open" : "Open",
+            "WPA" : "WPA",
+            "MAC_auth" : "MAC auth",
+            "MAC_auth_Active" : "MAC auth",
+            "Web_auth" : "Web auth",
+            "Web_auth_Active" : "Web auth",
+            "EAP_auth" : "EAP auth",
+            "EAP_auth_Active" : "EAP auth",
+            "Logout_URL" : "Logout URL",
+            "WPA_Type" : "WPA Type",
+            "WPA_WPA_2" : "WPA/WPA2",
+            "WPA_2" : "WPA2",
+            "Auth" : "Auth",
+            "1X" : "1X",
+            "PSK" : "PSK",
+            "Password_Type" : "Password Type",
+            "AUTO" : "AUTO",
+            "TKIP" : "TKIP",
+            "AES_CCMP" : "AES-CCMP",
+            "Key_passphrase" : "Key passphrase",
+            "ShowPassword" : "Show passphrase",
+            "AuthAcctServer" : "Auth/Acct Server",
+            "AuthServer" : "Auth Server",
+            "AcctServer" : "Acct Server",
+            "Acct_Enable" : "Payment Enable",
+            "Acct_Enable_Active" : "Payment Enable",
+	          "Help" : "※  Available special characters : ~!@#$%^&*()_+-=;:,./? and SPACE",
+            "Back" : "Back",
+            "Save" : "Save"
+          }
+        },
+        "alert": {
+          "key_null":"Please input password",
+          "key_length":"Please enter Key values ​​are 8-64 characters.",
+          "key_value":"Please enter a valid value.",
+          "key_validation":"Key is invalid.",
+          "Invalid_IP_Address":"Invalid IP address.",
+          "Invalid_Port_Number":"Invalid port number.",
+          "Short_Shared_Secret":"Shared Secret must be at least 16 characters long.",
+          "Invalid_Shared_Secret":"Shared Secret must contain at least 1 number and special character."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "WirelessSSIDSettingContent": {
+          "title": "SSID 보안 설정",
+          "path": "SSID 보안 설정",
+          "content": {
+            "Security_Mode": "보안모드",
+            "Open" : "Open",
+            "WPA" : "WPA",
+            "MAC_auth" : "MAC 인증",
+            "MAC_auth_Active" : "MAC 인증",
+            "Web_auth" : "Web 인증",
+            "Web_auth_Active" : "Web 인증",
+            "EAP_auth" : "EAP 인증",
+            "EAP_auth_Active" : "EAP 인증",
+            "Logout_URL" : "Logout URL",
+            "WPA_Type" : "WPA 타입",
+            "WPA_WPA_2" : "WPA/WPA2",
+            "WPA_2" : "WPA2",
+            "Auth" : "인증",
+            "1X" : "1X",
+            "PSK" : "PSK",
+            "Password_Type" : "암호화 타입",
+            "AUTO" : "AUTO",
+            "TKIP" : "TKIP",
+            "AES_CCMP" : "AES-CCMP",
+            "Key_passphrase" : "암호",
+            "ShowPassword" : "암호보이기",
+            "AuthAcctServer" : "인증/과금 서버",
+            "AuthServer" : "인증서버",
+            "AcctServer" : "과금서버",
+            "Acct_Enable" : "과금 동작",
+            "Acct_Enable_Active" : "과금 활성",
+	          "Help" : "※  사용 가능한 특수 문자 : ~!@#$%^&*()_+-=;:,./? 및 공백",
+            "Back" : "뒤로",
+            "Save" : "저장"
+          }
+        },
+        "alert": {
+          "key_null":"Key 값을 입력해 주세요.",
+          "key_length":"Key 값은 8~63자로 입력해주시기 바랍니다.",
+          "key_value":"올바른 값을 입력해주세요.",
+          "key_validation":"Key가 올바르지 않습니다.",
+          "Invalid_IP_Address":"IP 주소가 잘못되었습니다.",
+          "Invalid_Port_Number":"PORT 번호가 잘못되었습니다.",
+          "Short_Shared_Secret":"Shared Secret 값은 16자 이상이어야 합니다..",
+          "Invalid_Shared_Secret":"Shared Secret 은 최소 1개 이상의 숫자 및 특수문자를 포함해야 합니다."
+        }
+      }
+    }
+  }
+}

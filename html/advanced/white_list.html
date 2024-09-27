@@ -1,0 +1,269 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/14 - 누락 id 추가
+
+7/16
+- body onload init() 추가
+
+7/23
+- 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+
+<script language="javascript" type="text/javascript">
+		var white_list_count;
+
+		function page_init()
+		{
+			var url = "/cgi-bin/advanceinfo.cgi?Command=whitelist";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+			SetButtons( ["btn_apply_formRedirSetup", "btn_apply_deleteall", "btn_deleteWhiteList"] );
+			updateState(xmlDoc);
+			maketable(xmlDoc);
+            parent.callResize();
+		}
+		function maketable(xmlDoc)
+		{
+			var iswhitelist = white_list_count;
+
+			if(iswhitelist > 0)
+			{
+				//var whitelist = getDataFromTag(xmlDoc,"white_list_set");
+				//var whitelistArray = whitelist.split("\n");
+				var table_name = document.getElementById("whiteListTable");
+
+				for(i=0; i<iswhitelist; i++)
+				{
+					var whitelist = getDataFromTag(xmlDoc,"white_list"+(i+1)).split(",");
+					var url = whitelist[1].split("=")[1];
+
+					trs = document.createElement("tr");
+					td = document.createElement("td");
+					element = document.createElement("input");
+					element.setAttribute("type","checkbox");
+					element.setAttribute("id","url"+i);
+                    element.setAttribute("value", url);
+					td.appendChild(element);
+					trs.appendChild(td);
+
+					td = document.createElement("td");
+					td.innerHTML = i+1;
+					trs.appendChild(td);
+
+					td = document.createElement("td");
+					td.innerHTML = url;
+					trs.appendChild(td);
+
+					table_name.appendChild(trs);
+				}
+				/*
+                var table_name = document.getElementById("whiteListTable");
+                var th = document.createElement("th");
+                var trs = document.createElement("tr");
+	
+                th.setAttribute("class","content_line");
+                th.setAttribute("colspan","11");
+                th.setAttribute("height","12");
+                th.setAttribute("style","padding: 0em 0em;");
+		
+                trs.appendChild(td);
+                table_name.appendChild(trs);*/
+			}
+		}
+		function updateState(xmlDoc)
+		{
+			white_list_count = parseInt(getDataFromTag(xmlDoc,"white_list_line"));
+			document.getElementById( "btn_apply_deleteall" ).disabled = !white_list_count;
+			document.getElementById( "btn_deleteWhiteList" ).disabled = !white_list_count;
+		}
+
+		function deleteWhite_List_Click()
+		{
+			var pass = false;
+
+			for ( var k=0; k < white_list_count; k++ )
+			{
+				var tmp = document.getElementById( "url" + k );
+				if ( tmp.checked == true )
+				{
+					pass = true;
+					var obj = document.createElement("input");
+                    obj.setAttribute("type","hidden");
+                    obj.setAttribute("id","element"+k);
+                    obj.setAttribute("value",tmp.value);
+                    document.getElementById("formWebdir").appendChild(obj);
+				}
+			}
+
+			if ( !pass )
+			{
+				alert(i18next.store.data[i18next.language].translation.alert['select_URL']);
+				return false;
+			}
+
+			return true;
+		}
+
+		function submit_apply_formRedirSetup()
+		{
+			var obj_white_list = document.formRedirSetup.redir_url;
+			if ( obj_white_list.value != "" )
+			{
+				EnableButtons( false );
+				TimeoutReload( TIMEOUT_DEFAULT_TIME );
+				var url = "/cgi-bin/advanceset.cgi";
+				var param = "Command=addwhitelist"
+						+"&"
+						+serializeFormElement("formRedirSetup");
+
+				XHRPost(null, url, param, true);
+			}
+			else
+			{
+				obj_white_list.select();
+				alert(i18next.store.data[i18next.language].translation.alert['enter_value']);
+				return false;
+			}
+		}
+
+		function submit_apply_delete_all()
+		{
+			if(white_list_count)
+			{
+				if( confirm(i18next.store.data[i18next.language].translation.alert['continue'])){
+					EnableButtons( false );
+					TimeoutReload( TIMEOUT_DEFAULT_TIME );
+					var url = "/cgi-bin/advanceset.cgi";
+					var param = "Command=white_delete_all"
+							+serializeFormElement("delete_all_White_List");
+
+					XHRPost(null, url, param, true);
+				}
+			}
+		}
+
+		function submit_delete_WhiteListClick_apply()
+		{
+			if(white_list_count)
+			{
+				if(deleteWhite_List_Click())
+				{
+					EnableButtons( false );
+					TimeoutReload( TIMEOUT_DEFAULT_TIME );
+					var url = "/cgi-bin/advanceset.cgi";
+					var param = "Command=white_delete_select"
+							+"&"
+							+serializeFormElement("formWebdir");
+
+					XHRPost(null, url, param, true);
+				}
+			}
+		}
+
+		function init()
+		{
+			languageFileLoad("../lang/lang_white_list.json");
+			CheckLogin(page_init);
+		}
+	</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="WhiteListContent.title">White List</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="WhiteListContent.path1">고급 설정</span>
+						<span class="path_arrow focus_on" data-i18n="WhiteListContent.path2">White List</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<form method="POST" name="formRedirSetup" id="formRedirSetup" novalidate="novalidate">
+			<div class="cont_grp">
+				<div class="cont_grp_white">
+					<div class="cont_stitl" data-i18n="WhiteListContent.content.Allowed_URL_List.title">허용된 URL 목록</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="WhiteListContent.content.Allowed_URL_List.White_URL">
+									White URL
+								</td>
+								<td>
+									<input type="text" name="redir_url"  id="redir_url" maxlength="64" required="true" value="" class="inputbox50per" onkeypress="IgnoreEnterKey( event );">
+									<button type="button" class="btn_default btn_modify" id="btn_apply_formRedirSetup" onClick="submit_apply_formRedirSetup();"
+											data-i18n="WhiteListContent.content.Allowed_URL_List.Add_URL">URL 추가</button>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<p class="txt_info" data-i18n="WhiteListContent.content.Allowed_URL_List.Help_Font">
+					※ URL 추가 및 삭제 후 적용하기 위해서는 반드시 재부팅 해야 합니다.
+				</p>
+				<div class="btm_btn_noline">
+					<button type="button" class="btn_default btn_cancel_sm" id="btn_deleteWhiteList" onclick="submit_delete_WhiteListClick_apply();"
+							data-i18n="WhiteListContent.content.Allowed_URL_List.Select_Cancel">선택 삭제</button>
+					<button type="button" class="btn_default btn_save_sm" id="btn_apply_deleteall" onclick="submit_apply_delete_all();"
+							data-i18n="WhiteListContent.content.Allowed_URL_List.All_Cancel">모두 삭제</button>
+				</div>
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+			</div>
+		</form>
+
+    <div class="cont_grp">
+	<div class="cont_grp_inner"> 
+		<div class="basic_tbl">
+			<table class="list" id="whiteListTable">
+				<thead>
+				<tr>
+					<th data-i18n="WhiteListContent.content.Allowed_URL_List.table.Select">선택</th>
+					<th data-i18n="WhiteListContent.content.Allowed_URL_List.table.Number">번호</th>
+					<th data-i18n="WhiteListContent.content.Allowed_URL_List.table.Allowed_URL_List">허용된 URL 목록</th>
+				</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div> 
+    </div>
+		<form method="POST" name="formWebdir" id="formWebdir">
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+
+		<form method="post" name="delete_all_White_List" id="delete_all_White_List">
+			<input type="hidden" name="dummy">
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+	</section>
+</div>
+</body>
+</html>

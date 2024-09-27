@@ -1,0 +1,787 @@
+<!--
+7/14
+- 누락 id 추가
+
+7/16
+- body onload init() 추가
+
+7/23
+- 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/jquery.form.min.js"></script>
+<script type="text/javascript" src="../js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+<script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+
+<script language="javascript" type="text/javascript">
+		var file_name;
+
+		var _lang_file = "../lang/lang_system_setup.json";
+
+		function page_init()
+		{
+			var url = "/cgi-bin/advanceinfo.cgi?Command=system_setup";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+			SetButtons( ["btn_apply_restore", "btn_save_pw", "btn_try_save"] );
+
+			file_name = getDataFromTag(xmlDoc,"file_name");
+			document.getElementById("admin_id").value = getDataFromTag(xmlDoc,"webLogin");
+
+			var watchdog_enable = getDataFromTag(xmlDoc,"watchdog_enable");
+			parent._lang = getDataFromTag(xmlDoc,"lang");
+
+			if( watchdog_enable == "0"){
+				document.formWatchdog.watchdog_enable.checked=false;
+			}
+			else{
+				document.formWatchdog.watchdog_enable.checked=true;
+			}
+
+			init_param();
+            setFileName();
+            parent.callResize();
+        }
+
+		function setFileName() {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = new String(date.getMonth()+1);
+            var day = new String(date.getDate());
+
+            if(month.length == 1){
+                month = "0" + month;
+            }
+            if(day.length == 1){
+                day = "0" + day;
+            }
+            file_name = year + "-" + month + "-" + day;
+		}
+
+		function init_param()
+		{
+			if (parent._lang == "ko") {
+				document.getElementById("lang").selectedIndex = 0;
+			}
+			else {
+				document.getElementById("lang").selectedIndex = 1;
+			}
+		}
+		function submit_save_set()
+		{
+			//document.getElementById("del").value = "0";
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=conf_export"
+					+"&"
+					+serializeFormElement("formSaveConfig");
+			//document.getElementById("uploadSetting").action="/cgi-bin/test.cgi";
+			//uploadSetting.submit();
+			XHRPost(save_set, url, param, true);
+		}
+		function save_set(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			if(getDataFromTag(xmlDoc,"result") == "success")
+			{
+				var link = document.createElement("a");
+
+				link.download = "da1024xl-conf-"+file_name+ ".cfg";
+				link.target = "_blank";
+
+				/*
+				 * sync with backend
+				 * DAYOU_JINY_200910
+				 */
+				link.href = "/tmp/conf_export.cfg";
+				document.body.appendChild(link);
+				link.click();
+
+				document.body.removeChild(link);
+				delete link;
+
+				var url = "/cgi-bin/advanceset.cgi";
+				var param = "Command=conf_export_done";
+
+				XHRPost(null, url, param, true);
+			}
+			else
+			{
+				window.location.reload();
+			}
+		}
+
+		function checkFile() {
+            if ( document.uploadSetting.filename.value == "" )
+            {
+                alert(i18next.store.data[i18next.language].translation.alert['select_file']);
+                return false;
+            }
+            return true;
+        }
+
+		function submit_apply_restore()
+		{
+		    if (checkFile()) {
+
+			/*
+			 * normal confirm popup & change to guide page
+			 * DAYOU_MKSHIN_200912
+			 */ 
+			if ( ! xconfirm ('reload') )
+			    return;
+
+			EnableButtons( false );
+			document.getElementById("uploadSetting").action="/cgi-bin/advanceset.cgi";
+
+			$('#uploadSetting').ajaxForm({
+			    type : "POST",
+			    enctype:"multipart/form-data",
+			    encoding:"multipart/form-data",
+			    url: '/cgi-bin/advanceset.cgi',
+			    complete: function (xhr) {
+				var xmlDoc = xhr.responseXML;
+
+				if ( ! xmlDoc )
+				{
+				    alert(i18next.store.data[i18next.language].translation.alert['problem']);
+				    return;
+				}
+
+				if ( ! err_handle(xmlDoc) )
+				    jump_inform_reboot ();
+			    }
+			});
+
+			$('#uploadSetting').submit();
+
+			EnableButtons( true );
+
+		    }
+		}
+
+		function submit_Language_Setup()
+		{
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=change_lang"
+					+"&"
+					+serializeFormElement("Language_setup");
+
+			XHRPost(lang_setup, url, param, true);
+		}
+
+		function lang_setup(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			parent._lang = getDataFromTag(xmlDoc, "lang");
+
+			commonInit(parent._lang);
+			parent.lang_refresh();
+
+	   /* language deliver to home.html DAYOU_MKSHIN_200914 
+	    * setTimeout(parent.auth(), 3000);
+	    */
+            setTimeout(auth(), 0);
+		}
+
+		function submit_LoadFactoryValue()
+		{
+		    /*
+		     * normal confirm popup & change to guide page
+		     * DAYOU_MKSHIN_200912
+		     */ 
+		    if (confirm (xlang_alert('reset')))
+		    {
+			document.getElementById("factory_reset_type").value = "1";
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=LoadFactoryValue"
+			    +"&"
+			    +serializeFormElement("LoadFactoryValue");
+			XHRPost(jump_inform_reboot, url, param, true);
+		    }
+
+		    /*
+		     * original
+		     *
+			document.getElementById("factory_reset_type").value = "1";
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=LoadFactoryValue"
+			    +"&"
+			    +serializeFormElement("LoadFactoryValue");
+			TimeoutReload( TIMEOUT_DEFAULT_TIME );
+			XHRPost(null, url, param, true);
+		     */
+		}
+
+		function submit_apply_reboot()
+		{
+		    /*
+		     * normal confirm popup & change to guide page
+		     * DAYOU_MKSHIN_200912
+		     */ 
+		    if ( xconfirm ('reboot') )
+		    {
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=apply_reboot"
+			    +"&"
+			    +serializeFormElement("SystemReboot");
+
+			XHRPost(jump_inform_reboot, url, param, true);
+		    }
+
+		    /*
+		     * original
+		     *
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=apply_reboot"
+			    +"&"
+			    +serializeFormElement("SystemReboot");
+
+			TimeoutReload( TIMEOUT_DEFAULT_TIME );
+			XHRPost(null, url, param, true);
+		     */
+		}
+
+		function submit_apply_watchdog_setting()
+		{
+            if(document.formWatchdog.watchdog_enable.checked==true)
+            {
+                document.formWatchdog.watchdog_enable.value = "1";
+            }
+            else
+            {
+                document.formWatchdog.watchdog_enable.value = "0";
+            }
+
+            EnableButtons( false );
+            TimeoutReload( TIMEOUT_DEFAULT_TIME );
+            var url = "/cgi-bin/advanceset.cgi";
+            var param = "Command=watchdog_setting"
+                +"&"
+                +serializeFormElement("formWatchdog");
+
+            XHRPost(null, url, param, true);
+		}
+		function IdFormCheck()
+		{
+		    	/*
+			 * move to backend, JINY_210917
+			 *
+			var re = /[^A-Za-z0-9!@#$%^&*()]/;
+
+			if ( re.test( document.Adm.admin_id.value ) )
+			{
+				alert(i18next.store.data[i18next.language].translation.alert['admin_name_combination']);
+				return false;
+			}
+			*/
+
+			if ( (document.Adm.admin_id.value.length < 6 ) || (document.Adm.admin_id.value.length > 63) )
+			{
+				alert(i18next.store.data[i18next.language].translation.alert['admin_name_length']);
+				return false;
+			}
+
+			return true;
+		}
+		function PasswordCombinationCheck(passwordStr)
+		{
+			var chk = 0;
+			if(passwordStr.search(/[0-9]/g) < 0) chk++;
+			if(passwordStr.search(/[a-z]/ig) < 0) chk++;
+			if(passwordStr.search(/[!@#$%^&*()]/g) < 0) chk++;
+			return chk;
+		}
+		function PasswordFormCheck()
+		{
+			/*
+			 * add field: current password
+			 * mantis#7399, DAYOU_MKSHIN_200912
+			 */
+			var currPass = document.Adm.admin_curpass.value;
+			var newPass = document.Adm.admin_newpass.value;
+			var confPass = document.Adm.admin_confpass.value;
+
+			if ( currPass == "" )
+			{
+				SelectAlert ( document.Adm.admin_curpass, xlang_alert('current_password') );
+				return false;
+			}
+			if ( newPass == "" )
+			{
+				SelectAlert ( document.Adm.admin_newpass, xlang_alert('new_password') );
+				return false;
+			}
+			if ( confPass == "" )
+			{
+				SelectAlert ( document.Adm.admin_confpass, xlang_alert('new_password_again') );
+				return false;
+			}
+
+			if ( currPass == newPass )
+			{
+				alert ( xlang_alert('same_pass') );
+				return false;
+			}
+
+			if ( (newPass.length < 8 ) || (newPass.length > 63) )
+			{
+				alert ( xlang_alert('password_length') );
+				return false;
+			}
+
+			/*
+			 * length = 8~12
+			 * alphabet + number + special char
+			 * var passwd = /^.*(?=.{8,12})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])/;
+			 * DAYOU_JINY_200913
+			 */
+			/*
+			var passwd = /^.*(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()])/;
+			if ( ! passwd.test(newPass) )
+			{
+				alert ( xlang_alert('password_combination') );
+				return false;
+			}
+			*/
+
+			/*
+			if ( PasswordCombinationCheck(newPass) == 3 )
+			{
+				alert ( xlang('password_combination') );
+				return false;
+			}
+			*/
+
+			if ( newPass != confPass )
+			{
+				alert ( xlang_alert('password_check') );
+				return false;
+			}
+
+			return true;
+		}
+		function submit_apply_admpw()
+		{
+			if ( IdFormCheck() && PasswordFormCheck() )
+			{
+				EnableButtons( false );
+				var url = "/cgi-bin/advanceset.cgi";
+				var param = "Command=Admpw"
+						+"&"
+						+serializeFormElement("Adm");
+
+				XHRPost(admhandle, url, param, true);
+			}
+		}
+		function admhandle(xmlDoc)
+		{
+			/*
+			 * handle return value
+			 * mantis#7399, DAYOU_JINY_200912
+			 */
+			if ( err_handle(xmlDoc) )
+			{
+			    window.location.reload();
+			    return;
+			}
+
+			setCookie ( getDataFromTag(xmlDoc,"TID_NAME"), '' );
+
+			parent.location.href = "/login.html";
+
+
+		    /*
+		     * original
+		     *
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				window.location.reload();
+				return;
+			}
+			var admpw = getDataFromTag(xmlDoc,"admpw");
+			if(admpw == "failed")
+			{
+				EnableButtons( true );
+			}
+			else
+			{
+				setCookie(getDataFromTag(xmlDoc,"TID_NAME"),'');
+				parent.location.href="/login.html";
+			}
+			*/
+		}
+		function init()
+		{
+		    prevent_enterkey ();
+		    languageFileLoad ( _lang_file );
+			CheckLogin(page_init);
+		}
+
+        function display_progress(timeout) {
+            $("#advanced_display").hide();
+            $("#progress_display").show();
+            parent.close_dialog();
+            TimeoutReload(timeout, true);
+        }
+</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section id="advanced_display" class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="SystemSetupContent.title">시스템 설정</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="SystemSetupContent.path1">고급 설정</span>
+						<span class="path_arrow focus_on" data-i18n="SystemSetupContent.path2">시스템 설정</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<!-- 설정 저장 및 복원 -->
+		<div class="cont_grp">
+			<div class="cont_grp_white">
+				<div class="cont_stitl" data-i18n="SystemSetupContent.content.Set_Save_Restore.title">Set Save & Restore</div>
+				<div class="advanced_tbl">
+					<form name="formSaveConfig" id="formSaveConfig" style="margin:0px;" >
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Set_Save_Restore.Set_Save">
+									Set Save
+								</td>
+								<td>
+									<button type="button" class="btn_default btn_modify" name="Save" onclick="submit_save_set();"
+											data-i18n="common.Save">저장</button>
+								</td>
+							</tr>
+						</table>
+						<input type="hidden" name="SessionKey" id="SessionKey" value="">
+					</form>
+
+					<form method="post" enctype="multipart/form-data" name="uploadSetting" id="uploadSetting" onsubmit="return false;">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Set_Save_Restore.Set_Restore">
+									Set Restore
+								</td>
+								<td>
+									<input type="file" name="filename" id="filename" size="20">
+								</td>
+							</tr>
+						</table>
+						<p class="txt_info" data-i18n="SystemSetupContent.content.Set_Save_Restore.Help_Font">
+							※ After restoring the terminal will automatically reboot.
+						</p>
+						<div class="btm_btn_noline">
+							<input type="hidden" name="Command" value="conf_import"/>
+							<input type="hidden" id="location" name="location" value="/tmp/">
+							<!--
+							<button type="button" class="btn_default btn_cancel_sm" name="btn_cancel_restore" id="btn_cancel_restore" onclick="javascript: window.location.reload()"
+									data-i18n="common.Cancel">취소</button>
+							-->
+							<!--
+							  * normal confirm popup
+							  * DAYOU_MKSHIN_200912
+							 -->
+							<button type="button" class="btn_default btn_save_sm" name="btn_apply_restore" id="btn_apply_restore" onclick="submit_apply_restore()" data-i18n="common.Apply">저장</button>	<!-- 복원? -->
+							<!--
+							 * original
+							 *
+							<button type="button" class="btn_default btn_save_sm" name="btn_apply_restore" id="btn_apply_restore" onclick="parent.apply_dialog(submit_apply_restore,checkFile, 30, 'reboot');" data-i18n="common.Apply">저장</button>
+							-->
+						</div>
+						<input type="hidden" name="SessionKey" id="SessionKey" value="">
+					</form>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- 언어 설정 -->
+		<form name="Language_setup" id="Language_setup">
+			<div class="cont_grp">
+				<div class="cont_grp_white">
+					<div class="cont_stitl" data-i18n="SystemSetupContent.content.Language_Set.title">Language Set</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Language_Set.Language_Set">
+									Language Set
+								</td>
+								<td>
+									<select id="lang" name="lang">
+										<option value="ko" data-i18n="SystemSetupContent.content.Language_Set.Korean">Korean</option>
+										<option value="en" data-i18n="SystemSetupContent.content.Language_Set.English">English</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_normal">
+					<button type="button" class="btn_default btn_save_sm" name="btn_save_lang" id="btn_save_lang" onClick="submit_Language_Setup();"
+							data-i18n="common.Apply">적용</button>
+					<input type="hidden" name="SessionKey" id="SessionKey" value="">
+				</div>
+			</div>
+		</form>
+
+		<!-- 재부팅 설정 및 설정값 초기화 -->
+		<div class="cont_grp">
+			<div class="cont_grp_white">
+				<div class="cont_stitl" data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.title">Reboot & Factory Reset</div>
+				<div class="advanced_tbl">
+					<table class="list_noline">
+						<colgroup>
+							<col class="td_width1">
+							<col class="td_width2">
+						</colgroup>
+						<form method="POST" name="LoadFactoryValue" id="LoadFactoryValue">
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.Set_Reset">
+									Set Reset
+								</td>
+								<td>
+									<!--
+									  * normal confirm popup
+									  * DAYOU_MKSHIN_200912
+									 -->
+									<button type="button" class="btn_default btn_modify" name="restore" id="restore" onClick="submit_LoadFactoryValue()"		data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.Reset">공장 초기화</button>
+									<!--
+									 * original
+									 *
+									<button type="button" class="btn_default btn_modify" name="restore" id="restore" onClick="submit_LoadFactoryValue()"		data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.Reset">공장 초기화</button>
+									-->
+									<!--
+                                    <input type="button" value="Network Exception Restore" name="restore_network" onClick="submit_LoadFactoryValue_except_net();">
+                                    -->
+									<input type="hidden" id="factory_reset_type" name="factory_reset_type" value="">
+								</td>
+							</tr>
+							<input type="hidden" name="SessionKey" id="SessionKey" value="">
+						</form>
+						<form method="POST" name="SystemReboot" id="SystemReboot">
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.System_Reboot">
+									System Reboot
+								</td>
+								<td>
+									 <!--
+									  * normal confirm popup
+									  * DAYOU_MKSHIN_200912
+									 -->
+
+									<button type="button" class="btn_default btn_modify" name="System_Reboot" id="System_Reboot" onClick="submit_apply_reboot()"
+											data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.Reboot">재시작</button>
+									<!--
+									 * original
+									 *
+									<button type="button" class="btn_default btn_modify" name="System_Reboot" id="System_Reboot" onClick="parent.apply_dialog(submit_apply_reboot, null, 3, 'reboot');"
+												data-i18n="SystemSetupContent.content.Reboot_Factory_Reset.Reboot">재시작</button> 
+									-->
+								</td>
+							</tr>
+							<input type="hidden" name="SessionKey" id="SessionKey" value="">
+						</form>
+					</table>
+				</div>
+			</div>
+			<!--<div class="btm_btn_normal">
+                <button type="button" class="btn_default btn_save_sm">적용</button>
+            </div>-->
+		</div>
+
+		<!-- 비밀번호 설정 -->
+		<form action="/goform/setUserPassword" method="POST" name="Adm" id="Adm" novalidate="novalidate">
+			<div class="cont_grp">
+				<div class="cont_grp_white">
+					<div class="cont_stitl" data-i18n="SystemSetupContent.content.Account_Setting.title">Account Setting</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Account_Setting.Admin_Name">
+									Admin Name
+								</td>
+								<td>
+									<input type="text" name="admin_id" id="admin_id" size="20" maxlength="40" class="inputbox_sm">
+								</td>
+							</tr>
+							<!--
+							add field: current password
+							mantis#7399, DAYOU_MKSHIN_200912
+							-->
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Account_Setting.Cur_Password">
+									Current Password
+								</td>
+								<td>
+									<input type="password" name="admin_curpass" id="admin_curpass" size="20" maxlength="40" class="inputbox_sm">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Account_Setting.New_Password">
+									New Password
+								</td>
+								<td>
+									<input type="password" name="admin_newpass" id="admin_newpass" size="20" maxlength="40" class="inputbox_sm">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Account_Setting.New_Password_Confirm">
+									New Password Confirm
+								</td>
+								<td>
+									<input type="password" name="admin_confpass" id="admin_confpass" equalto="admin_newpass" size="20" maxlength="40" class="inputbox_sm">
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<p class="txt_info" data-i18n="[html]SystemSetupContent.content.Account_Setting.Help_Font">
+					※ Account Setting<br>
+					Admin name : Only allow numbers and Letters with 6 ~12 characters.<br>
+					Password : Only allow numbers, Letters and special character as !@#$%^&*() with 4 ~12 characters.
+				</p>
+				<div class="btm_btn_noline">
+					<!--
+					<button type="button" class="btn_default btn_cancel_sm" name="btn_cancel_pw" id="btn_cancel_pw" onclick="javascript: window.location.reload()"
+							data-i18n="common.Cancel">취소</button>
+					-->
+					<button type="button" class="btn_default btn_save_sm" name="btn_save_pw" id="btn_save_pw" onClick="submit_apply_admpw();"
+							data-i18n="common.Apply">저장</button>
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+
+		<!-- 유저모드 Watchdog 설정 -->
+		<form method="POST" name="formWatchdog" id="formWatchdog">
+			<div style="display:none" class="cont_grp">
+				<div class="cont_grp_white">
+					<div class="cont_stitl" data-i18n="SystemSetupContent.content.Watchdog_Setting_on_Usermode.title">Watchdog Setting on Usermode</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width35per">
+								<col class="td_width65per">
+							</colgroup>
+							<tr>
+								<td data-i18n="SystemSetupContent.content.Watchdog_Setting_on_Usermode.Watchdog_Setting_on_Usermode">
+									Watchdog Setting on Usermode
+								</td>
+								<td>
+									<label>
+										<input type="checkbox" name="watchdog_enable" id="watchdog_enable" checked="" value="ON">
+										<span data-i18n="SystemSetupContent.content.Watchdog_Setting_on_Usermode.Watchdog_Enable_on_Usermode">Watchdog Enable on Usermode</span>
+									</label>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_normal">
+					<!--
+					<button type="button" class="btn_default btn_cancel_sm" id="btn_reset" name="btn_reset" onclick="javescript : window.location.reload()"
+							data-i18n="common.Cancel">취소</button>
+					-->
+					<button type="button" class="btn_default btn_save_sm" id="btn_try_save" name="btn_try_save" onclick="submit_apply_watchdog_setting()"
+							data-i18n="common.Apply">저장</button>
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+	</section>
+
+	<section id="progress_display" class="advanced" style="display: none">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="SystemSetupContent.title">시스템 설정</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="SystemSetupContent.path1">고급 설정</span>
+						<span class="path_arrow focus_on" data-i18n="SystemSetupContent.path2">시스템 설정</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+		<!-- 기본설정 reboot 부분 -->
+		<div class="cont_grp" id="firmware_progress">
+			<!-- Reboot 진행중 -->
+			<div class="cont_progressbar">
+				<p class="progress_txt1" data-i18n="Progress.Reboot_Title">시스템을 재시작 합니다.</p>
+				<!-- Progressbar -->
+				<!-- remark progress bar, DAYOU_MKSHIN_200912 
+				<div class="progressbar_panel">
+					<div class="progress" id="h-default-basic">
+						<div id="update_progress_bar" class="progress-bar progress-bar-striped active" data-transitiongoal-backup="75" data-transitiongoal="75" style="width: 0%">
+							<span class="sr-only">0%</span>
+						</div>
+					</div>
+				</div>
+				-->
+				<!-- //Progressbar -->
+				<p class="progress_txt2"  data-i18n="Progress.Content">이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.</p>
+				<!-- remark login button, DAYOU_MKSHIN_200913
+				<div class="login_link">
+					<button type="button" class="btn_default btn_login_link" onclick="parent.location.href='/login.html'" data-i18n="Progress.MoveToLogin">Login 페이지 이동</button>
+				</div>
+				-->
+			</div>
+			<!-- //Reboot 진행중 -->
+		</div>
+		<!-- 기본설정 reboot 부분 -->
+	</section>
+</div>
+</body>
+</html>

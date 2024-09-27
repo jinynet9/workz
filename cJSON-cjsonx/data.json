@@ -1,0 +1,11 @@
+{
+
+    "status": {
+
+        "model": "DSW1024XL",
+        "uptime": 123,
+        "alarm": [ "cpu", "memory", "eth0", "wwan" ],
+	"message": "hello world!"
+    }
+}
+

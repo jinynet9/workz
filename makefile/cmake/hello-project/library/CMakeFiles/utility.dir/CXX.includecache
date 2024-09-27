@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jinynet9/work/makefile/cmake/hello-project/library/utility.cpp
+utility.h
+/home/jinynet9/work/makefile/cmake/hello-project/library/utility.h
+
+/home/jinynet9/work/makefile/cmake/hello-project/library/utility.h
+

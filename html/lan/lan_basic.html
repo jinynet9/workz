@@ -1,0 +1,782 @@
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+<script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+    var gnLeasePoolMin; // Available lease first address
+    var gnLeasePoolMax; // Available lease last address
+    var gnLeaseStart;   // Lease start address selected
+    var gnLeaseEnd;     // Lease end address selected
+    var gnLeaseCount;
+    var gnStaticLeaseCount;
+
+    var _lang_file = "../lang/lang_lan_basic.json";
+
+    function init() {
+    	prevent_enterkey ();
+        languageFileLoad ( _lang_file );
+        CheckLogin(page_init);
+    }
+
+    function page_init() {
+        var url = "/cgi-bin/getinfo.cgi?Command=basic_setup";
+        XHRGet(getinfohandle, url, true);
+    }
+
+    function getinfohandle(xmlDoc) {
+
+        if (hasError(xmlDoc)) {
+            showError(xmlDoc);
+            return;
+        }
+
+        document.getElementById("main_page").style.display = "";
+
+        document.getElementById("lan_ipaddr").value = getDataFromTag(xmlDoc, "lan_ipaddr");
+        document.getElementById("lan_netmask").value = getDataFromTag(xmlDoc, "lan_netmask");
+
+        var nLanIP = ipstr2long(document.getElementById("lan_ipaddr").value);
+        var nLanMask = ipstr2long(document.getElementById("lan_netmask").value);
+        var nNetwork = apply_netmask(nLanIP, nLanMask);
+        var nMaskLen = calculate_mask_length(document.getElementById("lan_netmask").value);
+
+        gnLeasePoolMin = nNetwork;
+        gnLeasePoolMax = nNetwork + Math.pow(2, (32 - nMaskLen)) - 1;
+
+        dhcp_server_info_init(xmlDoc);
+
+        dhcp_static_lease_info_init(xmlDoc);
+
+        parent.callResize();
+    }
+
+    function dhcp_server_info_init(xmlDoc) {
+        
+        SetButtons(["btn_dhcp_set", "btn_staticLease_add", "btn_staticLease_del", "btn_staticLease_delall", "save"]);
+        commonInit();
+
+        var dhcpServerEnabled = getDataFromTag(xmlDoc, "dhcpEnabled");
+        var nLeaseStartOffset = parseInt(getDataFromTag(xmlDoc, "leasestart"));
+
+        gnLeaseCount = parseInt(getDataFromTag(xmlDoc, "leasecount"));
+        gnLeaseStart = gnLeasePoolMin + nLeaseStartOffset;
+        gnLeaseEnd = calculate_end_ip (gnLeaseStart, gnLeaseCount);
+
+        document.formDhcpSet.dhcpDns1.value = getDataFromTag(xmlDoc, "dns_server1");
+        document.formDhcpSet.dhcpDns2.value = getDataFromTag(xmlDoc, "dns_server2");
+        document.formDhcpSet.dhcpLeaseTime.value = getDataFromTag(xmlDoc, "leasetime") / 60;
+        document.formDhcpSet.dhcpLeaseCount.value = gnLeaseCount;
+
+        update_dhcp_server_lease_range();
+
+        document.getElementById("td_dhcp_end").innerHTML = long2ipstr(gnLeaseEnd);
+
+        document.formDhcpSet.dhcpEnable.checked = (dhcpServerEnabled == "1") ? true : false;
+        onDhcpServerEnableChange();
+    }
+
+    function update_dhcp_server_lease_range () {
+
+        var strLeaseStart = long2ipstr(gnLeaseStart);
+        var startIpArray = strLeaseStart.split('.');
+        var maskLength = calculate_mask_length (document.getElementById("lan_netmask").value);
+
+        for (i = 0; i < 4; i++) {
+		    document.getElementById("start" + (i + 1)).disabled = (maskLength >= ((i + 1) * 8)) ? true : false;
+		    document.getElementById("start" + (i + 1)).value = startIpArray[i];
+        }
+    }
+
+    function ipstr2long (ipstr) {
+
+        var nRet = 0;
+
+        if (ipstr.match (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+
+            var parts = ipstr.split ('.');
+
+            nRet += parseInt(parts[0]) * Math.pow(256,3);
+            nRet += parseInt(parts[1]) * Math.pow(256,2);
+            nRet += parseInt(parts[2]) * Math.pow(256,1);
+            nRet += parseInt(parts[3]) * Math.pow(256,0);
+        }
+
+        return nRet;
+    }
+
+    function long2ipstr (ip) {
+
+        var ipstr = String((ip >> 24) & 0xFF) + "."
+                    + String((ip >> 16) & 0xFF) + "."
+                    + String((ip >> 8) & 0xFF) + "."
+                    + String(ip & 0xFF);
+
+        return ipstr;
+    }
+
+    function calculate_end_ip (nStart, nCount) {
+
+        var nIpEnd = (nStart + nCount) - 1;
+
+        return nIpEnd;
+    }
+
+    function calculate_mask_length (maskStr) {
+
+        var nNetMask = ipstr2long(maskStr);
+        var nLength = 0;
+        var bitMask = 1;
+
+        while (nLength < 32) {
+            if (nNetMask & bitMask)
+                break;
+
+            nLength++;
+            bitMask = (bitMask << 1);
+        }
+
+        return 32 - nLength;
+    }
+
+    function ip2bytearray(nVal) {
+
+        var aRet = new Array(4);
+
+        aRet[0] = (nVal >> 24) & 0xFF;
+        aRet[1] = (nVal >> 16) & 0xFF;
+        aRet[2] = (nVal >> 8) & 0xFF;
+        aRet[3] = (nVal >> 0) & 0xFF;
+
+        return aRet;
+    }
+
+    function bytearray2ip(aVal) {
+
+        var nRet = 0;
+
+        nRet += aVal[0] * Math.pow(256,3);
+        nRet += aVal[1] * Math.pow(256,2);
+        nRet += aVal[2] * Math.pow(256,1);
+        nRet += aVal[3] * Math.pow(256,0);
+
+        return nRet;
+    }
+
+    function apply_netmask (nIP, nMask) {
+
+        var aIpArr = ip2bytearray(nIP);
+        var aMaskArr = ip2bytearray(nMask);
+        var aResult = new Array(4);
+
+        for (i = 0; i < 4; i++) {
+            aResult[i] = aIpArr[i] & aMaskArr[i];
+        }
+
+        return bytearray2ip(aResult);
+    }
+
+    var dhcpEnableGroup = ["tr_dhcp_start", "tr_dhcp_end", "tr_dhcp_max", "tr_dhcp_subnetmask", "tr_dhcp_gateway", "tr_dhcp_pridns", "tr_dhcp_secdns", "tr_dhcp_lease"];
+
+    function onDhcpServerEnableChange() {
+
+        var chkbox = document.formDhcpSet.dhcpEnable;
+
+        for (var i = 0; i < dhcpEnableGroup.length; i++) {
+            var objTemp = document.getElementById(dhcpEnableGroup[i]);
+            if (objTemp) {
+                objTemp.style.display = (chkbox.checked ? "" : "none");
+            }
+        }
+
+	    parent.callResize();
+    }
+
+    function update_dhcp_static_lease_input () {
+
+        var strLeaseStart = long2ipstr(gnLeaseStart);
+        var startIpArray = strLeaseStart.split('.');
+        var maskLength = calculate_mask_length (document.getElementById("lan_netmask").value);
+
+        for (i = 0; i < 4; i++) {
+            if (maskLength >= ((i + 1) * 8)) {
+                document.getElementById("static_ip" + (i + 1)).disabled = true;
+    		    document.getElementById("static_ip" + (i + 1)).value = startIpArray[i];
+            }
+            else {
+                document.getElementById("static_ip" + (i + 1)).disabled = false;
+    		    document.getElementById("static_ip" + (i + 1)).value = "";
+            }
+        }
+    }
+
+    function dhcp_static_lease_info_init(xmlDoc) {
+
+        update_dhcp_static_lease_input();
+
+        gnStaticLeaseCount = parseInt(getDataFromTag(xmlDoc, "static_ip_count"));
+
+        if (gnStaticLeaseCount <= 0)
+            return;
+
+        var objStaticTable = document.getElementById("StaticListTable");
+
+        for (i = 0; i < gnStaticLeaseCount; i++) {
+
+            trs = document.createElement("tr");
+
+            td = document.createElement("td");
+            element = document.createElement("input");
+            element.setAttribute("type", "checkbox");
+            element.setAttribute("id", "element" + i);
+            td.innerHTML = i + 1;
+            td.appendChild(element);
+            trs.appendChild(td);
+
+            td = document.createElement("td");
+            td.setAttribute("id", "staticip" + i);
+            td.innerHTML = getDataFromTag(xmlDoc, "static_ip_" + i);
+            trs.appendChild(td);
+
+            td = document.createElement("td");
+            td.setAttribute("id", "staticmac" + i);
+            td.innerHTML = getDataFromTag(xmlDoc, "static_mac_" + i);
+            trs.appendChild(td);
+
+            objStaticTable.appendChild(trs);
+        }
+    }
+
+   function check_basic_form() {
+
+        if (document.formBasicSetup.lan_ipaddr.value == "") {
+            alert(i18next.store.data[i18next.language].translation.alert['Input_IP_Address']);
+            return false;
+        }
+
+        if (!checkIPAddr(document.formBasicSetup.lan_ipaddr)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+            return false;
+        }
+
+        if (document.formBasicSetup.lan_netmask.value == "") {
+            alert(i18next.store.data[i18next.language].translation.alert['Input_Subnet_Mask']);
+            return false;
+        }
+
+        if (!checkSubnetMask(document.formBasicSetup.lan_netmask)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_Subnet_Mask']);
+            return false;
+        }
+
+        return true;
+    }
+
+    function submit_apply_basic_setup() {
+	    
+        if (!check_basic_form ())
+            return;
+	
+        xalert ( 'reboot_need' );
+
+	    document.formBasicSetup.reboot_allow.value = "1";
+
+	    var url = "/cgi-bin/netset.cgi";
+	    var param = "Command=BasicSetup" + "&" + serializeFormElement("formBasicSetup");
+
+	    XHRPost (err_handle_reload, url, param, true);
+    }
+
+    function check_ip_addr_range(ipValues) {
+
+        var regex = /^[0-9]+$/;
+
+        for (i = 0; i < 4; i++) {
+
+            if (ipValues[i] == "")
+                continue;
+
+            if (!ipValues[i].value.match(regex)) {
+                alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                ipValues[i].value = "";
+                ipValues[i].select();
+                return false;
+            }
+
+            nIpNum = parseInt(ipValues[i].value)
+            if ((nIpNum < 0) || (nIpNum > 255)) {
+                alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+                ipValues[i].value = "";
+                ipValues[i].select();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function onDhcpStartIpChange() {
+
+        var ipValueArray = Array(document.formDhcpSet.start1,
+                            document.formDhcpSet.start2,
+                            document.formDhcpSet.start3,
+                            document.formDhcpSet.start4);
+
+        if (!check_ip_addr_range(ipValueArray)) {
+            gnLeaseStart = 0;
+            return;
+        }
+
+        var startIpStr = document.formDhcpSet.start1.value
+                    + "." + document.formDhcpSet.start2.value
+                    + "." + document.formDhcpSet.start3.value
+                    + "." + document.formDhcpSet.start4.value;
+
+        var nStartIP = ipstr2long(startIpStr);
+
+        if ((nStartIP < gnLeasePoolMin) || (nStartIP > gnLeasePoolMax)) {
+            alert(i18next.store.data[i18next.language].translation.alert['range_exceeds_the_subnet']);
+            return;
+        }
+
+        gnLeaseStart = nStartIP;
+
+        update_dhcp_server_end_ip();
+    }
+
+    function update_dhcp_server_end_ip() {
+
+        var gnLeaseEnd = calculate_end_ip(gnLeaseStart, gnLeaseCount);
+
+        if (gnLeaseEnd > gnLeasePoolMax) {
+            gnLeaseEnd = gnLeasePoolMax;
+            gnLeaseCount = gnLeasePoolMax - gnLeaseStart;
+        }
+
+        document.getElementById("td_dhcp_end").innerHTML = long2ipstr(gnLeaseEnd);
+        document.formDhcpSet.dhcpLeaseCount.value = gnLeaseCount;
+    }
+
+    function onLeaseCountChange() {
+
+        var nCount = parseInt(document.formDhcpSet.dhcpLeaseCount.value);
+
+        if (nCount <= 0) {
+            alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+            return;
+        }
+
+        gnLeaseCount = nCount;
+
+        update_dhcp_server_end_ip();
+    }
+
+
+    function submit_apply_dhcp_server_set() {
+
+        var isEnabled = document.formDhcpSet.dhcpEnable.checked ? 1 : 0;
+        
+        if (isEnabled && !check_dhcp_server_form())
+            return false;
+
+	    var url = "/cgi-bin/netset.cgi";
+	    var param = "Command=dhcpSet" + "&"	+ "dhcpEnabled=" + isEnabled;
+
+        if (isEnabled) {
+            param = param + "&" + "leasestart=" + String(gnLeaseStart - gnLeasePoolMin);
+            param = param + "&" + "leasecount=" + gnLeaseCount;
+            param = param + "&" + "leasetime=" + document.formDhcpSet.dhcpLeaseTime.value * 60;
+        }
+
+	    XHRPost (err_handle_reload, url, param, true);
+    }
+
+    function check_dhcp_server_form() {
+
+        if (gnLeaseStart == 0) {
+            alert(i18next.store.data[i18next.language].translation.alert['incorrect_IP_address']);
+            return false;
+        }
+
+        if (gnLeaseCount == 0) {
+            alert(i18next.store.data[i18next.language].translation.alert['incorrect_IP_address']);
+            return false;
+        }
+
+        var nIpEnd = calculate_end_ip(gnLeaseStart, gnLeaseCount);
+
+        if (nIpEnd > gnLeasePoolMax) {
+            alert(i18next.store.data[i18next.language].translation.alert['range_exceeds_the_subnet']);
+            return;
+        }
+
+        var objLeaseTime = document.formDhcpSet.dhcpLeaseTime;
+        if (objLeaseTime.value == "") {
+            alert(i18next.store.data[i18next.language].translation.alert['not_configured_Lease_TIME']);
+            objLeaseTime.select();
+            return false;
+        }
+
+        var regex = /^[0-9]+$/;
+        if (!objLeaseTime.value.match(regex)) {
+            alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+            objLeaseTime.select();
+            return false;
+        }
+
+        if (parseInt(objLeaseTime.value) < 2 || parseInt(objLeaseTime.value) > 1440) {
+            alert(i18next.store.data[i18next.language].translation.alert['range_of_IP_lease_time']);
+            objLeaseTime.select();
+            return false;
+        }
+
+        return true;
+    }
+
+    function submit_apply_static_lease_add() {
+
+        if (!check_static_lease_add_form())
+            return false;
+
+        var url = "/cgi-bin/netset.cgi";
+        var param = "Command=StaticLeaseAdd";
+
+        param = param + "&" + "ipaddr=" + document.formStaticLeaseAdd.static_ip.value;
+        param = param + "&" + "mac=" + document.formStaticLeaseAdd.mac.value;
+
+	    XHRPost (err_handle_reload, url, param, true);
+    }
+
+    function check_static_lease_add_form() {
+
+        var objStaticMac = document.formStaticLeaseAdd.mac;
+        var objStaticIp = document.formStaticLeaseAdd.static_ip;
+
+        var staticIpStr = document.formStaticLeaseAdd.static_ip1.value
+                        + "." + document.formStaticLeaseAdd.static_ip2.value
+                        + "." + document.formStaticLeaseAdd.static_ip3.value
+                        + "." + document.formStaticLeaseAdd.static_ip4.value;
+
+        objStaticIp.value = staticIpStr;
+
+        if (!checkIPAddr(objStaticIp)) {
+            alert(i18next.store.data[i18next.language].translation.alert['incorrect_IP_address']);
+            return false;
+        }
+
+        var nStaticIP = ipstr2long(staticIpStr);
+
+        if ((nStaticIP < gnLeaseStart) || (nStaticIP > gnLeaseEnd)) {
+            alert(i18next.store.data[i18next.language].translation.alert['incorrect_DHCP_allocation_range']);
+            return false;
+        }
+
+        if (!checkMac(objStaticMac)) {
+            objStaticMac.select();
+            alert(i18next.store.data[i18next.language].translation.alert['incorrect_MAC_address']);
+            return false;
+        }
+
+        if (check_static_lease_duplicated(staticIpStr, objStaticMac.value)) {
+            alert(i18next.store.data[i18next.language].translation.alert['enter_another_rule']);
+            return false;
+        }
+
+        return true;
+    }
+
+    function check_static_lease_duplicated(strIP, strMAC) {
+
+        for (i = 0; i < document.getElementById("StaticListTable").rows.length - 2; i++) {
+        
+            if (document.getElementById("staticip" + i).innerHTML == strIP) {
+                return true;
+            }
+        
+            if (document.getElementById("staticmac" + i).innerHTML == strMAC) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function submit_apply_delete_static_lease() {
+
+        var url = "/cgi-bin/netset.cgi";
+        var param = "Command=deleteStatic";
+
+        var count = 0;
+        
+        for (i = 0; i < gnStaticLeaseCount; i++) {
+
+            var tmpObj = document.getElementById("element" + i);
+
+            if (tmpObj.checked == true) {
+                param += "&" + "ipaddr_" + count + "=" + document.getElementById("staticip" + i).innerHTML;
+                count++;
+            }
+        }
+
+        if (count <= 0) {
+            alert(i18next.store.data[i18next.language].translation.alert['not_Selected_DHCP_Rule']);
+            return false;
+        }
+
+        param += "&" + "delete_count=" + count;
+
+	    XHRPost (err_handle_reload, url, param, true);
+    }
+
+    function submit_apply_delete_static_lease_all() {
+
+        if (!confirm(i18next.store.data[i18next.language].translation.alert['Delete_ALL_Rule']))
+            return false;
+
+        var url = "/cgi-bin/netset.cgi";
+        var param = "Command=deleteStaticAll";
+
+	    XHRPost ( err_handle_reload, url, param, true );
+    }
+
+</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none" >
+    <section id="basic_display" class="basic">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="BasicSetContent.title">기본 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="path1">LAN</span>
+                        <span class="path_arrow focus_on" data-i18n="path2">기본설정/DHCP</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <form onsubmit="return false;" method="POST" name="formBasicSetup" id="formBasicSetup" novalidate="novalidate">
+            <!-- LAN 설정 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSetContent.content.LAN_Set.title">LAN 설정</div>
+                    <div class="basic_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="BasicSetContent.content.LAN_Set.IP_Address">
+                                    IP 주소
+                                </td>
+                                <td><input name="lan_ipaddr" id="lan_ipaddr" type="text" size="25"
+                                           maxlength="15" class="required" subnet="true"></td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="BasicSetContent.content.LAN_Set.Subnet_Maske">
+                                    서브넷 마스크
+                                </td>
+                                <td>
+                                    <input name="lan_netmask" id="lan_netmask" type="text" size="25"
+                                           maxlength="15" class="required" subnet="true">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <button type="submit" class="btn_default btn_save_sm" name="save" id="save"
+                            onClick="submit_apply_basic_setup()" data-i18n="common.Save">저장
+                    </button>
+                    <input type="hidden" id="reboot_allow" value="0">
+                </div>
+            </div>
+            <!-- //LAN 설정 -->
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+        </form>
+    </section>
+    <section id="dhcp_display" class="dhcp">
+        <div class="cont_titl_iframe dhcp_tt">
+            <ul>
+                <li class="titl_l" data-i18n="DHCPSetContent.title">DHCP 서버</li>
+                <li class="titl_r">
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <!-- DHCP 설정 -->
+        <div class="cont_grp">
+            <form method="POST" name="formDhcpSet" id="formDhcpSet">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="DHCPSetContent.content.DHCP_Server.title">DHCP 서버</div>
+                    <div class="basic_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.DHCP_Server_Operation">
+                                    DHCP 서버 동작
+                                </td>
+                                <td>
+                                    <label><input type="checkbox" name="dhcpEnable" id="dhcpEnable"
+                                                  onchange="onDhcpServerEnableChange();">
+                                        <span data-i18n="common.Enable">활성</span>
+				                    </label>
+                                </td>
+                                <input type="hidden" id="dhcp_onoff">
+                            </tr>
+                            <tr id="tr_dhcp_start">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.Start_IP_Address">시작 IP 주소</td>
+                                <td>
+                                    <input type="text" name="start1" id="start1" size="1" maxlength="3"
+                                           onchange="onDhcpStartIpChange()" class="inputbox_sm3">.
+                                    <input type="text" name="start2" id="start2" size="1" maxlength="3"
+                                           onchange="onDhcpStartIpChange()" class="inputbox_sm3">.
+                                    <input type="text" name="start3" id="start3" size="1" maxlength="3"
+                                           onchange="onDhcpStartIpChange()" class="inputbox_sm3">.
+                                    <input type="text" name="start4" id="start4" size="1" maxlength="3"
+                                           onchange="onDhcpStartIpChange()" class="inputbox_sm3">
+                                </td>
+                            </tr>
+                            <tr id="tr_dhcp_end">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.End_IP_Address">끝 IP 주소</td>
+                                <td id="td_dhcp_end"></td>
+                                <input type="hidden" name="dhcpEndIp" id="dhcpEndIp">
+                            </tr>
+                            <tr id="tr_dhcp_pridns">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.Name_Server_IP_1">네임 서버 IP 1</td>
+                                <td>
+                                    <input type="text" size="15" maxlength="15" name="dhcpDns1" id="dhcpDns1"
+                                           disabled="" class="inputbox_sm">
+                                </td>
+                            </tr>
+                            <tr id="tr_dhcp_secdns">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.Name_Server_IP_2">네임 서버 IP 2</td>
+                                <td>
+                                    <input type="text" size="15" maxlength="15" name="dhcpDns2" id="dhcpDns2"
+                                           disabled="" class="inputbox_sm">
+                                </td>
+                            </tr>
+                            <tr id="tr_dhcp_lease">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.Rent_Time">임대 시간</td>
+                                <td>
+                                    <input type="text" size="10" maxlength="4" name="dhcpLeaseTime" id="dhcpLeaseTime"
+                                           class="inputbox_sm2"><span data-i18n="DHCPSetContent.content.DHCP_Server.Min">분</span>
+                                </td>
+                            </tr>
+                            <tr id="tr_dhcp_max">
+                                <td data-i18n="DHCPSetContent.content.DHCP_Server.Maximum_Assignable_IP">최대 할당 IP 수</td>
+                                <td>
+                                    <input type="text" name="dhcpLeaseCount" id="dhcpLeaseCount" size="1" maxlength="4"
+                                    onchange="onLeaseCountChange()" class="inputbox_sm2">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <input type="hidden" name="SessionKey" id="SessionKey" value="">
+            </form>
+        </div>
+        <!-- //DHCP 설정 -->
+
+        <!-- 고정 IP 설정 -->
+        <div class="cont_grp mg_top20">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="DHCPSetContent.content.Static_DHCP_Set.title">고정 IP 할당</div>
+                <div class="basic_tbl">
+                    <form method="POST" name="formStaticLeaseAdd" id="formStaticLeaseAdd">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="DHCPSetContent.content.Static_DHCP_Set.IP_Address">IP 주소</td>
+                                <td>
+                                    <input type="text" name="static_ip1" id="static_ip1" size="1" maxlength="3"
+                                           class="inputbox_sm3">.
+                                    <input type="text" name="static_ip2" id="static_ip2" size="1" maxlength="3"
+                                           class="inputbox_sm3">.
+                                    <input type="text" name="static_ip3" id="static_ip3" size="1" maxlength="3"
+                                           class="inputbox_sm3">.
+                                    <input type="text" name="static_ip4" id="static_ip4" size="1" maxlength="3"
+                                           class="inputbox_sm3">
+                                    <input type="hidden" name="static_ip" id="static_ip" class="inputbox_sm">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="DHCPSetContent.content.Static_DHCP_Set.Mac_Address">MAC 주소</td>
+                                <td>
+                                    <input type="text" name="mac" id="mac" size="20" maxlength="17">
+                                    <button type="button" name="btn_staticLease_add"
+                                            id="btn_staticLease_add" onclick="submit_apply_static_lease_add()"
+                                            class="btn_default btn_add" data-i18n="DHCPSetContent.content.Static_DHCP_Set.Add">추가</button>
+                                </td>
+                            </tr>
+                        </table>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </div>
+
+                <div class="basic_tbl">
+                    <form method="POST" name="formStaticLeaseDel" id="formStaticLeaseDel">
+                        <table class="list" id="StaticListTable" name="StaticListTable">
+                            <thead>
+                            <tr>
+                                <th data-i18n="DHCPSetContent.content.Static_DHCP_Set.table.Select">선택</th>
+                                <th data-i18n="DHCPSetContent.content.Static_DHCP_Set.table.IP_Address">IP 주소</th>
+                                <th data-i18n="DHCPSetContent.content.Static_DHCP_Set.table.Mac_Address">MAC 주소</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td colspan="3" height="12"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="btm_btn_noline">
+                            <input id="submit_type" name="submit_type" type="hidden">
+                            <input id="table_num" type="hidden">
+                            <button type="button" class="btn_default btn_cancel_sm" name="btn_staticLease_del" id="btn_staticLease_del" onclick="submit_apply_delete_static_lease();"
+                                    data-i18n="DHCPSetContent.content.Static_DHCP_Set.table.Select_Cancel">선택 삭제</button>
+                            <button type="button" class="btn_default btn_cancel_sm" name="btn_staticLease_delall" id="btn_staticLease_delall" onclick="submit_apply_delete_static_lease_all();"
+                                    data-i18n="DHCPSetContent.content.Static_DHCP_Set.table.All_Cancel">모두 삭제</button>
+                        </div>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- //고정 DHCP 설정 -->
+        <p class="txt_info" data-i18n="[html]DHCPSetContent.content.Static_DHCP_Set.Help_Font">
+            ※ 최대 할당 IP 수<br>
+            1. 최대 할당 IP 수 제한 설정은 WiFi 및 이더넷 접속제한과 연관이 있습니다.<br>
+            2. 설정에 주의하시기 바랍니다.
+        </p>
+        <div class="btm_btn_noline">
+            <button type="button" class="btn_default btn_save_sm" name="btn_dhcp_set" id ="btn_dhcp_set"
+                    onclick="submit_apply_dhcp_server_set()" data-i18n="common.Apply">적용</button>
+        </div>
+</section>
+</div>
+</body>
+</html>

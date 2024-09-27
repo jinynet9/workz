@@ -1,0 +1,487 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/22 - 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+<script>
+        var hw_mode;
+        var ICC;
+        var chlist;
+        var none_check_chlist;
+        var band_set;
+        var coext;
+        var hw_mode_able_array = ["11axg", "11bgn","11gn", "11n"];
+	var _lang_file = "../lang/lang_wireless24_setup.json";
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless24_setup";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+            SetButtons(["btn_apply", "btn_save_wireless", "btn_apply_wireless"]);
+	/*
+            document.getElementById("probe_auth_power").value = getDataFromTag(xmlDoc, "enable_probe_auth_limit");
+	*/	    
+            hw_mode = getDataFromTag(xmlDoc, "hwmode");
+            chlist = getDataFromTag(xmlDoc, "chlist");
+            none_check_chlist = getDataFromTag(xmlDoc, "none_check_chlist");
+            band_set = getDataFromTag(xmlDoc, "band_set");
+            coext = getDataFromTag(xmlDoc, "coext");
+
+            document.wireless_basic.wirelessmode.value = hw_mode;
+
+            select_channel(xmlDoc);
+            channel_auto();
+            init_param(xmlDoc);
+            tx_power_24(xmlDoc);
+            hwmode_rule();
+
+            if( hw_mode_able_array.indexOf(hw_mode) >= 0)  {
+                if (band_set == "HT40" && coext == 1) {
+                    document.wireless_basic.band_setting.value = "HT40_only";
+                } else {
+                    document.wireless_basic.band_setting.value = band_set;
+                }
+            }
+            parent.callResize();
+        }
+
+        function select_channel(xmlDoc) {
+            var channel_value = getDataFromTag(xmlDoc, "channel_value");
+            var objchannel = document.getElementById("ch_setting");
+            var arrStrchannel = ["Auto", "1CH", "2CH", "3CH", "4CH", "5CH", "6CH", "7CH", "8CH", "9CH", "10CH", "11CH", "12CH", "13CH"];
+
+            for (var i = 0; i < arrStrchannel.length; i++) {
+                var objOpt = document.createElement("option");
+                var txtOpt = document.createTextNode(arrStrchannel[i]);
+
+                objOpt.value = i;
+                objchannel.appendChild(objOpt);
+                objOpt.appendChild(txtOpt);
+            }
+
+            if (channel_value == "auto") {
+                document.wireless_basic.ch_setting.value = 0;
+            } else {
+                document.wireless_basic.ch_setting.value = parseInt(channel_value);
+            }
+
+        }
+
+        function channel_auto() {
+            var channel_auto = document.wireless_basic.ch_setting.selectedIndex;
+            var j;
+
+            if (channel_auto == 0) {
+                for (i = 0; i < 4; i++) {
+                    document.getElementById("auto_channel" + i).style.display = "";
+
+                }
+
+		/* DMC_WOO 210601: use block channel list 
+		var ch_list_parse = chlist.split(",");
+                for (i = 0; i < ch_list_parse.length; i++) {
+                    j = ch_list_parse[i];
+
+                    if (j != "") {
+                        document.getElementById("ch" + j).checked = true;
+                    }
+                }
+		*/
+
+
+		$("input:checkbox[name='channel']").each(function() {
+			this.checked = true;
+			});
+
+		var none_ch_list = none_check_chlist.split(",");
+                for (i = 0; i < none_ch_list.length; i++) {
+                    j = none_ch_list[i];
+
+                    if (j != "") {
+                        document.getElementById("ch" + j).checked = false;
+                    }
+                }
+
+            } else {
+                for (i = 0; i < 4; i++) {
+                    document.getElementById("auto_channel" + i).style.display = "none";
+                }
+            }
+            parent.callResize();
+        }
+
+        function radio_check() {
+            if (document.getElementById("radio_24").checked == true) {
+                document.getElementById("radio_enable").style.display = "";
+            } else {
+                document.getElementById("radio_enable").style.display = "none";
+            }
+            parent.callResize();
+        }
+	/*
+        function Radio_Enable() {
+            var enable = document.getElementById("icc_enable");
+            if (enable.checked == true) {
+                document.getElementById("beacon_tx_power").style.display = "";
+                document.getElementById("probe_tx_power").style.display = "";
+            } else {
+                document.getElementById("beacon_tx_power").style.display = "none";
+                document.getElementById("probe_tx_power").style.display = "none";
+            }
+            parent.callResize();
+        }
+
+        function probe_auth_limit_Enable() {
+            var check = document.wireless_basic.probe_auth_limit_check;
+
+            if (check.checked == true) {
+                document.getElementById("probe_auth_limit_power").style.display = "";
+            } else {
+                document.getElementById("probe_auth_limit_power").style.display = "none";
+            }
+            parent.callResize();
+        }
+	*/
+        function init_param(xmlDoc) {
+	/*
+            var enable_probe_auth_limit = getDataFromTag(xmlDoc, "enable_probe_auth_limit");
+            if (enable_probe_auth_limit == "" || enable_probe_auth_limit == "0") {
+                document.wireless_basic.probe_auth_limit_check.checked = false;
+                document.getElementById("probe_auth_power").value = -60;
+            } else {
+                document.wireless_basic.probe_auth_limit_check.checked = true;
+            }
+            probe_auth_limit_Enable();
+	*/
+
+
+            var radio_state = getDataFromTag(xmlDoc, "radio_state");
+            if (radio_state == "0") {
+                document.getElementById("radio_24").checked = true;
+            } else {
+                document.getElementById("radio_24").checked = false;
+            }
+            radio_check();
+
+	/*
+            ICC = getDataFromTag(xmlDoc, "ICC");
+            if (ICC == "0") {
+                document.wireless_basic.icc_enable.checked = false;
+            } else {
+                document.wireless_basic.icc_enable.checked = true;
+            }
+            Radio_Enable();
+	*/
+        }
+
+        function tx_power_24(xmlDoc) {
+            var tx_power = getDataFromTag(xmlDoc, "tx_power");
+            var objtxpower = document.getElementById("tx_power");
+	/*
+            var txpowbcn = getDataFromTag(xmlDoc, "txpowbcn");
+            var txpowprbrap = getDataFromTag(xmlDoc, "txpowprbrap");
+            var objIccBcn = document.getElementById("beacon_pwr");
+            var objIccProbe = document.getElementById("resp_pwr");
+	*/
+            var arrStrtxpower = ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"];
+
+            for (var i = 0; i < arrStrtxpower.length; i++) {
+                var objOpt = document.createElement("option");
+	/*
+                var objOpt_Bcn = document.createElement("option");
+                var objOpt_Probe = document.createElement("option");
+	*/
+
+                var txtOpt = document.createTextNode(arrStrtxpower[i]);
+                var txtOpt_Bcn = document.createTextNode(arrStrtxpower[i]);
+                var txtOpt_Probe = document.createTextNode(arrStrtxpower[i]);
+
+                objOpt.value = i + 5;
+                objtxpower.appendChild(objOpt);
+                objOpt.appendChild(txtOpt);
+	/*
+                objIccBcn.appendChild(objOpt_Bcn);
+                objIccProbe.appendChild(objOpt_Probe);
+                objOpt_Bcn.appendChild(txtOpt_Bcn);
+                objOpt_Probe.appendChild(txtOpt_Probe);
+	*/
+
+            }
+	/*
+            if (ICC != 0) {
+                objIccBcn.options[txpowbcn - 5].selected = true;
+                objIccProbe.options[txpowprbrap - 5].selected = true;
+            }
+	*/
+            document.wireless_basic.tx_power.value = tx_power;
+        }
+
+        function hwmode_rule() {
+            var hw_mode_select = document.wireless_basic.wirelessmode.value;
+            var tx_name;
+            var rx_name;
+
+            if (hw_mode_select == "11n" || hw_mode_select == "11gn" || hw_mode_select == "11bgn" || hw_mode_select == "11axg") {
+                document.wireless_basic.band_setting.disabled = false;
+
+            } else {
+                document.wireless_basic.band_setting.selectedIndex = 0;
+                    document.wireless_basic.band_setting.disabled = true;
+                }
+            }
+
+        function submit_value_setting() {
+            if (document.getElementById("radio_24").checked == true) {
+                document.getElementById("radio_24").value = "1";
+            } else {
+                document.getElementById("radio_24").value = "0";
+            }
+
+            for (k = 1; k < 14; k++) {
+                if (document.getElementById("ch" + k).checked == true) {
+                    document.getElementById("ch" + k).value = "1";
+                } else {
+                    document.getElementById("ch" + k).value = "0";
+                }
+            }
+	/*
+            if (document.getElementById("icc_enable").checked == true) {
+                document.getElementById("icc_enable").value = "1";
+            } else {
+                document.getElementById("icc_enable").value = "0";
+            }
+
+            if (document.getElementById("probe_auth_limit_check").checked == true) {
+                document.getElementById("probe_auth_limit_check").value = "1";
+            } else {
+                document.getElementById("probe_auth_limit_check").value = "0";
+            }
+	*/
+        }
+
+        function submit_save_wireless() {
+                submit_value_setting();
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=save_wireless24"
+                    + "&"
+                    + serializeFormElement("wireless_basic");
+
+                XHRPost(null, url, param, true);
+        }
+
+        function submit_apply_wireless() {
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=apply_wireless24";
+
+                XHRPost(null, url, param, true);
+        }
+
+        function submit_wifi() {
+            EnableButtons(false);
+            TimeoutReload(TIMEOUT_DEFAULT_TIME);
+            var url = "/cgi-bin/wirelessset.cgi";
+            var param = "Command=submit_wifi"
+                + "&"
+                + serializeFormElement("wifi");
+
+            XHRPost(null, url, param, true);
+        }
+
+        function init() {
+	        prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless24SetupContent.title">2.4G 무선 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless24SetupContent.path1">2.4G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless24SetupContent.path2">무선 설정</span>
+                    </p>
+                    <form method="post" name="wifi" id="wifi">
+                        <button type="button" class="btn_default btn_wifi" id="btn_apply"
+                                onclick="jump_inform_wifi_restart();" data-i18n="Wireless24SetupContent.WIFI_Apply">WiFi 적용
+                        </button>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <form method="post" name="wireless_basic" id="wireless_basic">
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.title">2.4G WiFi Setup</div>
+                    <div class="wireless_tbl">
+                        <table>
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Radio_Enable">Radio Enable</td>
+                                <td>
+                                    <input type="checkbox" name="radio_24" id="radio_24" onChange="radio_check();">
+                                    <label for="radio_24" data-i18n="common.Active">Active</label>
+                                </td>
+                            </tr>
+                            <tbody id="radio_enable">
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.title">Mode</td>
+                                <td>
+                                    <select name="wirelessmode" id="wirelessmode" onChange="hwmode_rule()"
+                                            class="wirelessmode_select">
+                                        <option value="11b" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11b">802.11b only</option>
+                                        <option value="11g" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11g">802.11g only</option>
+                                        <option value="11n" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11n">802.11n only</option>
+                                        <option value="11bg" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11bg">802.11b+g</option>
+                                        <!--option value="11gn" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11gn">802.11g+n</option-->
+                                        <option value="11bgn" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11bgn">802.11b+g+n</option>
+                                        <option value="11axg" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Mode.options.11axg">802.11b+g+n+ax</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.BandWidth.title">BandWidth</td>
+                                <td>
+                                    <select name="band_setting" id="band_setting" class="wirelessmode_select">
+                                        <option value="HT20" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.BandWidth.options.HT20">20MHz</option>
+                                        <option value="HT40" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.BandWidth.options.HT40">20/40MHz</option>
+                                        <option value="HT40_only" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.BandWidth.options.HT40_only">40MHz</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Channel.title">Channel</td>
+                                <td>
+                                    <select name="ch_setting" id="ch_setting" onChange="channel_auto()"
+                                            class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="auto_channel0" style="display:none">
+                                <td rowspan="4">Auto Channel</td>
+                                <td>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch1" name="channel" valign="middle">CH1</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch2" name="channel" valign="middle">CH2</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch3" name="channel" valign="middle">CH3</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch4" name="channel" valign="middle">CH4</span>
+                                </td>
+                            </tr>
+                            <tr id="auto_channel1" style="display:none">
+                                <td>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch5" name="channel" valign="middle">CH5</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch6" name="channel" valign="middle">CH6</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch7" name="channel" valign="middle">Ch7</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch8" name="channel" valign="middle">Ch8</span>
+                                </td>
+                            </tr>
+                            <tr id="auto_channel2" style="display:none">
+                                <td>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch9" name="channel" valign="middle">CH9</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch10" name="channel" valign="middle">CH10</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch11" name="channel" valign="middle">CH11</span>
+                                     <span class="wireless_chbox"><input type="checkbox" id="ch12" name="channel" valign="middle">CH12</span>
+                                </td>
+                            </tr>
+                            <tr id="auto_channel3" style="display:none">
+                                <td>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch13" name="channel" valign="middle">CH13</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.TX_Power">TX Power</td>
+                                <td>
+                                    <select name="tx_power" id="tx_power" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+			    <!--
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.ICC.title">TX Power for Management</td>
+                                <td>
+                                    <input type="checkbox" id="icc_enable" name="icc_enable" value="ON"
+                                           onChange="Radio_Enable()">
+                                    <label for="icc_enable" data-i18n="common.Active">Active</label>
+                                </td>
+                            </tr>
+                            <tr id="beacon_tx_power">
+                                <td style="padding-left:40px;" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.ICC.Beacon_Tx_Power">Beacon Tx Power</td>
+                                <td>
+                                    <select id="beacon_pwr" name="beacon_pwr" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="probe_tx_power">
+                                <td style="padding-left:40px;" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.ICC.Probe_Tx_Power">Probe Tx Power</td>
+                                <td>
+                                    <select id="resp_pwr" name="resp_pwr" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Probe_Auth_Req_Limit.title">Probe & Auth Req Limit</td>
+                                <td>
+                                    <input type="checkbox" id="probe_auth_limit_check"
+                                           name="probe_auth_limit_check" value=""
+                                           onChange="probe_auth_limit_Enable()">
+                                    <label for="probe_auth_limit_check" data-i18n="common.Active">Active</label>
+                                </td>
+                            </tr>
+                            <tr id="probe_auth_limit_power">
+                                <td style="padding-left:40px;" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Probe_Auth_Req_Limit.rssiThr">RSSI threshold</td>
+                                <td>
+                                    <input type="text" id="probe_auth_power" name="probe_auth_power"
+                                           maxlength="4" value="" onkeypress="IgnoreEnterKey( event );"
+                                           class="wirelessmode_input">
+                                    <span>(-84 ~ -4 dBm)</span>
+                                </td>
+                            </tr>
+			    -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_wireless">
+                    <button type="button" class="btn_default btn_save" id="btn_save_wireless"
+                            onClick="submit_save_wireless();" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Save">저장
+                    </button>
+                    <button type="button" class="btn_default btn_save" id="btn_apply_wireless"
+                            onClick="submit_apply_wireless();" data-i18n="Wireless24SetupContent.content.24G_WiFi_Setup.Apply">적용
+                    </button>
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </div>
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless24MacfilterContent": {
+          "title": "2.4G Wireless MAC Filter",
+          "path1": "2.4G WIRELESS SETUP",
+          "path2": "Wireless MAC Filter",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "24G_Mac_filter_Setup" : {
+              "title" : "2.4G Mac Filter Setup",
+              "SSID" : "SSID",
+              "Filtering" : {
+                "title" : "Filtering",
+                "Active" : "Active"
+              },
+              "Filter_Rule" : {
+                "title" : "Filter Rule",
+                "options" : {
+                  "disable" : "disable",
+                  "allow" : "allow",
+                  "deny" : "deny"
+                }
+              },
+              "Filter_Address" : "Filter Address",
+              "Add" : "Add"
+            },
+            "List" : {
+              "title": "List",
+              "Select" : "Select",
+	      "SSID" : "SSID",
+              "Filter_Address" : "Filter Address",
+              "State" : "State",
+              "Save" : "Apply",
+              "Delete" : "Delete",
+              "State_Change" : "State Change",
+              "Help_Font" : "※ After adding and deleting MAC List and status changes , be sure to click the Apply button.<br/> ※ Only the selected SSIDs will change status when changing status."
+		  
+            }
+          }
+        },
+        "alert":{
+          "mac_input" : "Please Input MAC Address",
+          "mac_invalid": "Invalid MAC Address",
+          "mac_duplicate": "The MAC address in the list.",
+          "rule_overflow": "Rules can be registered up to eight",
+          "select_rule": "Please select a rule to delete.",
+          "mac_first": "MAC list enrollment please"
+        },
+        "filter_rule":{
+          "allow": "Allow",
+          "reject": "Reject",
+          "disable": "Disable"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless24MacfilterContent": {
+          "title": "2.4G 무선 MAC 차단",
+          "path1": "2.4G 무선랜 설정",
+          "path2": "무선 MAC 차단",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "24G_Mac_filter_Setup" : {
+              "title" : "2.4G 무선 MAC 관리",
+              "SSID" : "SSID",
+              "Filtering" : {
+                "title" : "필터링",
+                "Active" : "활성"
+              },
+              "Filter_Rule" : {
+                "title" : "필터 정책",
+                "options" : {
+                  "disable" : "비활성화",
+                  "allow" : "허용",
+                  "deny" : "차단"
+                }
+              },
+              "Filter_Address" : "필터 주소",
+              "Add" : "추가"
+            },
+            "List" : {
+              "title": "목록",
+              "Select" : "선택",
+	      "SSID" : "SSID",
+              "Filter_Address" : "필터 주소",
+              "State" : "상태",
+              "Save" : "적용",
+              "Delete" : "삭제",
+              "State_Change" : "상태변경",
+              "Help_Font" : "※ MAC List 추가 및 삭제 그리고 상태변경 후에는 적용 버튼을 눌러주십시오. <br/>※ 상태변경 시 선택한 SSID 만 변경이 됩니다."
+            }
+          }
+        },
+        "alert":{
+          "mac_input" : "MAC 주소를 입력해 주세요",
+          "mac_invalid": "유효하지 않은 MAC 주소 입니다.",
+          "mac_duplicate": "목록에 있는 MAC 주소 입니다.",
+          "rule_overflow": "규칙은 총 8개까지 등록 가능합니다.",
+          "select_rule": "삭제할 규칙을 선택해주세요.",
+          "mac_first": "MAC 주소를 먼저 등록해 주세요."
+        },
+        "filter_rule":{
+          "allow": "허용",
+          "reject": "차단",
+          "disable": "비활성화"
+        }
+      }
+    }
+  }
+}

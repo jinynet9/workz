@@ -1,0 +1,228 @@
+<html>
+<head>
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Expires" CONTENT="-1">
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="/common/style.css" rel="stylesheet" type="text/css">
+    <title>Hybrid Public Egg</title>
+    <script type="text/javascript" src="../js/ajaxbasic.js"></script>
+    <script type="text/javascript" src="../common/functions.js"></script>
+    <style type="text/css"></style>
+    <script language="javascript" type="text/javascript">
+        var notiNode;
+
+        function printText( text )
+        {
+            notiNode.appendChild( document.createTextNode( text ) );
+        }
+
+        function newLine()
+        {
+            notiNode.appendChild( document.createElement( "br" ) );
+            notiNode.appendChild( document.createElement( "br" ) );
+        }
+
+        function init()
+        {
+            commonInit();
+            page_init();
+        }
+        function page_init()
+        {
+            var url = "/cgi-bin/stateinfo.cgi?Command=getWebNotiType";
+            XHRGet(Notihandle, url, true);
+        }
+        function Notihandle(xmlDoc)
+        {
+            if (hasError(xmlDoc))
+            {
+                showError(xmlDoc);
+                return;
+            }
+
+            var notiType = getDataFromTag(xmlDoc,"type");
+            notiNode = document.getElementById( "noti_msg" );
+
+            if ( notiType == "web_noti_reboot" )
+            {
+                printText( "시스템을 재시작합니다." );
+                newLine();
+                printText( "이 작업은 수 분 소요됩니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+            }
+            else if ( notiType == "web_noti_security" )
+            {
+                printText( "보안 설정을 적용하고 있습니다." );
+                newLine();
+                printText( "약 30초 후 재접속 해주세요." );
+            }
+            else if ( notiType == "web_noti_update_success" )
+            {
+                printText( "펌웨어 업데이트가 완료 되었습니다." );
+                newLine();
+                printText( "시스템을 재시작합니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+                newLine();
+                printText( "재시작에는 수 분 소요될 수 있습니다." );
+            }
+            else if ( notiType == "web_noti_update_fail" )
+            {
+                printText( "펌웨어 업데이트가 실패했습니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+            }
+            else if ( notiType == "web_noti_update_fail_version" )
+            {
+                printText( "이미 최신의 소프트웨어를 사용하고 있습니다." );
+                newLine();
+                printText( "다시 확인해주시기 바랍니다." );
+            }
+            else if ( notiType == "web_noti_update_fail_connect" )
+            {
+                printText( "웹 페이지와의 연결이 끊겼습니다." );
+                newLine();
+                printText( "F5키를 눌러 새로고침해주세요." );
+            }
+            else if ( notiType == "web_noti_update_fail_battery" )
+            {
+                printText( "배터리가 없거나 잔량이 부족합니다." );
+                newLine();
+                printText( "배터리 충전 후  다시 실행해주시기 바랍니다." );
+            }
+            else if ( notiType == "web_noti_update_fail_network" )
+            {
+                printText( "업데이트할 내용이 없습니다." );
+            }
+            else if ( notiType == "web_noti_update_not_valid" )
+            {
+                printText( "소프트웨어가 유효하지 않거나， 버전 정보가 다릅니다." );
+                newLine();
+                printText( "다시 확인해주시기 바랍니다." );
+            }
+            else if ( notiType == "web_noti_applying" )
+            {
+                printText( "설정을 적용 중입니다." );
+                newLine();
+                printText( "변경된 설정으로 약 30초 후 재접속 해주시기 바랍니다." );
+            }
+            else if ( notiType == "web_noti_deep_sleep" )
+            {
+                printText( "시스템이 최대 절전모드에 진입합니다." );
+                newLine();
+                printText( "우측 옆면의 최대절전 버튼을 누르면, 단말이 깨어납니다." );
+            }
+            else if ( notiType == "web_noti_no_sdcard" )
+            {
+                printText( "SD CARD~!!!;" );
+                newLine();
+                printText( "NONONO~!!!" );
+            }
+            else if ( notiType == "web_noti_ota_fail" )
+            {
+                printText( "개통이 실패하였습니다." );
+                newLine();
+                printText( "잠시 후 다시 시도하거나 재부팅 하시기 바랍니다." );
+            }
+            else if (notiType == "web_noti_verify_fail" )
+            {
+                printText( "업데이트 파일의 다운로드와 쓰기가 완료되었으나 유효성 오류로 업데이트를 실패하였습니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+            }
+            else if (notiType == "web_noti_write_fail" )
+            {
+                printText( "버전 정보를 확인하지 못해 업데이트를 실패하였습니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+            }
+            else if (notiType == "web_noti_run_error" )
+            {
+                printText( "업데이트가 이미 진행 중이기 때문에 업데이트 메뉴를 사용할 수 없습니다." );
+            }
+            else if (notiType == "web_noti_latest_ver" )
+            {
+                printText( "이미 최신의 소프트웨어를 사용하고 있습니다." );
+            }
+            else if (notiType == "web_noti_low_battery" )
+            {
+                printText( "배터리가 없거나 잔량이 부족합니다." );
+                newLine();
+                printText( "배터리 충전 후  다시 실행해주시기 바랍니다." );
+            }
+            else if (notiType == "web_noti_down_fail" )
+            {
+                printText( "업데이트 서버와 연결이 불안하여, 다운로드가 실패하였습니다." );
+                newLine();
+                printText( "서버와 연결이 안될 수 있습니다." );
+                newLine();
+                printText( "수 분 후 재시도하여 주십시요." );
+            }
+            else if (notiType == "web_noti_connect_fail" )
+            {
+                printText( "업데이트 서버와 연결이 불안하여, 다운로드가 실패하였습니다." );
+                newLine();
+                printText( "신호가 좋은 장소에서 다시 시도해 주시기 바랍니다." );
+            }
+            else if (notiType == "web_noti_flash_fail" )
+            {
+                printText( "업데이트 파일을 다운로드하였으나 쓰기 작업의 오류로 업데이트를 실패하였습니다." );
+                newLine();
+                printText( "시스템 재시작 후에 다시 접속하여 주십시오." );
+            }
+            else if (notiType == "web_noti_http_fail" )
+            {
+                printText( "업데이트 서버에 업데이트할 내용이 없습니다." );
+            }
+            else if( notiType == "web_noti_wifi_setting" )
+            {
+                printText( "WiFi 설정을 적용합니다." );
+                newLine();
+                printText( "약 30초 후 재접속 해주세요." );
+            }
+            else
+            {
+                // redirect to home page
+                //window.parent.smenu.MenuSelect( 0 );
+                parent.location.href="/login.html";
+            }
+
+            //var timerid = setTimeout("page_init()", 2000);
+        }
+
+    </script>
+</head>
+
+<body id="mybody" bgcolor="#FFFFFF" onLoad="init();">
+<table id="tblBody" class="centerView" width="690" height="95%" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td height="85" align="center">
+            <br><br>
+        </td>
+    </tr>
+
+    <tr>
+        <td align="center" valign="top">
+            <table align="center">
+                <tr>
+                    <td>
+                        <table width="690" border="0" cellspacing="1" cellpadding="3" bordercolor="#9BABBD">
+                            <tr>
+                                <td align="center" valign="middle">
+                                    <h5 id="noti_msg"></h5>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+
+    <tr>
+        <td height="30"></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,1235 @@
+
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/15
+- id 빠진 부분 추가
+- PLMNinfo 1~7 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+<script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+
+<script language="javascript" type="text/javascript">
+var PIN_INFO;
+var nv_remain;
+var nv_remain_puk;
+var Current_Status_PIN;
+var insert_UICC = 0;
+var check_executes_uicc_cmd;
+var APNArray;
+var APNTableArray;
+var apply_mode = 2; // 0 : add , 1 : del , 2 : save
+var current_apn_number = 0;
+var custom = 0;
+
+var statusArray = ["RESTART", "READY", "SIM_PIN", "SIM_PUK", "+CME_ERROR:13"];
+var Current_PIN_Code = "";
+
+var _lang_file = "../lang/lang_lte_setting.json";
+
+function page_init()
+{
+	var url = "/cgi-bin/waninfo.cgi?Command=lteInfo";
+	XHRGet(getinfohandle, url, true);
+}
+
+function getinfohandle(xmlDoc)
+{
+	if (hasError(xmlDoc))
+	{
+		showError(xmlDoc);
+		return;
+	}
+
+	document.getElementById("main_page").style.display="";
+
+	SetButtons( ["btn_apply_verify_uicc", "btn_apply_pin_lock_setting", "btn_apply_pin_change_setting", "btn_apply_puk_setting", "btn_apn_table_apply", "btn_lte_band_sel"] );
+
+	var wan_mode = getDataFromTag(xmlDoc,"wan_mode");
+	if(wan_mode == "2")
+	{
+		document.getElementById("div_lte_setting").style.display = "none";
+		document.getElementById("div_not_lte_setting").style.display = "";
+		return;
+	}
+
+	document.getElementById("div_lte_setting").style.display = "";
+	document.getElementById("div_not_lte_setting").style.display = "none";
+
+	// get UICC info from file
+	//get_PIN_INFO(xmlDoc);
+	// setting remaining times
+	nv_remain = getDataFromTag(xmlDoc,"pin_count");
+	nv_remain_puk = getDataFromTag(xmlDoc,"puk_count");
+	Current_PIN_Code = getDataFromTag(xmlDoc,"pin_code");
+
+	document.getElementById("remaining_count_pin_lock").firstChild.nodeValue = nv_remain;
+	document.getElementById("remaining_count_puk").firstChild.nodeValue = nv_remain_puk;
+
+	change_display(xmlDoc);
+
+	get_num_pin(xmlDoc);
+	show_alert_message(xmlDoc);
+
+	display_apn_name_setting(xmlDoc);
+
+//	display_apn_profile_setting(xmlDoc); // dongjun apn auth add test
+	display_lte_band_setting(xmlDoc);
+
+	display_lte_dm_setting(xmlDoc);
+
+	/*APN Table info*/
+//    document.getElementById("apn_name").value = getDataFromTag(xmlDoc,"apn_name");
+//    document.getElementById("pdn_type").value = getDataFromTag(xmlDoc,"pdn_type");
+//    document.getElementById("apn_auth_type").value = getDataFromTag(xmlDoc,"auth_type");	
+//    document.getElementById("auth_name").value = getDataFromTag(xmlDoc,"auth_name");
+//    document.getElementById("auth_password").value = getDataFromTag(xmlDoc,"auth_password");
+    parent.callResize();
+}
+
+function display_apn_name_setting(xmlDoc) {
+
+	var apn_name_type = getDataFromTag(xmlDoc,"apn_name_type");
+	var apn_name_type_index = document.getElementById("apn_name_index");
+
+	document.getElementById ("apn_custom_addr").style.display = "none";
+	var apn_name = getDataFromTag(xmlDoc, "apn_name");
+
+	document.getElementById("pdn_type").value = getDataFromTag(xmlDoc,"pdn_type");
+
+	// APN AUTH Display
+	if ( apn_name_type == "0" ) // APN NAME = m2m-CA-router.lguplus.co.kr
+	{
+		apn_name_type_index.selectedIndex = 0;
+	}
+	else if ( apn_name_type == "1" ) // APN NAME == internet.lguplus.co.kr
+	{
+		apn_name_type_index.selectedIndex = 1;
+	}
+	else if ( apn_name_type == "2" ) // APN NAME == m2m-router.lguplus.co.kr
+	{
+		apn_name_type_index.selectedIndex = 2;
+	}
+	else  
+	{
+		apn_name_type_index.selectedIndex = 3;
+		custom = 1;
+		document.getElementById ("apn_custom_addr").style.display = "";
+		document.getElementById("apn_name").value = apn_name;
+	}
+	parent.callResize();
+}
+
+function display_apn_profile_setting(xmlDoc) {
+	var auth_name = document.getElementById("auth_name");
+	var auth_password = document.getElementById("auth_password");
+
+	// APN Profile Display
+	var apn_auth_type = getDataFromTag(xmlDoc,"apn_auth_type");
+	var apn_auth_type_index = document.getElementById("apn_auth_type");
+	
+	// document.getElementById("pdn_type").value = getDataFromTag(xmlDoc,"pdn_type");
+
+	// APN AUTH Display
+	if ( apn_auth_type == "0" ) // APN AUTH TYPE == NONE (0)
+	{
+		apn_auth_type_index.selectedIndex = 0;
+		auth_name.value = "";
+		auth_password.value = "";
+		auth_name.disabled = true;
+		auth_password.disabled = true;
+	}
+	else if ( apn_auth_type == "1" ) // APN AUTH TYPE == PAP (1)
+	{
+		apn_auth_type_index.selectedIndex = 1;
+		auth_name.value = getDataFromTag(xmlDoc,"auth_name");
+		auth_password.value = "";
+		auth_name.disabled = false;
+		auth_password.disabled = false;
+	}
+	else // APN AUTH TYPE == CHAP (2)
+	{
+		apn_auth_type_index.selectedIndex = 2;
+		auth_name.value = getDataFromTag(xmlDoc,"auth_name");
+		auth_password.value = "";
+		auth_name.disabled = false;
+		auth_password.disabled = false;
+
+	}
+	parent.callResize();
+}
+
+function display_lte_band_setting(xmlDoc) {
+	var lte_band_setting = getDataFromTag(xmlDoc,"lte_band");
+
+	if( lte_band_setting == "1" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 0;
+	}
+	else if( lte_band_setting == "2" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 1;
+	}
+	else if( lte_band_setting == "3" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 2;
+	}
+	else if( lte_band_setting == "4" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 3;
+	}
+	else if( lte_band_setting == "5" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 4;
+	}
+	else if( lte_band_setting == "6" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 5;
+	}
+	else if( lte_band_setting == "7" )
+	{
+		document.setLTEBand.lte_band.selectedIndex = 6;
+	}
+	else
+	{
+		document.setLTEBand.lte_band.selectedIndex = 0;
+	}
+	parent.callResize();
+}
+
+function display_lte_dm_setting(xmlDoc) {
+    var lte_dm_enable_setting = getDataFromTag(xmlDoc,"lte_dm_enable");
+    var lte_dm_enable = document.getElementById("lte_dm_enable");
+
+    document.getElementById ("lte_dm_addr_row").style.display = "none";
+    document.getElementById ("lte_dm_addr").value = getDataFromTag(xmlDoc, "lte_dm_addr");
+
+    if( lte_dm_enable_setting == "1" )
+    {
+        lte_dm_enable.checked=true;
+	lte_dm_enable.value=1
+	document.getElementById ("lte_dm_addr_row").style.display = "";
+    }
+    else
+    {
+        lte_dm_enable.checked=false;
+    }
+
+    parent.callResize();
+}
+
+function show_alert_message(xmlDoc) {
+	Current_Status_PIN = getDataFromTag(xmlDoc,"pin_status");
+	var Current_Status_USIM = getDataFromTag(xmlDoc,"lte_status_uicc_status");
+	var pin_noti_check = getDataFromTag(xmlDoc,"pin_noti_check"); 
+	insert_UICC = Current_Status_USIM;
+	
+    if(statusArray.indexOf(Current_Status_PIN) > 0) {
+		if(pin_noti_check == "1")
+		{
+			if(Current_Status_PIN == "READY") {
+				if(nv_remain == 2 || nv_remain == 1)
+				{
+                    alert(i18next.store.data[i18next.language].translation.alert['pin_error_prepend'] + nv_remain + i18next.store.data[i18next.language].translation.alert['pin_error_append']);
+				}
+			}else if(Current_Status_PIN == "SIM_PIN") {
+				if(nv_remain == 2 || nv_remain == 1)
+				{
+                    alert(i18next.store.data[i18next.language].translation.alert['pin_error_prepend'] + nv_remain + i18next.store.data[i18next.language].translation.alert['pin_error_append']);
+				}
+			}else if(Current_Status_PIN == "SIM_PUK") {
+				if(nv_remain == 0 && nv_remain_puk == 10)
+				{
+                    alert(i18next.store.data[i18next.language].translation.alert['pin_error']);
+				}
+				// PIN blocked
+				else if(nv_remain_puk < 10)
+				{
+                    alert(i18next.store.data[i18next.language].translation.alert['puk_error_prepend'] + nv_remain_puk + i18next.store.data[i18next.language].translation.alert['puk_error_append']);
+				}else if(nv_remain_puk == 0){
+                    alert(i18next.store.data[i18next.language].translation.alert['puk_error']);
+				}
+			}else if(Current_Status_PIN == "+CME_ERROR:13") {
+                alert(i18next.store.data[i18next.language].translation.alert['puk_error']);
+			}
+    	}
+    }
+}
+
+function get_num_pin(xmlDoc) {
+    var pin_verify_check = getDataFromTag(xmlDoc,"pin_verify_check");
+    var uicc_lock_state = getDataFromTag(xmlDoc,"uicc_lock_state");
+	var pin_noti_check = getDataFromTag(xmlDoc,"pin_noti_check"); 
+
+	if(pin_noti_check == "1")
+	{
+		if( nv_remain == "3" && pin_verify_check == "1" )
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['pin_code_verified']);
+		}
+		else if( nv_remain == "3" && uicc_lock_state == "1" && pin_verify_check == "2" )
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['pin_code_locked']);
+		}
+		else if( nv_remain == "3" && uicc_lock_state == "0" && pin_verify_check == "2")
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['pin_code_unlocked']);
+		}
+		else if( nv_remain == "3" && uicc_lock_state == "1" && pin_verify_check == "4" )
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['puk_code_input']);
+		}
+		else if( nv_remain == "3" && uicc_lock_state == "1" && pin_verify_check == "3" )
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['pin_code_changed']);
+		}
+	}
+}
+
+function change_display(xmlDoc) {
+	Current_Status_PIN = getDataFromTag(xmlDoc,"pin_status");// RESTART, READY, SIM_PIN, SIM_PUK
+	var uicc_lock_state = getDataFromTag(xmlDoc,"uicc_lock_state");
+	document.getElementById("pin_status").value = Current_Status_PIN;
+    document.getElementById("uicc_lock_state").value = uicc_lock_state;
+    var pin_code_result = getDataFromTag(xmlDoc,"pin_code_result");
+
+    var UICC_Status = "";
+    var PIN_Enable = "";
+
+	/*Current_Status_PIN = "SIM_PIN";
+    var pin_code_result ="";*/
+
+    if(statusArray.indexOf(Current_Status_PIN) > 0) {
+	    if(Current_Status_PIN == "READY") {
+	        if(uicc_lock_state == "0") {
+                document.getElementById("tbl_pin_code_verification").style.display = "none";
+                document.getElementById("tbl_pin_lock_setting").style.display = "";
+                document.getElementById("tbl_puk_setting").style.display = "none";
+                document.getElementById("tbl_pin_code_change").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_deactive'];
+                PIN_Enable = i18next.store.data[i18next.language].translation.text['pin_disable'];
+			}else if(uicc_lock_state == "1"){
+                document.getElementById("tbl_pin_code_verification").style.display = "";
+                document.getElementById("tbl_pin_lock_setting").style.display = "";
+                document.getElementById("tbl_pin_code_change").style.display = "";
+                document.getElementById("tbl_puk_setting").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_active'];
+                PIN_Enable = i18next.store.data[i18next.language].translation.text['pin_enable'];
+			}
+		}else if(Current_Status_PIN == "SIM_PIN") {
+            if(uicc_lock_state == "1") {
+                document.getElementById("tbl_pin_code_verification").style.display = "";
+                document.getElementById("tbl_pin_lock_setting").style.display = "";
+                document.getElementById("tbl_pin_code_change").style.display = "";
+                document.getElementById("tbl_puk_setting").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_active'];
+                PIN_Enable = i18next.store.data[i18next.language].translation.text['pin_enable'];
+            }else {
+                //UICC_Status = "PIN 활성화 상태. PIN코드 검증을 위한 PIN Code를 입력해 주십시오.";
+			}
+		}else if(Current_Status_PIN == "SIM_PUK") {
+	        if(nv_remain_puk == "0") {
+                document.getElementById("tbl_pin_code_verification").style.display = "none";
+                document.getElementById("tbl_pin_lock_setting").style.display = "none";
+                document.getElementById("tbl_puk_setting").style.display = "";
+                document.getElementById("tbl_pin_code_change").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_blocked_umlimit'];
+			}else {
+                document.getElementById("tbl_pin_code_verification").style.display = "none";
+                document.getElementById("tbl_pin_lock_setting").style.display = "none";
+                document.getElementById("tbl_puk_setting").style.display = "";
+                document.getElementById("tbl_pin_code_change").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_blocked'];
+			}
+		}else if(Current_Status_PIN == "+CME_ERROR:13") {
+            if(nv_remain_puk == "0") {
+                document.getElementById("tbl_pin_code_verification").style.display = "none";
+                document.getElementById("tbl_pin_lock_setting").style.display = "none";
+                document.getElementById("tbl_puk_setting").style.display = "";
+                document.getElementById("tbl_pin_code_change").style.display = "none";
+
+                UICC_Status = i18next.store.data[i18next.language].translation.text['pin_blocked_umlimit'];
+            }
+        }
+/*
+        document.getElementById("tbl_pin_code_verification").style.display = "none";
+        document.getElementById("tbl_pin_lock_setting").style.display = "none";
+        document.getElementById("tbl_puk_setting").style.display = "none";
+        document.getElementById("tbl_pin_code_change").style.display = "none";
+
+        UICC_Status = "PIN 초기화가 안되었습니다.";
+
+        document.getElementById("tbl_pin_code_verification").style.display = "none";
+        document.getElementById("tbl_pin_lock_setting").style.display = "none";
+        document.getElementById("tbl_puk_setting").style.display = "none";
+        document.getElementById("tbl_pin_code_change").style.display = "none";
+        UICC_Status = "지원할 수 없는 USIM 카드입니다. 유효한 USIM 카드로 교체하여 주십시오.";*/
+
+	}else {
+        document.getElementById("tbl_pin_code_verification").style.display = "none";
+        document.getElementById("tbl_pin_lock_setting").style.display = "none";
+        document.getElementById("tbl_puk_setting").style.display = "none";
+        document.getElementById("tbl_pin_code_change").style.display = "none";
+
+	if (Current_Status_PIN == "RESTART")
+	{
+        	UICC_Status = i18next.store.data[i18next.language].translation.text['restart_modem'];
+	}
+	else
+	{
+        	UICC_Status = i18next.store.data[i18next.language].translation.text['insert_usim'];
+	}
+
+	document.getElementById("apn_name_index").disabled = true;
+	document.getElementById("lte_band").disabled = true;
+        EnableButtons( false );
+	}
+
+	document.getElementById( "uicc_status" ).firstChild.nodeValue = UICC_Status;
+
+	// display PIN Status
+	if( PIN_Enable != "" )
+	{
+		document.getElementById("pin_lock_status").firstChild.nodeValue = PIN_Enable;
+	}
+	parent.callResize();
+}
+
+function pin_text_available_check(str_pin, type) {
+	if( str_pin.length == 0 )
+	{
+		if(type == 0)
+		{
+			alert(i18next.store.data[i18next.language].translation.alert['insert_password']);
+		}
+		else if(type == 1)
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['insert_new_password']);
+		}
+		else if(type == 2)
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['insert_confirm_password']);
+		}
+		return false;
+	}
+
+	if( checkAllNum( str_pin ) != true )
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+		return false;
+	}
+
+	if( (str_pin.length < 4) || (str_pin.length > 8 ))
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['password_range']);
+		return false;
+	}
+	return true;
+}
+
+function verify_PIN() {
+	if( pin_text_available_check(document.PIN_Setting.pin_code_check.value, 0) != true)
+	{
+		return false;
+	}
+	return true
+}
+
+function setup_PIN() {
+	var InputCode = document.PIN_Lock_Setting.input_pin_code.value;
+
+	if(pin_text_available_check(InputCode, 0) != true)
+	{ return false; }
+
+	return true;
+}
+
+function puk_text_available_check(str_pin) {
+	if( str_pin.length == 0)
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['insert_puk']);
+		return false;
+	}
+
+	if( checkAllNum( str_pin ) != true )
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+		return false;
+	}
+
+	if( str_pin.length != 8 )
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['puk_range']);
+		return false;
+	}
+	return true;
+}
+
+function AdmFormCheck() {
+	if( pin_text_available_check( document.PIN_Change.pin_code.value, 0) != true )
+		return false;
+	if( pin_text_available_check( document.PIN_Change.new_pin_code.value, 1) != true )
+		return false;
+	if( pin_text_available_check( document.PIN_Change.new_pin_code_check.value, 2) != true )
+		return false;
+
+	if( document.PIN_Change.new_pin_code.value != document.PIN_Change.new_pin_code_check.value ) {
+        alert(i18next.store.data[i18next.language].translation.alert['code_match']);
+		return false;
+	}
+
+	return true;
+}
+
+function check_apn_name() {
+	var rea = ",\":;&\\%+><?\'";
+	var i;
+	if( document.getElementById("apn_name").value == "" )
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['profile_name']);
+		return false;
+	}
+
+	for ( i = 0; i <document.getElementById("apn_name").value.length; i++)
+	{
+		if ((rea.indexOf(document.getElementById("apn_name").value.charAt(i)) >= 0)
+			|| (document.getElementById("apn_name").value.length > 32))
+		{
+            alert(i18next.store.data[i18next.language].translation.alert['profile_name']);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function check_username() {
+    var rea = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_/@";
+    var i;
+    
+    for ( var i = 0; i < document.getElementById("auth_name").value.length; i++)
+    {
+	if ((rea.indexOf(document.getElementById("auth_name").value.charAt(i)) == -1)
+	    || (document.getElementById("auth_name").value.length > 45))
+	{
+	    alert(i18next.store.data[i18next.language].translation.alert['auth_name']);
+	    return false;
+	}
+    }
+    return true;
+}
+
+function check_password() {
+    var rea = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%()*+-./:;>=?@[]_{}";
+    var i;
+
+    for( var i = 0; i < document.getElementById("auth_password").value.length; i++)
+    {
+	if ((rea.indexOf(document.getElementById("auth_password").value.charAt(i)) == -1)
+	    || (document.getElementById("auth_password").value.length > 16))
+	{
+	    alert(i18next.store.data[i18next.language].translation.alert['auth_password']);
+	    return false;
+	}
+    }
+    return true;
+}
+
+function checkAllNum(str) {
+    for(var i=0; i<str.length; i++){
+        if(str.charAt(i) >= '0' && str.charAt(i) <= '9')
+        {	continue;	}
+        return false;
+    }
+    return true;
+}
+
+function change_apn_name(val) { // dongjun apn auth add test
+	if(val == 3) 
+	{
+		document.getElementById ("apn_custom_addr").style.display = "";
+		custom = 1;
+	}
+	else
+	{
+		document.getElementById ("apn_custom_addr").style.display = "none";
+	    	custom = 0;
+	}
+
+	parent.callResize();
+}
+
+function change_apn_auth_type(val) { // dongjun apn auth add test
+	var auth_name = document.getElementById("auth_name");
+	var auth_password = document.getElementById("auth_password");
+
+	if(val == 0) 
+	{
+		auth_name.value = "";
+		auth_password.value = "";
+		auth_name.disabled = true;
+		auth_password.disabled = true;
+	}
+	else
+	{
+		auth_name.disabled = false;
+		auth_password.disabled = false;
+	}
+	parent.callResize();
+}
+
+function change_DM_Activation(obj) {
+    if(obj.checked) {
+        obj.value = 1;
+	document.getElementById ("lte_dm_addr_row").style.display = "";
+
+    }else {
+        obj.value = 0;
+	document.getElementById ("lte_dm_addr_row").style.display = "none";
+    }
+    parent.callResize();
+}
+
+function changeActivation(obj) {
+    if(obj.checked) {
+        obj.value = 1;
+    }else {
+        obj.value = 0;
+    }
+}
+
+function formCheck_apn() {
+    if (custom == 1) 
+    {
+	if ( !check_apn_name())
+	{
+		return false;
+	}
+    }
+	/*
+	   if ( !check_profile())
+	{
+		return false;
+	}
+	if ( !check_username())
+	{
+		return false;
+	}
+	if ( !check_password())
+	{
+		return false;
+	}
+	*/
+
+    return true;
+}
+
+/*
+ * set band CA Operation Check & Guide popup
+ * DAYOU_DONGJUN_200915
+ */ 	
+function Check_setband() {
+	return true;
+}
+
+function apply_pin_verification() {
+    if( verify_PIN() )
+    {
+        //change_To_ascii_with0x_verify();
+        //document.getElementById("PIN_CMD").value = 0;
+        //document.getElementById("REMAIN_TIMES").value = nv_remain;
+        EnableButtons( false );
+        TimeoutReload( 20 );
+        DimIndicator();
+
+        var url = "/cgi-bin/wanset.cgi";
+        var param = "Command=pinCheckVerify"
+            + "&"
+            +serializeFormElement("PIN_Setting");
+
+        XHRPost(null, url, param, true);
+    }
+}
+
+function apply_pin_lock_setting() {
+	if( setup_PIN() )
+	{
+		EnableButtons( false );
+		TimeoutReload( 20 );
+        DimIndicator();
+
+		var url = "/cgi-bin/wanset.cgi";
+		var param = "Command=pinLockSetting"
+            + "&"
+            + serializeFormElement("PIN_Lock_Setting");
+
+		XHRPost(null, url, param, true);
+	}
+}
+
+function apply_pin_change_setting() {
+    if( AdmFormCheck() )
+    {
+        EnableButtons( false );
+        TimeoutReload( 20 );
+        DimIndicator();
+        var url = "/cgi-bin/wanset.cgi";
+        var param = "Command=pinCodeChange"
+            + "&"
+            +serializeFormElement("PIN_Change");
+
+        XHRPost(null, url, param, true);
+    }
+}
+
+function apply_puk_setting() {
+	if( puk_text_available_check(document.setUnlockPIN.input_puk_code.value) != true )
+		return false;
+	if( pin_text_available_check(document.setUnlockPIN.puk_new_pin_code.value) != true )
+		return false;
+	if( pin_text_available_check(document.setUnlockPIN.puk_new_pin_code_check.value) != true )
+		return false;
+
+	if( document.setUnlockPIN.puk_new_pin_code.value != document.setUnlockPIN.puk_new_pin_code_check.value )
+	{
+        alert(i18next.store.data[i18next.language].translation.alert['code_match']);
+		return false;
+	}
+	else
+	{
+		//change_To_ascii_with0x_PUK();
+		//document.getElementById("PIN_CMD").value = 4;
+		EnableButtons( false );
+		TimeoutReload( 20 );
+        DimIndicator();
+		var url = "/cgi-bin/wanset.cgi";
+		var param = "Command=pukSetting"
+            + "&"
+					+serializeFormElement("setUnlockPIN");
+
+		XHRPost(null, url, param, true);
+	}
+}
+
+
+function submit_apn_table_apply() {
+    if ( formCheck_apn() )
+    {
+	if (confirm(i18next.store.data[i18next.language].translation.alert['announcement']))
+	{
+		EnableButtons( false );
+		TimeoutReload( 15 );
+		DimIndicator();
+		var url = "/cgi-bin/wanset.cgi";
+		var param = "Command=apnSetting"
+		+"&"
+		+serializeFormElement("setPLMNInfo");
+		XHRPost(null, url, param, true);
+	}
+    }
+}
+
+
+function submit_lte_band_apply() {
+	if ( Check_setband() )
+	{
+		EnableButtons( false );
+		TimeoutReload( 3 );
+	    //DimIndicator();
+		var url = "/cgi-bin/wanset.cgi";
+		var param = "Command=lteBand"
+					+"&"
+					+serializeFormElement("setLTEBand");
+		XHRPost(null, url, param, true);
+	}	
+}
+
+function check_ip_addr()
+{
+    if (document.setLTEDM.lte_dm_addr.value == "") {
+	alert(i18next.store.data[i18next.language].translation.alert['Input_IP_Address']);
+	return false;
+    }
+    if (document.setLTEDM.lte_dm_addr.value != "") {
+	if (!checkIPAddr(document.setLTEDM.lte_dm_addr)) {
+	    alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+	    return false;
+	}
+    }
+    return true;
+
+}
+
+function submit_lte_dm_apply()
+{
+    //xalert ( 'reboot_need' );
+    //TimeoutReload( 3 );
+    //DimIndicator();
+
+    if (check_ip_addr) 
+    {
+	var url = "/cgi-bin/wanset.cgi";
+	var param = "Command=lteDM"
+	    + "&"
+	    + serializeFormElement("setLTEDM");
+
+	XHRPost ( err_handle_reload, url, param, true );
+    }
+
+}
+
+function init() {
+	prevent_enterkey ();
+	languageFileLoad ( _lang_file );
+	CheckLogin(page_init);
+}
+
+function display_progress(timeout) {
+    $("#lte").hide();
+    $("#progress_display").show();
+    parent.close_dialog();
+    TimeoutReload(timeout, true);
+}
+</script>
+<body onload="init()">
+<div id="loading" class="loading" style="display:none"></div>
+<div id="dim" class="dim" style="display:none"></div>
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section id="lte" class="lte">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="LteSettingContent.title">LTE 설정</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="LteSettingContent.path1">WAN</span>
+						<span class="path_arrow focus_on" data-i18n="LteSettingContent.path2">LTE 설정</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<div class="cont_grp" id="div_not_lte_setting" data-i18n="LteSettingContent.NOT_LTE">
+			해당 메뉴는 LTE 접속이 가능한 모드에서만 설정이 가능합니다.
+		</div>
+		<!-- PIN 정보 -->
+		<div class="cont_grp" id="div_lte_setting">
+			<div class="cont_grp_inner">
+				<div class="cont_stitl" data-i18n="LteSettingContent.content.PIN_Info.title">PIN 정보</div>
+				<div class="setting_tbl">
+					<table class="list_noline">
+						<colgroup>
+							<col class="td_width1">
+							<col class="td_width2">
+						</colgroup>
+						<tr>
+							<td data-i18n="LteSettingContent.content.PIN_Info.PIN_Status">PIN 상태</td>
+							<td id="uicc_status">USIM 카드를 재 장착한 후 재부팅 하십시오.</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<!-- //PIN 정보 -->
+
+			<form method="POST" name="PIN_Setting" id="PIN_Setting">
+				<!-- PIN 코드 검증 -->
+				<div class="cont_grp" id="tbl_pin_code_verification">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.PIN_Code_Verification.title">PIN 코드 검증</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Code_Verification.PIN_Code">PIN 코드</td>
+									<td>
+										<input type="password" id="pin_code_check" name="pin_code_check" size="16" maxlength="8" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_basic">
+						<button type="button" class="btn_default btn_save" id="btn_apply_verify_uicc" onclick="apply_pin_verification()"
+								data-i18n="common.Apply">적용</button>
+					</div>
+				</div>
+				<!-- //PIN 코드 검증 -->
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+			</form>
+
+			<form method="POST" name="PIN_Lock_Setting" id="PIN_Lock_Setting">
+				<!-- PIN 잠금 설정 -->
+				<div class="cont_grp" id="tbl_pin_lock_setting">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.PIN_Lock_Setting.title">PIN 잠금 설정</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Lock_Setting.PIN_Lock_Status">PIN 잠금 상태</td>
+									<td id="pin_lock_status">비활성화</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Lock_Setting.PIN_Code">PIN 코드</td>
+									<td>
+										<input type="password" id="input_pin_code" name="input_pin_code" size="16" maxlength="8" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Lock_Setting.Remain_Times">남은 횟수</td>
+									<td id="remaining_count_pin_lock">3</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_basic">
+						<button type="button" class="btn_default btn_save" id="btn_apply_pin_lock_setting" onclick="apply_pin_lock_setting()"
+								data-i18n="common.Apply">적용</button>
+					</div>
+				</div>
+				<!-- //PIN 잠금 설정 -->
+				<input type="hidden" id="pin_status"/>
+				<input type="hidden" id="uicc_lock_state"/>
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+			</form>
+
+			<form method="POST" name="PIN_Change" id="PIN_Change">
+				<!-- PIN 코드 변경 -->
+				<div class="cont_grp" id="tbl_pin_code_change">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.PIN_Code_Change.title">PIN 코드 변경</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Code_Change.Current_PIN_Code">현재 PIN 코드</td>
+									<td>
+										<input type="password" id="pin_code" name="pin_code" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Code_Change.New_PIN_Code">새로운 PIN 코드</td>
+									<td>
+										<input type="password" id="new_pin_code" name="new_pin_code" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Code_Change.New_PIN_Code_Confirm">새로운 PIN 코드 (확인)</td>
+									<td>
+										<input type="password" id="new_pin_code_check" name="new_pin_code_check" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_setting">
+						<input type="hidden" id="pin_status"/>
+						<input type="hidden" id="uicc_lock_state"/>
+						<button type="button" class="btn_default btn_save" id="btn_apply_pin_change_setting" onclick="apply_pin_change_setting()"
+								data-i18n="common.Apply">적용</button>
+					</div>
+				</div>
+				<!-- //PIN 코드 변경 -->
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+			</form>
+
+			<!-- PIN 해제 키 -->
+			<form method="post" name="setUnlockPIN" id="setUnlockPIN">
+				<div class="cont_grp" id="tbl_puk_setting">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.PIN_Unlock_Key.title">PIN 해제 키</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Unlock_Key.PUK_Code">PUK 코드</td>
+									<td>
+										<input type="password" id="input_puk_code" name="input_puk_code" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Unlock_Key.New_PIN_Code">새로운 PIN 코드</td>
+									<td>
+										<input type="password" id="puk_new_pin_code" name="puk_new_pin_code" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Unlock_Key.New_PIN_Code_Confirm">새로운 PIN 코드 (확인)</td>
+									<td>
+										<input type="password" id="puk_new_pin_code_check" name="puk_new_pin_code_check" size="16" maxlength="8" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.PIN_Unlock_Key.Remain_Times">남은 횟수</td>
+									<td id="remaining_count_puk">10</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_basic">
+						<input type="hidden" name="SessionKey" id="SessionKey" value="">
+						<button type="button" class="btn_default btn_save" id="btn_apply_puk_setting" onclick="apply_puk_setting()"
+								data-i18n="common.Apply">적용</button>
+					</div>
+				</div>
+			</form>
+			<!-- //PIN 해제 키 -->
+
+			<!-- APN 프로파일 -->
+			<form method="post" name="setPLMNInfo" id="setPLMNInfo">
+				<div class="cont_grp">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.APN_Profile.title">APN 프로파일</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<!--
+								<tr id="tr_apn_pdn_name_label">
+									<td>프로필 이름</td>
+									<td>
+										<input type="text" id="apn_pdn_label" maxlength="10" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								-->
+								<tr id="sel_apn_name">
+									<td data-i18n="LteSettingContent.content.APN_Profile.APN_Name.title">APN 이름</td>
+									<td>
+										<select name="apn_name_index" id="apn_name_index" class="select_box" onchange="change_apn_name(this.value)">
+											<option value="0" selected data-i18n="LteSettingContent.content.APN_Profile.APN_Name.first">m2m-CA-router.lguplus.co.kr</option>
+											<option value="1" data-i18n="LteSettingContent.content.APN_Profile.APN_Name.second">internet.lguplus.co.kr</option>
+											<option value="2" data-i18n="LteSettingContent.content.APN_Profile.APN_Name.third">m2m-router.lguplus.co.kr</option>
+											<option value="3" data-i18n="LteSettingContent.content.APN_Profile.APN_Name.custom">Input User APN</option>
+
+										</select>
+										<!-- <input type="text" id="apn_name" maxlength="32" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">-->
+									</td>
+								</tr>
+								<tr id=apn_custom_addr>
+									<td></td>
+									<td>
+										<input type="text" id="apn_name" maxlength="32" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>	
+								<!--
+								<tr id="auth_apn_name_type_password" style="display:none;">
+									<td>APN 이름</td>
+									<td>
+										<input type="password" id="apn_ni_p" maxlength="32" value="&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;" onkeydown="IgnoreEnterKey( event );" class="inputbox50per">
+									</td>
+								</tr>
+								<tr>
+									<td data-i18n="LteSettingContent.content.APN_Profile.PDN_Type.title">PDN 타입</td>
+									<td>
+										<select name="pdn_type" id="pdn_type" class="select_box4">
+											<option value="0" data-i18n="LteSettingContent.content.APN_Profile.PDN_Type.options.IP">IP</option>
+											<option value="1" data-i18n="LteSettingContent.content.APN_Profile.PDN_Type.options.IPV6">IPV6</option>
+											<option value="2" data-i18n="LteSettingContent.content.APN_Profile.PDN_Type.options.IPV4V6">IPV4V6</option>
+										</select>
+									</td>
+								</tr>
+								-->
+								<input type="hidden" name="pdn_type" id="pdn_type" value="">
+								<!--
+								<tr id="auth_apn_auth_type">
+									<td data-i18n="LteSettingContent.content.APN_Profile.Auth.title">인증</td>
+									<td>
+										<select name="apn_auth_type" id="apn_auth_type" class="select_box4" onchange="change_apn_auth_type(this.value)">
+											<option value="0" selected data-i18n="LteSettingContent.content.APN_Profile.Auth.options.NONE">NONE</option>
+											<option value="1" data-i18n="LteSettingContent.content.APN_Profile.Auth.options.PAP">PAP</option>
+											<option value="2" data-i18n="LteSettingContent.content.APN_Profile.Auth.options.CHAP">CHAP</option>
+										</select>
+									</td>
+								</tr>
+								<tr id="auth_apn_username">
+									<td data-i18n="LteSettingContent.content.APN_Profile.Username">이름</td>
+									<td>
+										<input type="text" name="auth_name" id="auth_name" maxlength="45" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per" disabled>
+									</td>
+								</tr>
+								<tr id="auth_apn_password">
+									<td data-i18n="LteSettingContent.content.APN_Profile.Password">암호</td>
+									<td>
+										<input type="password" name="auth_password" id="auth_password" maxlength="16" value="" onkeydown="IgnoreEnterKey( event );" class="inputbox50per" disabled>
+									</td>
+								</tr>
+								-->
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_setting">
+						<button type="button" class="btn_default btn_save" id="btn_apn_table_apply" onclick="submit_apn_table_apply()"
+								data-i18n="common.Apply">저장</button>
+					</div>
+				</div>
+				<input type="hidden" name="reboot" id="reboot" value="0">
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+				<!-- //APN 프로파일 -->
+
+			</form>
+			
+			<!-- LTE 밴드 설정 -->			
+			<form method="post" name="setLTEBand" id="setLTEBand">
+				<div class="cont_grp">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.LTE_Band_Setting.title">LTE 밴드 설정</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr>
+									<td data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.title">밴드 설정</td>
+									<td>
+										<select name="lte_band" id="lte_band" class="select_box">
+											<option value="1" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Automatic">Auto</option>
+											<option value="2" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_1">Band 1</option>
+											<option value="3" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_5">Band 5</option>
+											<option value="4" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_7">Band 7</option>
+											<option value="5" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_1_5">Band 1 & 5</option>
+											<option value="6" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_1_7">Band 1 & 7</option>
+											<option value="7" data-i18n="LteSettingContent.content.LTE_Band_Setting.Band_Setting.options.Band_5_7">Band 5 & 7</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_setting">
+						<button type="button" class="btn_default btn_save" id="btn_lte_band_sel" data-i18n="common.Apply" onclick="submit_lte_band_apply()">저장</button>
+						<input type="hidden" name="SessionKey" id="SessionKey" value="">
+					</div>
+				</div>
+			</form>			
+			<!-- //LTE 밴드 설정 -->
+			
+			<!-- LTE DM 설정 -->
+			<form method="post" name="setLTEDM" id="setLTEDM">
+				<div class="cont_grp">
+					<div class="cont_grp_inner">
+						<div class="cont_stitl" data-i18n="LteSettingContent.content.LTE_DM_Setting.title">LTE DM 설정</div>
+						<div class="setting_tbl">
+							<table class="list_noline">
+								<colgroup>
+									<col class="td_width1">
+									<col class="td_width2">
+								</colgroup>
+								<tr name="lte_dm_table_row" id="lte_dm_table_row">
+									<td data-i18n="LteSettingContent.content.LTE_DM_Setting.title">
+										LTE DM 설정
+									</td>
+									<td colspan="2">
+										<label><input type="checkbox" name="lte_dm_enable" id="lte_dm_enable" value="0" onclick="change_DM_Activation(this);">
+											<span data-i18n="LteSettingContent.content.LTE_DM_Setting.LTE_DM_Setting.Active">활성</span></label>
+									</td>
+								</tr>
+								<tr id="lte_dm_addr_row">
+									<td data-i18n="LteSettingContent.content.LTE_DM_Setting.LTE_DM_Setting.Add">
+										LTE DM Address 설정
+									</td>
+									<td>
+									<input name="lte_dm_addr" id="lte_dm_addr" type="text" size="25" maxlength="15" class="required" value="">
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="btm_btn_setting">
+					<!--
+					* normal confirm popup
+					* DAYOU_MKSHIN_200912
+					-->
+						<button type="button" class="btn_default btn_save" id="btn_lte_dm_sel" onclick="submit_lte_dm_apply()" data-i18n="common.Apply">저장</button>
+						<input type="hidden" name="reboot_allow" id="reboot_allow" value="0">
+					</div>
+					<!--
+					* LTE Default Value Apply
+					* DAYOU_DJLEE_201023
+					<p class="txt_info_vap" data-i18n="common.Help_Font">
+						※ LTE 밴드관련 설정은 설정값초기화 시에 기본 값으로 초기화되지 않습니다.
+					</p>				
+					-->
+				</div>
+				<input type="hidden" name="SessionKey" id="SessionKey" value="">
+			</form>
+			<!-- //LTE DM 설정 -->
+		</div>
+
+	</section>
+	<section id="progress_display" class="lte" style="display: none">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="LteSettingContent.title">LTE 설정</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="LteSettingContent.path1">WAN</span>
+						<span class="path_arrow focus_on" data-i18n="LteSettingContent.path2">LTE 설정</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+		<!-- 기본설정 reboot 부분 -->
+		<div class="cont_grp" id="firmware_progress">
+			<!-- Reboot 진행중 -->
+			<div class="cont_progressbar">
+				<p class="progress_txt1" data-i18n="Progress.Reboot_Title">시스템을 재시작 합니다.</p>
+				<!-- Progressbar -->
+				<!-- remark progress bar, DAYOU_MKSHIN_200912 
+				<div class="progressbar_panel">
+					<div class="progress" id="h-default-basic">
+						<div id="update_progress_bar" class="progress-bar progress-bar-striped active" data-transitiongoal-backup="75" data-transitiongoal="75" style="width: 0%">
+							<span class="sr-only">0%</span>
+						</div>
+					</div>
+				</div>
+				-->
+				<!-- //Progressbar -->
+				<p class="progress_txt2"  data-i18n="Progress.Content">이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.</p>
+				<!-- remark login button, DAYOU_MKSHIN_200913
+				<div class="login_link">
+					<button type="button" class="btn_default btn_login_link" onclick="parent.location.href='/login.html'" data-i18n="Progress.MoveToLogin">Login 페이지 이동</button>
+				</div>
+				-->
+			</div>
+			<!-- //Reboot 진행중 -->
+		</div>
+		<!-- 기본설정 reboot 부분 -->
+	</section>
+</div>
+</body>
+</html>

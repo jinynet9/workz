@@ -1,0 +1,2 @@
+/usr/bin/ar cr libshape.a  CMakeFiles/shape.dir/shape.o
+/usr/bin/ranlib libshape.a

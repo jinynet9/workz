@@ -1,0 +1,271 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/15 - contbody에 main_page id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        var arrVAP;
+        var total_enable;
+    	var _lang_file = "../lang/lang_wireless5_connect_limit.json";
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless5_con_limit";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+
+            value_setting(xmlDoc);
+            SetButtons(["btn_apply_save", "btn_apply"]);
+
+            for (i = 0; i < 4; i++) {
+                if (arrVAP[i] == 1) {
+                    document.getElementById("conn_restrict" + i).disabled = true;
+                } else {
+                    document.getElementById("conn_restrict" + i).disabled = false;
+                }
+            }
+            parent.callResize();
+        }
+
+        function value_setting(xmlDoc) {
+            arrVAP = [getDataFromTag(xmlDoc, "arrVAP0"), getDataFromTag(xmlDoc, "arrVAP1"), getDataFromTag(xmlDoc, "arrVAP2"),
+                getDataFromTag(xmlDoc, "arrVAP3")];
+	    /*
+	      , getDataFromTag(xmlDoc, "arrVAP4"), getDataFromTag(xmlDoc, "arrVAP5"),
+                getDataFromTag(xmlDoc, "arrVAP6"), getDataFromTag(xmlDoc, "arrVAP7")];
+	    */
+
+            total_enable = getDataFromTag(xmlDoc, "total_enable")
+            document.getElementById("conn_restrict").value = getDataFromTag(xmlDoc, "conn_restrict");
+            document.getElementById("ssid8").innerText = getDataFromTag(xmlDoc, "ssid0");
+            document.getElementById("conn_restrict0").value = getDataFromTag(xmlDoc, "conn_restrict0");
+            document.getElementById("ssid9").innerText = getDataFromTag(xmlDoc, "ssid1");
+            document.getElementById("conn_restrict1").value = getDataFromTag(xmlDoc, "conn_restrict1");
+            document.getElementById("ssid10").innerText = getDataFromTag(xmlDoc, "ssid2");
+            document.getElementById("conn_restrict2").value = getDataFromTag(xmlDoc, "conn_restrict2");
+            document.getElementById("ssid11").innerText = getDataFromTag(xmlDoc, "ssid3");
+            document.getElementById("conn_restrict3").value = getDataFromTag(xmlDoc, "conn_restrict3");
+	    /*
+            document.getElementById("ssid12").innerText = getDataFromTag(xmlDoc, "ssid4");
+            document.getElementById("conn_restrict4").value = getDataFromTag(xmlDoc, "conn_restrict4");
+            document.getElementById("ssid13").innerText = getDataFromTag(xmlDoc, "ssid5");
+            document.getElementById("conn_restrict5").value = getDataFromTag(xmlDoc, "conn_restrict5");
+            document.getElementById("ssid14").innerText = getDataFromTag(xmlDoc, "ssid6");
+            document.getElementById("conn_restrict6").value = getDataFromTag(xmlDoc, "conn_restrict6");
+            document.getElementById("ssid15").innerText = getDataFromTag(xmlDoc, "ssid7");
+            document.getElementById("conn_restrict7").value = getDataFromTag(xmlDoc, "conn_restrict7");
+	    */
+        }
+
+        function value_filter() {
+            var sum = 0;
+            var total = document.getElementById("conn_restrict").value;
+            var ssid_maxsta;
+            var regex = /^[0-9]+$/;
+
+            if ((1 > parseInt(total)) || (parseInt(total) > 245) || (!total.match(regex))) {
+                alert(i18next.store.data[i18next.language].translation.alert['connect_restrict']);
+                return false;
+            }
+
+            for (i = 0; i < 4; i++) {
+                ssid_maxsta = document.getElementById("conn_restrict" + i).value;
+                if (!ssid_maxsta.match(regex)) {
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                    return false;
+                }
+
+                if (document.getElementById("conn_restrict" + i).disabled != true) {
+                    if (parseInt(ssid_maxsta) == 0) {
+                        alert(i18next.store.data[i18next.language].translation.alert['max_connect_restrict']);
+                        return false;
+                    }
+
+                    if (parseInt(ssid_maxsta) > parseInt(total)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['over_restrict']);
+                        return false;
+                    }
+                }
+
+            }
+
+            return true;
+        }
+
+        function submit_apply_save() {
+            if (value_filter()) {
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=apply_con_limit5"
+                    + "&"
+                    + serializeFormElement("wireless_conn");
+
+                XHRPost(null, url, param, true);
+            }
+        }
+
+        function submit_wifi() {
+            EnableButtons(false);
+            TimeoutReload(TIMEOUT_DEFAULT_TIME);
+            var url = "/cgi-bin/wirelessset.cgi";
+            var param = "Command=submit_wifi"
+                + "&"
+                + serializeFormElement("wifi");
+
+            XHRPost(null, url, param, true);
+        }
+
+        function init() {
+            prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless5ConnectLimitContent.title">5G 무선 접속수 제한</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless5ConnectLimitContent.path1">5G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless5ConnectLimitContent.path2">무선 접속수 제한</span>
+                    </p>
+                    <form method="post" name="wifi" id="wifi">
+                        <button type="button" class="btn_default btn_wifi" id="btn_apply" onclick="jump_inform_wifi_restart();"
+                                data-i18n="Wireless5ConnectLimitContent.WIFI_Apply">WiFi 적용</button>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <form method="post" name="wireless_conn" id="wireless_conn">
+            <!-- 2.4G 무선 MAC 관리 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Wireless5ConnectLimitContent.content.5G_Station_Setup.title">5G 무선 접속수 제한</div>
+                    <div class="wireless_tbl">
+                        <table>
+                            <colgroup>
+                                <col class="td_width40per">
+                                <col class="td_width60per">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="Wireless5ConnectLimitContent.content.5G_Station_Setup.Wireless_Connect_Restrict">5G 무선 접속수 제한 (1 ~ 245)</td>
+                                <td>
+                                    <input type="text" id="conn_restrict" name="conn_restrict" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" placeholder="245"
+                                           class="inputbox_sm4">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="wireless_tbl">
+                        <table class="list">
+                            <colgroup>
+                                <col class="td_width_half">
+                                <col class="td_width_half">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th data-i18n="Wireless5ConnectLimitContent.content.5G_Station_Setup.SSID">SSID</th>
+                                <th data-i18n="Wireless5ConnectLimitContent.content.5G_Station_Setup.Max_Connect_Restrict">최대 허용 접속자 수</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td><font id="ssid8"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict0" name="conn_restrict0" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid9"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict1" name="conn_restrict1" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid10"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict2" name="conn_restrict2" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid11"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict3" name="conn_restrict3" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+<!--
+                            <tr>
+                                <td><font id="ssid12"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict4" name="conn_restrict4" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid13"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict5" name="conn_restrict5" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid14"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict6" name="conn_restrict6" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><font id="ssid15"></font></td>
+                                <td>
+                                    <input type="text" id="conn_restrict7" name="conn_restrict7" maxlength="32"
+                                           onkeypress="IgnoreEnterKey( event );" disabled class="inputbox_sm5">
+                                </td>
+                            </tr>
+-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_wireless">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_save"
+                            onClick="submit_apply_save();" data-i18n="Wireless5ConnectLimitContent.content.5G_Station_Setup.Save">저장
+                    </button>
+                </div>
+            </div>
+            <!-- //2.4G 무선 MAC 관리 -->
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+        </form>
+    </section>
+</div>
+</body>
+</html>

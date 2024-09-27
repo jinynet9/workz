@@ -1,0 +1,49 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "ConnectionInfoContent": {
+          "title": "Connection Information",
+          "path1": "WAN",
+          "path2": "Connection Information",
+          "content": {
+            "Reject_Information" : {
+              "title" : "Reject Information",
+              "Reject_Cause" : "Reject Cause"
+            }
+
+          }
+        },
+        "reject_cause": {
+          "fail_auth": "Authentication is failed. If the status is last after URoad-FEC200 rebot, please visit CS center.",
+          "fail_auth_usim" : "Device authentication failed. If equipped with a USIM turn on and off the unit two or three times. If the device is disabled, please contact the dealer or our customer service center",
+          "data_service" : "The network does not support the data service.",
+          "fail_regist" : "Registration to network is failed.",
+          "registrating" : "Registration to network is ongoing. Please wait a moment."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "ConnectionInfoContent": {
+          "title": "접속 정보",
+          "path1": "WAN",
+          "path2": "접속 정보",
+          "content": {
+            "Reject_Information" : {
+              "title" : "LTE 장애 정보",
+              "Reject_Cause" : "장애 사유"
+            }
+          }
+        },
+        "reject_cause": {
+          "fail_auth": "인증에 실패하였습니다. 단말기 전원 리셋후 상태 지속시 고객센터 또는 대리점으로 방문하여 주십시오.",
+          "fail_auth_usim" : "기기 인증에 실패하였습니다. USIM을 장착한 경우 기기를 2~3회 껐다가 켜주십시오. 사용불가시, 대리점 또는 고객센터로 문의하여 주십시오.",
+          "data_service" : "데이터 서비스를 지원하지 않는 망입니다.",
+          "fail_regist" : "네트워크 등록에 실패하였습니다.",
+          "registrating" : "네트워크에 등록중입니다. 잠시만 기다려 주세요."
+        }
+      }
+    }
+  }
+}

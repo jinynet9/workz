@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/jinynet9/work/makefile/cmake/sample/bar.c
+stdio.h
+-
+bar.h
+/home/jinynet9/work/makefile/cmake/sample/bar.h
+
+/home/jinynet9/work/makefile/cmake/sample/bar.h
+
+/home/jinynet9/work/makefile/cmake/sample/foo.c
+stdio.h
+-
+foo.h
+/home/jinynet9/work/makefile/cmake/sample/foo.h
+
+/home/jinynet9/work/makefile/cmake/sample/foo.h
+
+/home/jinynet9/work/makefile/cmake/sample/main.c
+foo.h
+/home/jinynet9/work/makefile/cmake/sample/foo.h
+bar.h
+/home/jinynet9/work/makefile/cmake/sample/bar.h
+

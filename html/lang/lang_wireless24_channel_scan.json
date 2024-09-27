@@ -1,0 +1,42 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless24ChannelScanContent": {
+          "title": "2.4G Channel Scan",
+          "path1": "2.4G WIRELESS SETUP",
+          "path2": "2.4G Channel Scan",
+          "refresh" : "refresh",
+          "content": {
+            "No" : "No",
+            "SSID" : "SSID",
+            "BSSID" : "BSSID",
+            "CHANNEL" : "CHANNEL",
+            "TYPE" : "TYPE",
+            "ENCRYPTION" : "ENCRYPTION",
+            "RSSI" : "RSSI"
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless24ChannelScanContent": {
+          "title": "2.4G 채널 스캔",
+          "path1": "2.4G 무선랜 설정",
+          "path2": "2.4G 채널 스캔",
+          "refresh" : "새로 고침",
+          "content": {
+            "No" : "No",
+            "SSID" : "SSID",
+            "BSSID" : "BSSID",
+            "CHANNEL" : "CHANNEL",
+            "TYPE" : "TYPE",
+            "ENCRYPTION" : "ENCRYPTION",
+            "RSSI" : "RSSI"
+          }
+        }
+      }
+    }
+  }
+}

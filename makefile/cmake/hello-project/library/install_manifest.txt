@@ -1,0 +1,2 @@
+/home/jinynet9/work/makefile/cmake/hello-project/library/lib/libutility.so
+/home/jinynet9/work/makefile/cmake/hello-project/library/include/utility.h

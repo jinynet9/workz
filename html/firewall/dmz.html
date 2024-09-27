@@ -1,0 +1,195 @@
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        function auth() {
+            var url = "/cgi-bin/auth.cgi";
+            param = "Command=LoginCheck";
+            XHRPost(authCheckhandle, url, param, true);
+        }
+
+        function authCheckhandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            var authcheck = getDataFromTag(xmlDoc, "LoginMode");
+            var Session_name = getDataFromTag(xmlDoc, "session");
+            setCookie(Session_name, getDataFromTag(xmlDoc, "sessionkey"));
+            var objSessionKeys = document.getElementsByName("SessionKey");
+            for (i = 0; i < objSessionKeys.length; i++) {
+                objSessionKeys[i].value = getDataFromTag(xmlDoc, "sessionkey");
+            }
+            if (authcheck == "1") {
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+                //page_init();
+            } else {
+                parent.location.href="/login.html";
+            }
+        }
+
+        function page_init() {
+            var url = "/cgi-bin/firewall.cgi?Command=dmzInfo";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+            SetButtons(["btn_try_save", "btn_reset"]);
+            updateState(xmlDoc);
+            parent.callResize();
+        }
+
+        function updateState(xmlDoc) 
+	{
+	    var dmz_enable = getDataFromTag(xmlDoc, "dmz_enable");
+            var dmz_ipaddr = getDataFromTag(xmlDoc, "dmz_ipaddr");
+
+	    if (dmz_enable == "1") {
+		document.formDMZ.dmz_enable.checked = true;
+	    } else {
+		document.formDMZ.dmz_enable.checked = false;
+	    }
+	    display_dmz_addr ();
+
+	    document.getElementById("dmz_ipaddr").value = dmz_ipaddr;
+	}
+
+	function display_dmz_addr() 
+	{
+	    var enable_dmz_check = document.getElementById("dmz_enable");
+
+	    if (enable_dmz_check.checked == true) {
+		document.getElementById ("dmz_en_addr").style.display = "";
+	    } else {
+		document.getElementById ("dmz_en_addr").style.display = "none";
+	    }
+	}
+
+	function check_dmz_ipaddr() 
+	{
+	    if (document.formDMZ.dmz_enable.checked == true) {
+		document.formDMZ.dmz_enable.value = "1";
+	    } else {
+		document.formDMZ.dmz_enable.value = "0";
+	    }
+
+	    if (document.formDMZ.dmz_ipaddr.value == "") {
+             alert(i18next.store.data[i18next.language].translation.alert['Input_IP_Address']);
+             return false;
+	    }
+	    if (document.formDMZ.dmz_ipaddr.value != "") {
+		if (!checkIPAddr(document.formDMZ.dmz_ipaddr)) {
+		    alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+		    return false;
+		}
+	    }
+
+	    return true;
+	}
+
+	function submit_apply_dmz_addr() 
+	{
+	    if (check_dmz_ipaddr()) {
+
+		alert(i18next.store.data[i18next.language].translation.alert['restart_network']);
+
+		var url = "/cgi-bin/firewall.cgi";
+		var param = "Command=dmzSet"
+		    + "&"
+		    + serializeFormElement("formDMZ");
+
+		XHRPost(err_handle_reload, url, param, true);
+	    }
+	}
+
+	function init() {
+	        prevent_enterkey ();
+            languageFileLoad("../lang/lang_dmz.json");
+            CheckLogin(page_init);
+        }
+</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="nat">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="FirewallContent.title">DMZ</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="FirewallContent.path1">방화벽</span>
+                        <span class="path_arrow focus_on" data-i18n="FirewallContent.path2">DMZ 설정</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <form method="POST" name="formDMZ" id="formDMZ">
+            <!-- 보안 설정 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="FirewallContent.content.title">DMZ 설정</div>
+                    <div class="nat_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+			    <tr>
+				<td data-i18n="FirewallContent.content.dmz">DMZ</td>
+				<td>
+					<label>
+						<input type="checkbox" id="dmz_enable" name="dmz_enable" onChange="display_dmz_addr()"> 
+						<span data-i18n="FirewallContent.content.Enable_dmz">활성</span>
+					</label>
+                                </td>
+                            </tr>
+			    <tr id="dmz_en_addr">
+			    	<td data-i18n="FirewallContent.content.dmz_ipaddr">DMZ IP Address</td>
+				<td>
+			    	<input name="dmz_ipaddr" id="dmz_ipaddr" type="text" size="25" maxlength="15" class="required" value="">
+			    	</td>
+			    </tr>
+			    </table>
+			    </div>
+			    </div>
+			     <div class="btm_btn_basic">
+                    <button type="button" class="btn_default btn_cancel_sm" id="btn_reset" name="reset"
+                            onclick="javescript : window.location.reload()"> <span data-i18n="common.Cancel">취소</span>
+                    </button>
+                    <button type="button" class="btn_default btn_save_sm" id="btn_try_save"
+                            onclick="submit_apply_dmz_addr()"> <span data-i18n="common.Apply">적용</span>
+                    </button>
+                    <input type="hidden" name="reboot" value="">
+                    <input type="hidden" value="/firewall.asp" name="submit-url">
+                </div>
+<!--
+			    <div class="btm_btn_basic">
+			    <button type="button" class="btn_default_btn_save_sm" id="btn_try_save" onclick="apply_dmz_mode_select()"
+			    >Save</button>
+			    </div>
+			    -->
+			    </div>
+			    
+        </form>
+    </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+		function auth()
+		{
+			var url = "/cgi-bin/auth.cgi";
+			param = "Command=LoginCheck";
+			XHRPost(authCheckhandle, url, param, true);
+		}
+
+		function authCheckhandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			var authcheck = getDataFromTag(xmlDoc,"LoginMode");
+			var Session_name = getDataFromTag(xmlDoc,"session");
+			setCookie( Session_name, getDataFromTag(xmlDoc,"sessionkey"));
+			//var objSessionKeys = document.getElementsByName( "SessionKey" );
+			//for(i=0; i<objSessionKeys.length; i++)
+			//{
+			//	objSessionKeys[i].value = getDataFromTag(xmlDoc,"sessionkey");
+			//}
+			if(authcheck == "1")
+			{
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+				//page_init();
+			}
+			else
+			{
+				parent.location.href="/login.html";
+			}
+		}
+		function page_init()
+		{
+			var url = "/cgi-bin/stateinfo.cgi?Command=ssid_info";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+
+			make_table_24(xmlDoc);
+			make_table_5(xmlDoc);
+            parent.callResize();
+
+		}
+		function make_table_24(xmlDoc)
+		{
+			var ssid24_num = parseInt(getDataFromTag(xmlDoc,"stats_24g_line"));
+			var table_name = document.getElementById("table_ssid24");
+
+			for(k=1; k<=ssid24_num; k++)
+			{
+				var SSIDInfo24 = getDataFromTag(xmlDoc,"stats_24g"+k);
+				var SSIDInfo24_array = SSIDInfo24.split(",");
+				trs = document.createElement("tr");
+
+				for(n=0; n<7; n++)
+				{
+					td = document.createElement("td");
+					td.innerHTML = SSIDInfo24_array[n];
+					trs.appendChild(td);
+				}
+				table_name.appendChild(trs);
+			}
+			trs = document.createElement("tr");
+			table_name.appendChild(trs);
+		}
+		function make_table_5(xmlDoc)
+		{
+			var ssid5_num = parseInt(getDataFromTag(xmlDoc,"stats_5g_line"));
+			var table_name = document.getElementById("table_ssid5");
+
+			for(k=1; k<=ssid5_num; k++)
+			{
+				var SSIDInfo5 = getDataFromTag(xmlDoc,"stats_5g"+k);
+				var SSIDInfo5_array = SSIDInfo5.split(",");
+				trs = document.createElement("tr");
+
+				for(n=0; n<7; n++)
+				{
+					td = document.createElement("td");
+					td.innerHTML = SSIDInfo5_array[n];
+					trs.appendChild(td);
+				}
+				table_name.appendChild(trs);
+			}
+			trs = document.createElement("tr");
+			table_name.appendChild(trs);
+		}
+		function init()
+		{
+		    prevent_enterkey ();
+		    languageFileLoad("../lang/lang_wan_ssid_info.json");
+			CheckLogin(page_init);
+		}
+	</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="Content.title">AP 정보</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="Content.path1">상태 정보</span>
+						<span class="path_arrow focus_on" data-i18n="Content.path2">AP 정보</span>
+					</p>
+					<button type="button" class="btn_default btn_refresh" name="refresh" onclick="javascript: window.location.reload()" data-i18n="common.Refresh">새로 고침</button>
+				</li>
+			</ul>
+		</div>
+
+		<div class="cont_grp">
+			<div class="cont_inner_check">
+				<div class="cont_stitl" data-i18n="Content.24GTitle">2.4G AP Info</div>
+				<div class="advanced_tbl">
+					<table class="view" id="table_ssid24">
+						<tr>
+							<th rowspan="2">SSID</th>
+							<th rowspan="2">Frequency</th>
+							<th rowspan="2">Connected User</th>
+							<th colspan="2">Packets</th>
+							<th colspan="2">Bytes</th>
+						</tr>
+						<tr>
+							<th>TX</th>
+							<th>RX</th>
+							<th>TX</th>
+							<th>RX</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="cont_grp">
+			<div class="cont_inner_check">
+				<div class="cont_stitl" data-i18n="Content.5GTitle">5G AP Info</div>
+				<div class="advanced_tbl">
+					<table class="view" id="table_ssid5">
+						<tr>
+							<th rowspan="2">SSID</th>
+							<th rowspan="2">Frequency</th>
+							<th rowspan="2">Connected User</th>
+							<th colspan="2">Packets</th>
+							<th colspan="2">Bytes</th>
+						</tr>
+						<tr>
+							<th>TX</th>
+							<th>RX</th>
+							<th>TX</th>
+							<th>RX</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+</body>
+</html>

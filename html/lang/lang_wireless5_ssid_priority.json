@@ -1,0 +1,54 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless5SsidPriorityContent": {
+          "title": "5G Wireless SSID Ratelimit",
+          "path1": "5G WIRELESS SET",
+          "path2": "Wireless SSID Ratelimit",
+          "content": {
+            "5G_Wireless_SSID_Priority" : {
+              "title" : "5G Wireless SSID Ratelimit",
+              "Index" : "Index",
+              "SSID" : "SSID",
+              "Enable" : "Enable",
+              "UL_BW" : "UL_BW",
+              "DL_BW" : "DL_BW",
+              "Apply" : "Apply",
+              "Help_Font" : "※ Wireless SSID Ratelimit Setting<br/>1. Setting range is 100 Kbps ~ 950 Mbps.<br/>2. Set 0 is unlimit."
+            }
+          }
+        },
+        "alert":{
+          "number_only":"Input Number Only",
+          "bw_range":"Input 100Kbps ~ 350Mbps (0:unlimit.)"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless5SsidPriorityContent": {
+          "title": "5G 무선 SSID 속도제한",
+          "path1": "5G 무선랜 설정",
+          "path2": "무선 SSID 속도제한",
+          "content": {
+            "5G_Wireless_SSID_Priority" : {
+              "title" : "5G 무선 SSID 속도제한",
+              "Index" : "Index",
+              "SSID" : "SSID",
+              "Enable" : "Enable",
+              "UL_BW" : "UL_BW",
+              "DL_BW" : "DL_BW",
+              "Apply" : "적용",
+              "Help_Font" : "※ 무선 SSID 속도제한 설정<br/>1. 설정 범위는 100 Kbps ~ 950 Mbps 입니다.<br/>2. 0으로 설정 시, 무제한 입니다."
+            },
+            "alert":{
+              "number_only":"숫자만 입력 가능합니다.",
+              "bw_range":"설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다"
+            }
+          }
+        }
+      }
+    }
+  }
+}

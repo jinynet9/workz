@@ -1,0 +1,106 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Modify" : "Modify",
+          "Cancel" : "Cancel",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "FirewallContent": {
+          "title": "Firewall Setting",
+          "path1": "FIREWALL",
+          "path2": "Firewall Setting",
+          "content": {
+            "title" : "Security Setting",
+            "WAN_ICMP" : "WAN ICMP (Ping, Traceroute) Block",
+            "WAN_ICMP_Active" : "WAN ICMP (Ping, Traceroute) Block Active",
+            "LAN_ICMP" : "LAN ICMP (Ping, Traceroute) Block",
+            "LAN_ICMP_Active" : "LAN ICMP (Ping, Traceroute) Block Active",
+            "Invalid_Packet_Drop" : "Invalid Packet Drop",
+            "Invalid_Packet_Drop_Active" : "Invalid Packet Drop Active",
+	    "ARP_Spoofing" : "ARP Spoofing Block",
+	    "ARP_Spoofing_Active" : "ARP Spoofing Block Active",
+            "Broadcasting_Ping_Drop" : "Broadcasting Ping Drop",
+            "Broadcasting_Ping_Drop_Active" : "Broadcasting Ping Drop Active",
+            "Smurf_Attack" : "Smurf Attack Block",
+            "Smurf_Attack_Active" : "Smurf Attack Block Active",
+            "Ping_Of_Death" : "Ping Of Death Block",
+            "Ping_Of_Death_Active" : "Ping Of Death Block Active",
+            "Limit_ICMP_Flood" : "Limit ICMP Flood",
+            "Limit_Synflood" : "Limit SYN Flood",
+	    "L2TP" : "L2TP PassThrough",
+	    "L2TP_Enable" : "L2TP PassThrough Enable",
+	    "IPSEC" : "IPSEC PassThough",
+	    "IPSEC_Enable" : "IPSEC PassThough Enable",
+	    "PPTP" : "PPTP PassThough",
+	    "PPTP_Enable" : "PPTP PassThough Enable"
+          }
+        },
+        "alert" : {
+          "Input_Limit_ICMP_Flood" : "Please Input Limit ICMP Flood.",
+          "only_number_Limit_ICMP_Flood" : "Please Input Number Only.(Limit ICMP Flood)",
+          "range_of_Limit_ICMP_Flood" : "The range of Limit ICMP Flood is between 1 and 1000.",
+          "Input_limit_Synflood" : "Please Input Limit Synflood.",
+          "only_number_limit_Synflood" : "Please Input Number Only.(Limit Synflood)",
+          "range_of_limit_Synflood" : "The range of Limit Synflood is between 1 and 1000.",
+	  "restart_network" : "It will restart the network service."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Modify" : "수정",
+          "Cancel" : "취소",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "FirewallContent": {
+          "title": "방화벽 설정",
+          "path1": "방화벽",
+          "path2": "방화벽 설정",
+          "content": {
+            "title" : "보안 설정",
+            "WAN_ICMP" : "WAN ICMP (Ping, Traceroute) 차단",
+            "WAN_ICMP_Active" : "WAN ICMP (Ping, Traceroute) 차단 활성",
+            "LAN_ICMP" : "LAN ICMP (Ping, Traceroute) 차단",
+            "LAN_ICMP_Active" : "LAN ICMP (Ping, Traceroute) 차단 활성",
+            "Invalid_Packet_Drop" : "Invalid Packet 차단",
+            "Invalid_Packet_Drop_Active" : "Invalid Packet 차단 활성",
+	    "ARP_Spoofing" : "ARP Spoofing 차단",
+	    "ARP_Spoofing_Active" : "ARP Spoofing 차단 활성",
+            "Broadcasting_Ping_Drop" : "Broadcasting Ping 차단",
+            "Broadcasting_Ping_Drop_Active" : "Broadcasting Ping 차단 활성",
+            "Smurf_Attack" : "Smurf Attack 차단",
+            "Smurf_Attack_Active" : "Smurf Attack 차단 활성",
+            "Ping_Of_Death" : "Ping Of Death 차단",
+            "Ping_Of_Death_Active" : "Ping Of Death 차단 활성",
+            "Limit_ICMP Flood" : "Limit ICMP Flood",
+            "Limit_Synflood" : "Limit SYN Flood",
+	    "L2TP" : "L2TP PassThrough",
+	    "L2TP_Enable" : "L2TP PassThrough 활성",
+	    "IPSEC" : "IPSEC PassThough",
+	    "IPSEC_Enable" : "IPSEC PassThough 활성",
+	    "PPTP" : "PPTP PassThough",
+	    "PPTP_Enable" : "PPTP PassThough 활성"
+          }
+        },
+        "alert" : {
+          "Input_Limit_ICMP_Flood" : "Limit ICMP Flood를 입력해주세요.",
+          "only_number_Limit_ICMP_Flood" : "숫자만 입력 가능합니다. (Limit ICMP Flood)",
+          "range_of_Limit_ICMP_Flood" : "Limit ICMP Flood의 범위는 1 ~ 1000 사이 입니다.",
+          "Input_Limit_Synflood" : "Limit Synflood를 입력해주세요.",
+          "only_number_Limit_Synflood" : "숫자만 입력 가능합니다. (Limit Synflood)",
+          "range_of_Limit_Synflood" : "Limit Synflood의 범위는 1 ~ 1000 사이 입니다.",
+	  "restart_network" : "네트워크 서비스를 재시작 합니다."
+        }
+      }
+    }
+  }
+}

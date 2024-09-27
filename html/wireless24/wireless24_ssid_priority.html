@@ -1,0 +1,439 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/17
+- 기존 퍼블리싱을 위해 넣어놓았던 데이터 제거
+7/22 - 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+
+<script type="text/javascript">
+        var qos_info_value;
+        var qos_info;
+
+        function auth() {
+            var url = "/cgi-bin/auth.cgi";
+            param = "Command=LoginCheck";
+            XHRPost(authCheckhandle, url, param, true);
+        }
+
+        function authCheckhandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            var authcheck = getDataFromTag(xmlDoc, "LoginMode");
+            var Session_name = getDataFromTag(xmlDoc, "session");
+            setCookie(Session_name, getDataFromTag(xmlDoc, "sessionkey"));
+            var objSessionKeys = document.getElementsByName("SessionKey");
+            for (i = 0; i < objSessionKeys.length; i++) {
+                objSessionKeys[i].value = getDataFromTag(xmlDoc, "sessionkey");
+            }
+            if (authcheck == "1") {
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+				page_init();
+				commonInit(language);
+                //page_init();
+            } else {
+                parent.location.href="/login.html";
+            }
+        }
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless24_ssid_pri";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+
+            SetButtons(["btn_apply_priority_setting"]);
+            qos_info_value = getDataFromTag(xmlDoc, "qos_info_value");
+            qos_info = qos_info_value.split(";");
+
+            maketable(xmlDoc);
+            display_ssid_priority();
+            parent.callResize();
+        }
+
+        function maketable(xmlDoc) {
+            var ssid = getDataFromTag(xmlDoc, "ssid_set");
+            var ssid_set = ssid.split(",");
+            var ssid_use = getDataFromTag(xmlDoc, "ssid_use_set");
+            var ssid_use_set = ssid_use.split(",");
+            var table_name = document.getElementById("ssid_priority24");
+
+            for (i = 0; i < 4; i++) {
+
+                trs = document.createElement("tr");
+
+                td = document.createElement("td");
+                td.innerHTML = i + 1;
+                trs.appendChild(td);
+
+                td = document.createElement("td");
+                td.innerText = ssid_set[i];
+                trs.appendChild(td);
+
+                if (ssid_use_set[i] == "1") {
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "checkbox");
+                    element.setAttribute("id", "qos_enable_" + i);
+                    element.setAttribute("name", "qos_enable_" + i);
+                    element.setAttribute("disabled", "true");
+                    td.appendChild(element);
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "text");
+                    element.setAttribute("name", "qos_ul_tp_" + i);
+                    element.setAttribute("id", "qos_ul_tp_" + i);
+                    element.setAttribute("size", "5");
+                    element.setAttribute("maxlength", "7");
+                    element.setAttribute("disabled", "true");
+                    element.setAttribute("class", "inputbox_sm");
+                    td.appendChild(element);
+
+                    element = document.createElement("select");
+                    element.setAttribute("name", "qos_ul_unit_" + i);
+                    element.setAttribute("id", "qos_ul_unit_" + i);
+                    element.setAttribute("disabled", "true");
+                    td.appendChild(element);
+
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "mbit");
+                    elementopt.innerHTML = "Mbps";
+                    element.appendChild(elementopt);
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "kbit");
+                    elementopt.innerHTML = "kbps";
+                    element.appendChild(elementopt);
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "text");
+                    element.setAttribute("name", "qos_dl_tp_" + i);
+                    element.setAttribute("id", "qos_dl_tp_" + i);
+                    element.setAttribute("size", "5");
+                    element.setAttribute("maxlength", "7");
+                    element.setAttribute("disabled", "true");
+                    element.setAttribute("class", "inputbox_sm");
+                    td.appendChild(element);
+
+                    element = document.createElement("select");
+                    element.setAttribute("name", "qos_dl_unit_" + i);
+                    element.setAttribute("id", "qos_dl_unit_" + i);
+                    element.setAttribute("disabled", "true");
+                    td.appendChild(element);
+
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "mbit");
+                    elementopt.innerHTML = "Mbps";
+                    element.appendChild(elementopt);
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "kbit");
+                    elementopt.innerHTML = "kbps";
+                    element.appendChild(elementopt);
+
+                    trs.appendChild(td);
+                } else {
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "checkbox");
+                    element.setAttribute("id", "qos_enable_" + i);
+                    element.setAttribute("name", "qos_enable_" + i);
+                    td.appendChild(element);
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "text");
+                    element.setAttribute("name", "qos_ul_tp_" + i);
+                    element.setAttribute("id", "qos_ul_tp_" + i);
+                    element.setAttribute("size", "5");
+                    element.setAttribute("maxlength", "7");
+                    element.setAttribute("class", "inputbox_sm");
+                    td.appendChild(element);
+
+                    element = document.createElement("select");
+                    element.setAttribute("name", "qos_ul_unit_" + i);
+                    element.setAttribute("id", "qos_ul_unit_" + i);
+                    td.appendChild(element);
+
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "mbit");
+                    elementopt.innerHTML = "Mbps";
+                    element.appendChild(elementopt);
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "kbit");
+                    elementopt.innerHTML = "kbps";
+                    element.appendChild(elementopt);
+                    trs.appendChild(td);
+
+                    td = document.createElement("td");
+                    element = document.createElement("input");
+                    element.setAttribute("type", "text");
+                    element.setAttribute("name", "qos_dl_tp_" + i);
+                    element.setAttribute("id", "qos_dl_tp_" + i);
+                    element.setAttribute("size", "5");
+                    element.setAttribute("maxlength", "7");
+                    element.setAttribute("class", "inputbox_sm");
+                    td.appendChild(element);
+
+                    element = document.createElement("select");
+                    element.setAttribute("name", "qos_dl_unit_" + i);
+                    element.setAttribute("id", "qos_dl_unit_" + i);
+                    td.appendChild(element);
+
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "mbit");
+                    elementopt.innerHTML = "Mbps";
+                    element.appendChild(elementopt);
+                    elementopt = document.createElement("option");
+                    elementopt.setAttribute("value", "kbit");
+                    elementopt.innerHTML = "kbps";
+                    element.appendChild(elementopt);
+
+                    trs.appendChild(td);
+                }
+                table_name.appendChild(trs);
+
+            }
+        }
+
+        function checkAllNum(str) {
+            var i;
+            for (i = 0; i < str.length; i++) {
+                if (str.charAt(i) >= '0' && str.charAt(i) <= '9') {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        function display_ssid_priority() {
+            var tmp;
+
+            for (var i = 0; i < 4; i++) {
+                tmp = qos_info[i].split(",");
+
+                if (tmp[0] == "1") {
+                    document.getElementById("qos_enable_" + i).checked = true;
+                } else {
+                    document.getElementById("qos_enable_" + i).checked = false;
+                }
+
+                document.getElementById("qos_ul_tp_" + i).value = tmp[1];
+                if (tmp[2] == "kbit") {
+                    document.getElementById("qos_ul_unit_" + i).selectedIndex = 1;
+                } else {
+                    document.getElementById("qos_ul_unit_" + i).selectedIndex = 0;
+                }
+
+                document.getElementById("qos_dl_tp_" + i).value = tmp[3];
+                if (tmp[4] == "kbit") {
+                    document.getElementById("qos_dl_unit_" + i).selectedIndex = 1;
+                } else {
+                    document.getElementById("qos_dl_unit_" + i).selectedIndex = 0;
+                }
+            }
+        }
+
+        function formCheck() {
+            var i;
+            var check_ul;
+            var check_ul_unit;
+            var check_dl;
+            var check_dl_unit;
+            var j = 0;
+
+            for (i = 0; i < 4; i++) {
+                if (document.getElementById("qos_enable_" + i).disabled == false) {
+                    document.getElementById("chkprio_len").value = i + 1;
+                    if (document.getElementById("qos_enable_" + i).checked == true) {
+                        document.getElementById("chkbox_" + i).value = 1;
+                        j++;
+                    } else {
+                        document.getElementById("chkbox_" + i).value = 0;
+                    }
+
+                    check_ul = document.getElementById("qos_ul_tp_" + i).value;
+                    check_ul_unit = document.getElementById("qos_ul_unit_" + i).value;
+                    check_dl = document.getElementById("qos_dl_tp_" + i).value;
+                    check_dl_unit = document.getElementById("qos_dl_unit_" + i).value;
+
+                    if (checkAllNum(check_ul) == false) {
+                        alert(i18next.store.data[i18next.language].translation.alert['number_only']);
+                        return false;
+                    }
+
+                    if (checkAllNum(check_dl) == false) {
+                        alert(i18next.store.data[i18next.language].translation.alert['number_only']);
+                        return false;
+                    }
+
+                    if (check_ul_unit == "kbit") {
+                        if ((parseInt(check_ul) < 100) && (parseInt(check_ul) > 0)) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                        if (parseInt(check_ul) > 350000) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                    } else {
+                        if (parseInt(check_ul) > 350) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                    }
+
+                    if (check_dl_unit == "kbit") {
+                        if ((parseInt(check_dl) < 100) && (parseInt(check_dl) > 0)) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                        if (parseInt(check_dl) > 350000) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                    } else {
+                        if (parseInt(check_dl) > 350) {
+                            alert(i18next.store.data[i18next.language].translation.alert['bw_range']);
+                            return false;
+                        }
+                    }
+
+                    if (check_ul == "") {
+                        alert(i18next.store.data[i18next.language].translation.alert['number_only']);
+                        return false;
+                    }
+
+                    if (check_dl == "") {
+                        alert(i18next.store.data[i18next.language].translation.alert['number_only']);
+                        return false;
+                    }
+
+
+                }
+            }
+
+            document.getElementById("chkbox_length").value = j;
+
+            return true;
+        }
+
+        function apply_priority_setting() {
+            if (formCheck()) {
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=apply_ssid_pri24"
+                    + "&"
+                    + serializeFormElement("setSSIDPriority24_v2");
+
+                XHRPost(null, url, param, true);
+            }
+        }
+
+        function init() {
+            languageFileLoad("../lang/lang_wireless24_ssid_priority.json");
+            auth();
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless24SsidPriorityContent.title">2.4G 무선 SSID 우선순위</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless24SsidPriorityContent.path1">2.4G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless24SsidPriorityContent.path2">무선 SSID 우선순위</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi 적용</button>-->
+                </li>
+                <!--
+                <li class="titl_r">
+                    <button type="button" class="btn_default btn_wifi">WiFi 적용</button>
+                </li>
+                -->
+            </ul>
+        </div>
+
+        <form method="post" name="setSSIDPriority24_v2" id="setSSIDPriority24_v2">
+            <!-- 2.4G 무선 MAC 관리 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.title">2.4G 무선 SSID 우선순위</div>
+                    <div class="wireless_tbl">
+                        <table class="list" id="ssid_priority24">
+                            <colgroup>
+                                <col class="td_width10per">
+                                <col class="td_width20per">
+                                <col class="td_width10per">
+                                <col class="td_width30per">
+                                <col class="td_width30per">
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <th data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.Index">Index</th>
+                                <th data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.SSID">SSID</th>
+                                <th data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.Enable">Enable</th>
+                                <th data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.UL_BW">UL BW</th>
+                                <th data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.DL_BW">DL BW</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_wireless">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_priority_setting"
+                            onclick="apply_priority_setting()" data-i18n="Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.Apply">적용
+                    </button>
+                    <input type="hidden" name="chkprio_len" id="chkprio_len" value="0">
+                    <input type="hidden" name="chkbox_0" id="chkbox_0" value="0">
+                    <input type="hidden" name="chkbox_1" id="chkbox_1" value="0">
+                    <input type="hidden" name="chkbox_2" id="chkbox_2" value="0">
+                    <input type="hidden" name="chkbox_3" id="chkbox_3" value="0">
+                    <input type="hidden" name="chkbox_4" id="chkbox_4" value="0">
+                    <input type="hidden" name="chkbox_5" id="chkbox_5" value="0">
+                    <input type="hidden" name="chkbox_6" id="chkbox_6" value="0">
+                    <input type="hidden" name="chkbox_7" id="chkbox_7" value="0">
+                    <input type="hidden" name="chkbox_length" id="chkbox_length" value="0">
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </div>
+                <p class="txt_info_vap" data-i18n="[html]Wireless24SsidPriorityContent.content.24G_Wireless_SSID_Priority.Help_Font">
+                    ※ 무선 SSID 우선순위 설정<br>
+                    1. 설정 범위는 100 Kbps ~ 350 Mbps 입니다.<br>
+                    2. 0으로 설정 시, 무제한 입니다.
+                </p>
+            </div>
+            <!-- //2.4G 무선 MAC 관리 -->
+        </form>
+    </section>
+</div>
+</body>
+</html>

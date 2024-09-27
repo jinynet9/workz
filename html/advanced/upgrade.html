@@ -1,0 +1,339 @@
+<!--
+7/16
+- body onload init() 추가
+7/23
+- 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/jquery.form.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+<script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+		var MaxSize;
+		var time=0;
+
+		function page_init()
+		{
+			var url = "/cgi-bin/advanceinfo.cgi?Command=get_upgrade";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+			if(true) {
+                document.getElementById("firmware_status").style.display="";
+			}
+
+			MaxSize = getDataFromTag(xmlDoc,"MaxSize");
+			document.getElementById("host_version").innerHTML = getDataFromTag(xmlDoc,"version");
+			document.getElementById("module_version").innerHTML = getDataFromTag(xmlDoc,"module_version");
+
+			document.getElementById("activate_fota").checked = 	getDataFromTag(xmlDoc,"fota_enabled") == "1" ? true : false;
+
+			parent.callResize();
+		}
+
+		function uploadFirmwareCheck( frm )
+		{
+			if ( frm.value == "" )
+			{
+				alert(i18next.store.data[i18next.language].translation.alert['select_file']);
+				return false;
+			}
+
+			var browser=navigator.appName;
+			if (browser=="Microsoft Internet Explorer")
+			{
+				var oas = new ActiveXObject("Scripting.FileSystemObject");
+				var filepath = frm.value;
+				var e = oas.getFile(filepath);
+				FileSize = e.size;
+			}
+			else
+			{
+				FileSize = frm.files[0].size;
+			}
+
+			if(FileSize > MaxSize) {
+				alert(i18next.store.data[i18next.language].translation.alert['file_size']);
+				return false;
+			}
+
+			return true;
+		}
+
+		function submit_apply_auto_upgrade()
+		{
+			var fota_enabled = document.getElementById("activate_fota").checked ? 1 : 0;
+
+			TimeoutReload( TIMEOUT_DEFAULT_TIME );
+
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=fota_set" + "&" + "fota_enabled=" + fota_enabled;
+
+			XHRPost(null, url, param, true);
+		}
+
+		function submit_apply_upload()
+		{
+			if(!uploadFirmwareCheck(document.UploadFirmwarePackage.filename)) {
+				return false;
+			}
+
+			if (confirm (xlang_alert('conf_upgrade')))
+			{
+			    progressUpload();
+
+			    /*
+			       if ( uploadFirmwareCheck( document.UploadFirmwarePackage.filename) )
+			       {
+			       alert("업데이트를 진행하고있으니 수분후에 재접속하기 바랍니다.");
+			       var conf_apply = document.getElementById( "conf_apply" );
+			       conf_apply.value = $("input[name='conf_apply']:checked").val();
+
+			       EnableButtons( false );
+			       document.getElementById( "setting" ).style.display = "block";
+			       document.getElementById("UploadFirmwarePackage").action="/cgi-bin/advanceset.cgi";
+
+			       UploadFirmwarePackage.submit();
+			       }
+			     */
+			}
+		}
+
+
+        function progressUpload() {
+            $('#UploadFirmwarePackage').ajaxForm({
+                type : "POST",
+                enctype:"multipart/form-data",
+                encoding:"multipart/form-data",
+                url: '/cgi-bin/advanceset.cgi',
+                beforeSend: function () {
+                    document.getElementById("firmware_status").style.display="none";
+                    document.getElementById("firmware_ready").style.display="";
+                },
+                uploadProgress: function (event, position, total, percentComplete) {
+                    var percentValue = percentComplete + '%';
+                    $("#upgrade_progress_bar").css("width",percentValue);
+                },
+                complete: function (xhr) {
+                    var xmlDoc = xhr.responseXML;
+                    if (hasError(xmlDoc)) {
+                        showError(xmlDoc);
+                        return;
+                    }
+
+                    if(getDataFromTag(xmlDoc,"result") == "success") {
+			jump_inform_upgrade ();
+
+                        /*
+			var url = "/cgi-bin/advanceset.cgi";
+                        var param = "Command=os_upgrade";
+                        XHRPost(null, url, param, true);
+
+                        document.getElementById("firmware_ready").style.display="none";
+                        document.getElementById("firmware_progress").style.display="";
+			TimeoutReload( -1 );
+
+                        //setInterval(startProgress,1000);
+			*/
+		    }
+		    else {
+			alert(i18next.store.data[i18next.language].translation.alert['problem']);
+                        document.getElementById("firmware_status").style.display="";
+                        document.getElementById("firmware_ready").style.display="none";
+                    }
+                }
+            });
+
+			$('#UploadFirmwarePackage').submit();
+        }
+
+        function startProgress() {
+            time+=1;
+            if(time <= 300) {
+                var progress = Math.round((time / 300) * 100);
+                $("#update_progress_bar").css("width",progress+"%");
+			}else {
+                clearInterval();
+                window.location.reload();
+			}
+		}
+
+		function init()
+		{
+		    prevent_enterkey ();
+		    languageFileLoad("../lang/lang_upgrade.json");
+			CheckLogin(page_init);
+		}
+</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="UploadContent.title">펌웨어 업그레이드</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="UploadContent.path1">고급 설정</span>
+						<span class="path_arrow focus_on" data-i18n="UploadContent.path2">펌웨어 업그레이드</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<form method="post" name="UploadFirmwarePackage" id="UploadFirmwarePackage" enctype="multipart/form-data">
+			<div class="cont_grp" id="firmware_status" style="display: none">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="UploadContent.content.Firmware_Status.title">펌웨어 상태</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col width="30%">
+								<col width="70%">
+								<col>
+							</colgroup>
+							<tr><td data-i18n="UploadContent.content.FW_ver">S/W Version:</td><td><font id="host_version"></font></td></tr>
+							<tr><td data-i18n="UploadContent.content.Module_FW_ver">Module Version:</td><td><font id="module_version"></font></td></tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="UploadContent.content.FOTA.title">펌웨어 자동 업그레이드</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<tr>
+								<td><input type="checkbox" id="activate_fota"><lable data-i18n="common.Enable">활성</lable></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="btm_btn_basic">
+					<button type="button" class="btn_default btn_save_sm" id="btn_apply_auto_upgrade" type="button" onClick="submit_apply_auto_upgrade();"
+							data-i18n="UploadContent.content.Apply">적용</button>
+				</div>
+
+				<br>
+				<br>
+
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="UploadContent.content.Firmware_Update.title">펌웨어 수동 업그레이드</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td colspan="2"><input name="filename" id="filename" size="40" maxlength="256" type="file"></td>
+							</tr>
+							<tr>
+								<td colspan="2" class="pad_top15">
+									<input type="hidden" id="conf_apply"/>
+									<span class="inp_radio">
+										<label>
+											<input type="radio" name="conf_apply" value="1" checked>
+											<span data-i18n="UploadContent.content.Firmware_Update.Preserve_settings">설정 유지</span>
+										</label>
+									</span>
+									<span class="inp_radio">
+										<label>
+											<input type="radio" name="conf_apply" value="2">
+											<span data-i18n="UploadContent.content.Firmware_Update.Reset">공장초기화</span>
+										</label>
+
+									</span>
+									<!--
+									<span class="inp_radio">
+										<label>
+											<input type="radio" name="conf_apply" value="3">
+											<span data-i18n="UploadContent.content.Firmware_Update.config_option">사용자 초기값</span>
+										</label>
+									</span>
+									-->
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="btm_btn_basic">
+					<input type="hidden" id="Command" name="Command" value="os_upgrade">
+					<input type="hidden" id="location" name="location" value="/tmp/">
+					<button type="button" class="btn_default btn_save_sm" id="btn_apply_local" type="button" onClick="submit_apply_upload();"
+							data-i18n="UploadContent.content.Apply">적용</button>
+				</div>
+			</div>
+			<div id="setting" style="display:none;" data-i18n="[html]UploadContent.content.setting">
+				<br>소프트웨어 업데이트 중<br><br>업데이트 중 페이지 이동이나 본제품의 전원을 끄지 마시기 바랍니다.<br>
+			</div>
+		</form>
+
+		<div class="cont_grp" id="firmware_ready" style="display: none">
+			<!-- Upgrade 준비중 -->
+			<div class="cont_progressbar">
+				<p class="progress_txt1" data-i18n="UploadContent.content.Progress.Upgrade_Title">Upgrade 준비중 입니다.</p>
+				<!-- Progressbar -->
+				<div class="progressbar_panel">
+					<div class="progress">
+						<div id="upgrade_progress_bar" class="progress-bar progress-bar-striped active" data-transitiongoal-backup="75" data-transitiongoal="75" style="width: 0%">
+							<span class="sr-only">0%</span>
+						</div>
+					</div>
+				</div>
+				<!-- //Progressbar -->
+			</div>
+			<!-- //Upgrade 준비중 -->
+		</div>
+		<div class="cont_grp" id="firmware_progress" style="display: none">
+			<!-- 업데이트 진행중 -->
+			<div class="cont_progressbar">
+				<p class="progress_txt1" data-i18n="UploadContent.content.Progress.Update_Title">업데이트 진행중 입니다.</p>
+				<!-- Progressbar -->
+				<!--
+				<div class="progressbar_panel">
+					<div class="progress" id="h-default-basic">
+						<div id="update_progress_bar" class="progress-bar progress-bar-striped active" data-transitiongoal-backup="75" data-transitiongoal="75" style="width: 0%">
+							<span class="sr-only">0%</span>
+						</div>
+					</div>
+				</div>
+				-->
+				<!-- //Progressbar -->
+				<p class="progress_txt2" data-i18n="UploadContent.content.Progress.Content">작업에 수 분 소요 됩니다.</p>
+				<p class="progress_txt2" data-i18n="UploadContent.content.Progress.Content2">Upgrade 완료 후 시스템이 재시작됩니다.</p>
+				<p class="progress_txt2" data-i18n="UploadContent.content.Progress.Content3">시스템이 재시작 후 다시 접속하여 주십시오.</p>
+				<!--
+				<div class="login_link">
+					<button type="button" class="btn_default btn_login_link" onclick="parent.location.href='/login.html';" data-i18n="UploadContent.content.Progress.MoveToLogin">Login 페이지 이동</button>
+				</div>
+				-->
+			</div>
+			<!-- //업데이트 진행중 -->
+		</div>
+	</section>
+</div>
+</body>
+</html>

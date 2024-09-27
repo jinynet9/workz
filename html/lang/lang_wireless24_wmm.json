@@ -1,0 +1,65 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless24WmmContent": {
+          "title": "2.4G WMM Setup",
+          "path1": "2.4G WIRELESS SET",
+          "path2": "WMM Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "24G_WMM_Setup" : {
+              "title" : "2.4G WMM Setup",
+              "WMM_Support" : "WMM Setting"
+            },
+            "EDCA_AP_Parameter" : {
+              "title" : "EDCA AP Parameter",
+              "Priority" : "Priority",
+              "CWmin" : "CWmin",
+              "CWmax" : "CWmax",
+              "AIFSN" : "AIFSN",
+              "TXOP_Limit" : "TXOP Limit",
+              "Save" : "Save"
+            }
+          }
+        },
+        "alert":{
+          "only_number":"Input Number Only",
+          "value_range":"Input 0~10 value",
+          "limit_range":"Limit : Input 0~8192 value"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless24WmmContent": {
+          "title": "2.4G WMM 설정",
+          "path1": "2.4G 무선랜 설정",
+          "path2": "WMM 설정",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "24G_WMM_Setup" : {
+              "title" : "2.4G WMM 설정",
+              "WMM_Support" : "WMM Setting",
+              "APSD_Support" : "APSD Support"
+            },
+            "EDCA_AP_Parameter" : {
+              "title" : "EDCA AP Parameter",
+              "Priority" : "Priority",
+              "CWmin" : "CWmin",
+              "CWmax" : "CWmax",
+              "AIFSN" : "AIFSN",
+              "TXOP_Limit" : "TXOP Limit",
+              "Save" : "저장"
+            }
+          }
+        },
+        "alert":{
+          "only_number":"숫자만 입력 가능합니다.",
+          "value_range":"0~15 사이의 값을 입력해 주십시오.",
+          "limit_range":"Limit : 0~8192 사이의 값을 입력해 주십시오."
+        }
+      }
+    }
+  }
+}

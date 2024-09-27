@@ -1,0 +1,46 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "WebAuthContent": {
+          "title": "Web Auth Set",
+          "path1": "ADVANCED SET",
+          "path2": "Web Auth Set",
+          "content": {
+            "Shared_Key_Set" : {
+              "title" : "Shared Key Set",
+              "Web_Auth_Shared_Key" : "Web Auth Shared Key",
+              "Modify" : "Modify",
+              "Cancel" : "Cancel",
+              "Save" : "Save"
+            }
+          }
+        },
+        "alert" : {
+          "Web_Auth_Shard_Key" : "Web Auth Shard Key is invalid."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "WebAuthContent": {
+          "title": "Web Auth 설정",
+          "path1": "고급 설정",
+          "path2": "Web Auth 설정",
+          "content": {
+            "Shared_Key_Set" : {
+              "title" : "Shared Key 설정",
+              "Web_Auth_Shared_Key" : "Web Auth Shared Key",
+              "Modify" : "수정",
+              "Cancel" : "취소",
+              "Save" : "저장"
+            }
+          }
+        },
+        "alert" : {
+          "Web_Auth_Shard_Key" : "Web Auth Shared Key 가 유효하지 않습니다."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "ApSearchContent": {
+          "title": "AP Blinking Search",
+          "path1": "ADVANCED SET",
+          "path2": "AP Blinking Search",
+          "content": {
+            "AP_Blinking_Search" : {
+              "title" : "AP Blinking Search",
+              "Time" : {
+                "title" : "Time",
+                "time" : "(between 5 and 3600)"
+              },
+              "Cancel" : "Cancel",
+              "Start" : "Start",
+              "Stop" : "Stop"
+            }
+
+          }
+        },
+        "alert": {
+          "check_value" : "Please enter the set value.",
+          "only_number" : "Input Number Only",
+          "number_range" : "The range of time is between 5 and 3600."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "ApSearchContent": {
+          "title": "AP 육안식별 기능",
+          "path1": "고급 설정",
+          "path2": "AP 육안식별 기능",
+          "content": {
+            "AP_Blinking_Search" : {
+              "title" : "AP 육안식별 기능",
+              "Time" : {
+                "title" : "시간",
+                "time" : "(between 5 and 3600)"
+              },
+              "Cancel" : "취소",
+              "Start" : "시작",
+              "Stop" : "정지"
+            }
+          }
+        },
+        "alert": {
+          "check_value" : "설정값을 입력해주세요.",
+          "only_number" : "숫자만 입력 가능합니다.",
+          "number_range" : "시간의 범위는 5 ~3600 사이 입니다."
+        }
+      }
+    }
+  }
+}

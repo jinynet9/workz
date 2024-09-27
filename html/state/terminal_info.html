@@ -1,0 +1,510 @@
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+	var list24g = new Array();
+	var list5g = new Array();
+	var total_24num;
+	var total_5num;
+	var rmcnt2g=0;
+	var rmcnt5g=0;
+	var rate_mode=0;
+
+	function click_kick_mac(target, mac)
+	{
+		var url	= "/cgi-bin/stateset.cgi";
+		param = "Command=" + target + "&mac=" + mac;
+
+		XHRPost(null, url, param, false);
+		window.location.reload();
+	}
+
+	function page_init()
+	{
+		var url = "/cgi-bin/stateinfo.cgi?Command=sta_info";
+
+		XHRGet(getinfohandle, url, true);
+	}
+
+	function getinfohandle(xmlDoc)
+	{
+		var numCli5=0, umCli2=0;
+
+		if (hasError(xmlDoc))
+		{
+			showError(xmlDoc);
+			return;
+		}
+
+		document.getElementById("main_page").style.display="";
+		SetButtons(["btn_all_select24", "btn_select_delete24", "btn_all_select5", "btn_select_delete5"]);
+
+		rate_mode = getDataFromTag(xmlDoc, "RateMode");
+		/*
+		update_rate_mode ();
+		*/
+
+		document.getElementById("channel_5g").innerHTML = getDataFromTag(xmlDoc, "chan5");
+		document.getElementById("total_5g").innerHTML = getDataFromTag(xmlDoc, "cntCli5");
+		total_5num = getDataFromTag(xmlDoc, "cntCli5");
+
+		document.getElementById("channel_24g").innerHTML = getDataFromTag(xmlDoc, "chan24");
+		document.getElementById("total_24g").innerHTML = getDataFromTag(xmlDoc, "cntCli24");
+		total_24num = getDataFromTag(xmlDoc, "cntCli24");
+
+		makeTable(xmlDoc);
+
+		parent.callResize();
+	}
+
+	function makeTable(xmlDoc)
+	{
+		var table24 = document.getElementById("info_table24");
+		var data24gcount = getDataFromTag(xmlDoc, "user_24g_line");
+
+		$( '#info_table24 > tbody').empty();
+
+		for(var row = 0; row < data24gcount; row++)
+		{
+			var data24g = getDataFromTag(xmlDoc, "user_24g" + (row+1));
+			var data24gArray = trim_split(data24g,",");
+			
+			list24g[row] = new Array ();
+
+			trs = document.createElement("tr");
+
+			for(n=0; n<16; n++)
+			{
+				list24g[row][n] = data24gArray[n];
+				
+				if (n == 0)
+				{
+					td = document.createElement("td");
+
+					td.innerHTML = row + 1;
+					trs.appendChild(td);
+
+					td = document.createElement("td");
+					element = document.createElement("input");
+					element.setAttribute("type", "checkbox");
+					element.setAttribute("id", "element24g" + row);
+					td.appendChild(element);
+					trs.appendChild(td);		
+				}
+
+				if(data24gArray[n]=="")
+				{
+					list24g[row][n]="-";
+				}
+
+				if(n==2 || n==6 || n==10 || n==12)
+				{
+					list24g[row][n+1] = data24gArray[n+1];
+					str = list24g[row][n]+"<br>("+list24g[row][n+1]+")";
+					n++;
+				}
+				else
+				{
+					str =  list24g[row][n];
+				}
+
+				td = document.createElement("td");
+				td.innerHTML = str;
+				trs.appendChild(td);
+			}
+
+			$( '#info_table24 > tbody').append(trs);
+		}
+
+		parent.callResize();
+
+		var table5 = document.getElementById("info_table5");
+		var data5gcount = getDataFromTag(xmlDoc, "user_5g_line");
+		
+		$( '#info_table5 > tbody').empty();
+
+		for(var row = 0; row < data5gcount; row++)
+		{
+			var data5g = getDataFromTag(xmlDoc, "user_5g" + (row+1));
+			var data5gArray = trim_split(data5g,",");
+	
+			list5g[row] = new Array ();
+
+			trs = document.createElement("tr");
+
+			for(n=0; n<16; n++)
+			{
+				list5g[row][n] = data5gArray[n];
+
+				if (n == 0)
+				{
+					td = document.createElement("td");
+					
+					td.innerHTML = row + 1;
+					trs.appendChild(td);
+
+					td = document.createElement("td");
+					element = document.createElement("input");
+					element.setAttribute("type", "checkbox");
+					element.setAttribute("id", "element5g" + row);
+					td.appendChild(element);
+					trs.appendChild(td);
+				}
+
+				if(data5gArray[n]=="")
+				{
+					list5g[row][n]="-";
+				}
+
+				if(n==2 || n==6 || n==10 || n==12)
+				{
+					list5g[row][n+1] = data5gArray[n+1];
+					str = list5g[row][n]+"<br>("+list5g[row][n+1]+")";
+					n++;
+				}
+				else
+				{
+					str =  list5g[row][n];
+				}
+
+				td = document.createElement("td");
+
+				td.innerHTML = str;
+				trs.appendChild(td);
+			}
+
+			$( '#info_table5 > tbody').append(trs);
+		}
+
+		parent.callResize();
+
+		var table_wired = document.getElementById("info_table_wired");
+		var data_wired_count = getDataFromTag(xmlDoc, "user_wired_line");
+
+		$('#info_table_wired > tbody').empty();
+
+		for(var row = 0; row < data_wired_count; row++)
+		{
+			var data_wired = getDataFromTag(xmlDoc, "user_wired" + (row+1));
+			var data_wiredArray = trim_split(data_wired,",");
+			
+			trs = document.createElement("tr");
+
+			td = document.createElement("td");
+			td.innerHTML = row + 1;
+			trs.appendChild(td);
+
+			for(n=0; n<4; n++)
+			{
+				td = document.createElement("td");
+				td.innerHTML = data_wiredArray[n];
+				trs.appendChild(td);
+			}
+
+			$('#info_table_wired > tbody').append(trs);
+		}
+
+		parent.callResize();
+	}
+
+	function select_all_24 ()
+	{
+		if (document.getElementById ("btn_all_select24").value == 'true')
+		{
+			for (k=0; k < total_24num; k++)
+			{
+				document.getElementById("element24g" + k).checked = true;
+			}
+
+			document.getElementById ("btn_all_select24").value = false;
+			document.getElementById ("btn_all_select24").innerHTML = i18next.store.data[i18next.language].translation.common['Clearall'];
+		}
+		else
+		{
+			for (k=0; k < total_24num; k++)
+			{
+				document.getElementById("element24g" + k).checked = false;
+			}
+
+			document.getElementById ("btn_all_select24").value = true;
+			document.getElementById ("btn_all_select24").innerHTML = i18next.store.data[i18next.language].translation.common['Selectall'];
+		}
+	}
+
+	function delete_apply_24 () {
+	var tmp;
+	var pass = false;
+
+	for (k = 0; k < total_24num; k++) 
+	{
+		tmp = document.getElementById("element24g" + k);
+		if (tmp)
+		{
+		if (tmp.checked == true) 
+		{
+			pass = true;
+			tmp.value = "1";
+		}
+		}
+
+		if (tmp.value == "1")
+		{
+		EnableButtons(false);
+		TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+		var url = "/cgi-bin/stateset.cgi";
+		var param = "Command=user_delete_24g" + "&mac=" + list24g[k][3];
+
+		XHRPost(null, url, param, false);
+		}
+	}
+	if (pass == false)
+	{
+		alert(i18next.store.data[i18next.language].translation.common['Noselect']);
+	}
+	else
+		window.location.reload();
+		}
+
+	function select_all_5 () {
+	if (document.getElementById ("btn_all_select5").value == 'true'){
+	for (k=0; k < total_5num; k++) {
+	document.getElementById("element5g" + k).checked = true;
+	}
+document.getElementById ("btn_all_select5").value = false;
+document.getElementById ("btn_all_select5").innerHTML = i18next.store.data[i18next.language].translation.common['Clearall'];
+	}
+	else {
+	for (k=0; k < total_5num; k++) {
+	document.getElementById("element5g" + k).checked = false;
+	}
+document.getElementById ("btn_all_select5").value = true;
+document.getElementById ("btn_all_select5").innerHTML = i18next.store.data[i18next.language].translation.common['Selectall'];
+	}
+
+}
+
+	function delete_apply_5 () {
+	var tmp;
+	var pass = false;
+
+	for (k = 0; k < total_5num; k++) 
+	{
+		tmp = document.getElementById("element5g" + k);
+		if (tmp) 
+		{
+		if (tmp.checked == true) 
+		{
+			pass = true;
+			tmp.value = "1";
+		}
+		}
+		
+		if (tmp.value == "1")
+		{
+		EnableButtons(false);
+		TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+		var url = "/cgi-bin/stateset.cgi";
+		var param = "Command=user_delete_5g" + "&mac=" + list5g[k][3];
+
+		XHRPost(null, url, param, false);
+		}
+	}
+
+	if (pass == false)
+	{ 
+		alert(i18next.store.data[i18next.language].translation.common['Noselect']);
+	}
+	else
+		window.location.reload();
+	}
+		
+	function init()
+	{
+	    prevent_enterkey ();
+	    languageFileLoad("../lang/lang_wan_info.json");
+        CheckLogin(page_init);
+	}
+	/*
+	function rate_mode_change()
+	{
+		var modestr = (rate_mode == 1) ? "stop" : "start";
+
+		var url = "/cgi-bin/stateinfo.cgi";
+		var param = "Command=sta_info" + "&Measure=" + modestr;
+
+		XHRPost(getinfohandle, url, param, false);
+	}
+	*/
+	/*
+	function update_rate_mode()
+	{
+		if (rate_mode == 1)
+		{
+		    document.getElementById ("btn_rate_mode").innerHTML = i18next.store.data[i18next.language].translation.common['RateModeOff'];
+		}
+		else
+		{
+		    document.getElementById ("btn_rate_mode").innerHTML = i18next.store.data[i18next.language].translation.common['RateMode'];
+		}
+	}
+	*/
+
+</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="wireless">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="Content.title">단말 정보</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="Content.path1">상태 정보</span>
+						<span class="path_arrow focus_on" data-i18n="Content.path2">단말 정보</span>
+					</p>
+					<!--
+					<button type="button" class="btn_default btn_save_sm" id="btn_rate_mode" name="btn_rate_mode"
+					    onclick="rate_mode_change()" data-i18n="common.RateMode" value="true">속도 측정</button>
+					-->
+					<button type="button" class="btn_default btn_refresh" name="refresh"
+					    onclick="javascript:window.location.reload()" data-i18n="common.Refresh">새로 고침</button>
+				</li>
+			</ul>
+		</div>
+
+		<form method="t24" name="form24" id="form24" novalidate="novalidate">
+
+		<div class="cont_grp_full">
+                <div class="cont_grp_inner2">
+			<div class="cont_stitl_noline" data-i18n="[html]Content.24GTitle">2.4G Connected Device Info( Total: <span id="total_24g"></span>, Channel: <span id="channel_24g"></span> )</div>
+			<div class="waninfo_tbl">
+				<table class="view2" id="info_table24">
+					<thead>
+					<tr>
+						<th rowspan="2" >No.</th>
+						<th rowspan="2" data-i18n="[html]common.Select">Select</th>
+						<th rowspan="2" >SSID</th>
+						<th rowspan="2" >Auth<br>Type</th>
+						<th rowspan="2" >IP<br>(MAC)</th>
+						<th rowspan="2" >NAME</th>
+						<th rowspan="2" >AID</th>
+						<th rowspan="2" >RSSI<br>(Noise)</th>
+						<th rowspan="2" >Assoc<br>Time</th>
+						<th rowspan="2" >MODE</th>
+						<th >Packets/Bytes</th>
+						<th >Packets/Bytes</th>
+						<th >LINK RATE<br>(MBit/s)</th>
+						<th >LINK RATE<br>(MBit/s)</th>
+					</tr>
+					<tr>
+						<th>TX</th>
+						<th>RX</th>
+						<th>TX</th>
+						<th>RX</th>
+					</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			</div>
+
+			<div class="btm_btn_basic">
+			<button type="button" class="btn_default btn_save_sm" id="btn_all_select24"
+			name="btn_all_select24" onclick="select_all_24()" 
+			data-i18n="[html]common.Selectall" value="true">Select All</button>
+			<button type="button" class="btn_default btn_save_sm" id="btn_select_delete24"
+			name="btn_select_delete24" onclick="delete_apply_24()" 
+			data-i18n="[html]common.Delete">삭제</button>
+			</div>
+		</div>
+		</form>
+
+		<form method="t5" name="form5" id="form5" novalidate="novalidate">
+		<div class="cont_grp_full" style="margin-top: 60px;">
+                <div class="cont_grp_inner2">
+			<div class="cont_stitl_noline" data-i18n="[html]Content.5GTitle">5G Connected Device Info( Total: <span id="total_5g"></span>, Channel: <span id="channel_5g"></span> )</div>
+			<div class="waninfo_tbl">
+				<table class="view2" id="info_table5">
+					<thead>
+					<tr>
+						<th rowspan="2" >No.</th>
+						<th rowspan="2" data-i18n="[html]common.Select">Select</th>
+						<th rowspan="2" >SSID</th>
+						<th rowspan="2" >Auth<br>Type</th>
+						<th rowspan="2" >IP<br>(MAC)</th>
+						<th rowspan="2" >NAME</th>
+						<th rowspan="2" >AID</th>
+						<th rowspan="2" >RSSI<br>(Noise)</th>
+						<th rowspan="2" >Assoc<br>Time</th>
+						<th rowspan="2" >MODE</th>
+						<th >Packets/Bytes</th>
+						<th >Packets/Bytes</th>
+						<th >LINK RATE<br>(MBit/s)</th>
+						<th >LINK RATE<br>(MBit/s)</th>
+					</tr>
+					<tr>
+						<th>TX</th>
+						<th>RX</th>
+						<th>TX</th>
+						<th>RX</th>
+					</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			
+		</div>
+			<div class="btm_btn_basic">
+			<button type="button" class="btn_default btn_save_sm" id="btn_all_select5"
+			name="btn_all_select5" onclick="select_all_5()" 
+			data-i18n="[html]common.Selectall" value="true">Select All</button>
+			<button type="button" class="btn_default btn_save_sm" id="btn_select_delete5"
+			name="btn_select_delete5" onclick="delete_apply_5()" 
+			data-i18n="[html]common.Delete">삭제</button>
+			</div>
+		</div>
+		</form>
+
+		<form method="t_wired" name="form_wired" id="form_wired" novalidate="novalidate">
+			<div class="cont_grp_full" style="margin-top: 60px;">
+				<div class="cont_grp_full">
+				<div class="cont_grp_inner2">
+					<div class="cont_stitl_noline" data-i18n="[html]Content.WiredTitle">Wired Connected Device Info</div>
+					<div class="waninfo_tbl">
+						<table class="view2" id="info_table_wired">
+							<thead>
+							<tr>
+								<th rowspan="2" >No.</th>
+								<th rowspan="2" >MAC</th>
+								<th rowspan="2" >IP</th>
+								<th rowspan="2" >Connected</th>
+								<th rowspan="2" >Expire</th>
+							</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</form>
+	
+	</section>
+</div>
+</body>
+</html>

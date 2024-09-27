@@ -1,0 +1,324 @@
+<template>
+    <en>
+        <translation>
+            <nav>
+                <network>network</network>
+                <wan>wan</wan>
+                <wireless24>2.4G WIRELESS SET</wireless24>
+                <wireless5>5G WIRELESS SET</wireless5>
+                <firewall>FIREWALL</firewall>
+                <advanced>ADVANCED SET</advanced>
+                <state>STATE INFO</state>
+                <menuNetwork>
+                    <_1>Network Info</_1>
+                    <_2>Basic/DHCP Set</_2>
+                </menuNetwork>
+                <menuWan>
+                    <_1>Basic Set</_1>
+                    <_2>Connection Infomation</_2>
+                    <_3>LTE Setting</_3>
+                    <_4>Debug Screen</_4>
+                </menuWan>
+                <menu24G>
+                    <_1>wireless Set</_1>
+                    <_2>VAP Set</_2>
+                    <_3>Wireless MAC Filter</_3>
+                    <_4>Wireless Connection Limit</_4>
+                    <_5>Wireless SSID Priority</_5>
+                    <_6>WMM Set</_6>
+                    <_7>2.4G Channel Scan</_7>
+                </menu24G>
+                <menu5G>
+                    <_1>wireless Set</_1>
+                    <_2>VAP Set</_2>
+                    <_3>Wireless MAC Filter</_3>
+                    <_4>Wireless Connection Limit</_4>
+                    <_5>Wireless SSID Priority</_5>
+                    <_6>WMM Set</_6>
+                    <_7>5G Channel Scan</_7>
+                </menu5G>
+                <menuFirewall>
+                    <_1>Port Forwarding Set</_1>
+                    <_2>Firewall Set</_2>
+                </menuFirewall>
+                <menuAdvanced>
+                    <_1>Auth Server Set</_1>
+                    <_2>HOTSPOT Set</_2>
+                    <_3>Web Auth Set</_3>
+                    <_4>White List</_4>
+                    <_5>SNTP Set</_5>
+                    <_6>Remote Management Set</_6>
+                    <_7>Band Steering Set</_7>
+                    <_8>Backhaul Search</_8>
+                    <_9>Auto Reboot</_9>
+                    <_10>System Set</_10>
+                    <_11>Firmware Update</_11>
+                    <_12>AP Blinking Search</_12>
+                    <_13>Speed Check</_13>
+                    <_14>IP Detective</_14>
+                    <_15>Air Time Fairness</_15>
+                </menuAdvanced>
+                <menuState>
+                    <_1>Wireless Device Info</_1>
+                    <_2>Wireless AP Info</_2>
+                    <_3>Network Statistics Info</_3>
+                    <_4>Associate Statistics</_4>
+                    <_5>Log Info</_5>
+                </menuState>
+            </nav>
+            <NetworkInfoContent>
+                <title>Network Info</title>
+                <path1>Network</path1>
+                <path2>Network Info</path2>
+                <content>
+                    <Device_info>
+                        <title>Device Info</title>
+                        <model>Model</model>
+                        <Firmware_Version>Firmware Version</Firmware_Version>
+                        <LTE_Firmware_Version>LTE Firmware Version</LTE_Firmware_Version>
+                        <SW_Update_Date>SW Update Date</SW_Update_Date>
+                        <Ethernet_State>Ethernet State</Ethernet_State>
+                    </Device_info>
+                    <Operation_Info>
+                        <title>Operation Info</title>
+                        <System_Up_Time>System Up Time</System_Up_Time>
+                        <System_Running_Time>System Running Time</System_Running_Time>
+                        <Current_Time>Current Time</Current_Time>
+                        <Memory_Use_Amount>Memory Use Amount (1min/5min/15min)</Memory_Use_Amount>
+                        <CPU_Use_Amount>CPU Use Amount (1min/5min/15min)</CPU_Use_Amount>
+                        <System_Load_Average>System Load Average (1min/5min/15min)</System_Load_Average>
+                    </Operation_Info>
+                    <Internet_Connect_State>
+                        <title>Internet Connect State</title>
+                        <LAN_Set>
+                            <title>LAN Set</title>
+                            <IP_Address>IP Address</IP_Address>
+                            <Subnet_Mask>Subnet Mask</Subnet_Mask>
+                            <Default_Gateway>Default Gateway</Default_Gateway>
+                            <Mac_Address>MAC Address</Mac_Address>
+                            <DHCP_Server>DHCP Server</DHCP_Server>
+                        </LAN_Set>
+                        <WAN_Set>
+                            <title>WAN Set</title>
+                            <Connection_Method>Connection Method</Connection_Method>
+                        </WAN_Set>
+                        <LTE_Information>
+                            <title>LTE Information</title>
+                            <State>State</State>
+                            <IP_Address>IP Address</IP_Address>
+                            <Mac_Address>MAC Address</Mac_Address>
+                            <TEL>TEL</TEL>
+                            <Subnet_Mask>Subnet Mask</Subnet_Mask>
+                            <Default_Gateway>Default Gateway</Default_Gateway>
+                        </LTE_Information>
+                        <WiBro_Information>
+                            <title>WiBro Information</title>
+                            <State>State</State>
+                            <IP_Address>IP Address</IP_Address>
+                            <Mac_Address>MAC Address</Mac_Address>
+                            <Subnet_Mask>Subnet Mask</Subnet_Mask>
+                            <Default_Gateway>Default Gateway</Default_Gateway>
+                        </WiBro_Information>
+                        <Ethernet_Information>
+                            <title>Ethernet Information</title>
+                            <IP_Address>IP Address</IP_Address>
+                            <Mac_Address>MAC Address</Mac_Address>
+                            <Subnet_Mask>Subnet Mask</Subnet_Mask>
+                            <Default_Gateway>Default Gateway</Default_Gateway>
+                        </Ethernet_Information>
+                    </Internet_Connect_State>
+                    <Install_Location>
+                        <title>Install Location</title>
+                        <Business_Location>Business Location</Business_Location>
+                        <Detail_Location>Detail Location</Detail_Location>
+                        <EGG_CODE>EGG CODE</EGG_CODE>
+                    </Install_Location>
+                    <WIRELESS>
+                        <title>WIRELESS</title>
+                        <Wireless_Channel_24>2.4G Wireless Channel</Wireless_Channel_24>
+                        <Wireless_Channel_5>5G Wireless Channel</Wireless_Channel_5>
+                    </WIRELESS>
+                    <Wireless_SSID_24>
+                        <title>2.4G Wireless SSID</title>
+                        <VAP>VAP</VAP>
+                        <SSID>SSID</SSID>
+                        <Use>Use</Use>
+                        <Security_Set>Security Set</Security_Set>
+                        <WMM>WMM</WMM>
+                        <MAC_Address>MAC Address</MAC_Address>
+                    </Wireless_SSID_24>
+                    <Wireless_SSID_5>
+                        <title>5G Wireless SSID</title>
+                        <VAP>VAP</VAP>
+                        <SSID>SSID</SSID>
+                        <Use>Use</Use>
+                        <Security_Set>Security Set</Security_Set>
+                        <WMM>WMM</WMM>
+                        <MAC_Address>MAC Address</MAC_Address>
+                    </Wireless_SSID_5>
+                </content>
+            </NetworkInfoContent>
+        </translation>
+    </en>
+    <kr>
+        <translation>
+            <nav>
+                <network>네트워크</network>
+                <wan>WAN</wan>
+                <wireless24>2.4G 무선랜 설정</wireless24>
+                <wireless5>5G 무선랜 설정</wireless5>
+                <firewall>방화벽</firewall>
+                <advanced>고급 설정</advanced>
+                <state>상태정보</state>
+                <menuNetwork>
+                    <_1>네트워크 정보</_1>
+                    <_2>기본설정/DHCP</_2>
+                </menuNetwork>
+                <menuWan>
+                    <_1>기본 설정</_1>
+                    <_2>접속 정보</_2>
+                    <_3>LTE 설정</_3>
+                    <_4>디버그 스크린</_4>
+                </menuWan>
+                <menu24G>
+                    <_1>무선 설정</_1>
+                    <_2>VAP 설정</_2>
+                    <_3>무선 MAC 차단</_3>
+                    <_4>무선 접속수 제한</_4>
+                    <_5>무선 SSID 우선 순위</_5>
+                    <_6>WMM 설정</_6>
+                    <_7>2.4G 채널 스캔</_7>
+                </menu24G>
+                <menu5G>
+                    <_1>무선 설정</_1>
+                    <_2>VAP 설정</_2>
+                    <_3>무선 MAC 차단</_3>
+                    <_4>무선 접속수 제한</_4>
+                    <_5>무선 SSID 우선 순위</_5>
+                    <_6>WMM 설정</_6>
+                    <_7>5G 채널 스캔</_7>
+                </menu5G>
+                <menuFirewall>
+                    <_1>포트포워딩 설정</_1>
+                    <_2>방화벽 설정</_2>
+                </menuFirewall>
+                <menuAdvanced>
+                    <_1>인증서버 설정</_1>
+                    <_2>HOTSPOT 설정</_2>
+                    <_3>Web Auth 설정</_3>
+                    <_4>White List</_4>
+                    <_5>SNTP 설정</_5>
+                    <_6>원격 관리 설정</_6>
+                    <_7>Band Steering 설정</_7>
+                    <_8>백홀 Search</_8>
+                    <_9>자동 재시작</_9>
+                    <_10>시스템 설정</_10>
+                    <_11>펌웨어 업데이트</_11>
+                    <_12>AP 육안식별 기능</_12>
+                    <_13>Speed Check</_13>
+                    <_14>IP Detective</_14>
+                    <_15>AirTIme Fairness</_15>
+                </menuAdvanced>
+                <menuState>
+                    <_1>무선 단말정보</_1>
+                    <_2>무선 AP정보</_2>
+                    <_3>네트워크 통계 정보</_3>
+                    <_4>접속 통계</_4>
+                    <_5>로그 정보</_5>
+                </menuState>
+            </nav>
+            <NetworkInfoContent>
+                <title>네트워크 정보</title>
+                <path1>네트워크</path1>
+                <path2>네트워크 정보</path2>
+                <content>
+                    <Device_info>
+                        <title>단말 정보</title>
+                        <model>모델명</model>
+                        <Firmware_Version>펌웨어 버전</Firmware_Version>
+                        <LTE_Firmware_Version>LTE 펌웨어 버전</LTE_Firmware_Version>
+                        <SW_Update_Date>SW 업데이트 날짜</SW_Update_Date>
+                        <Ethernet_State>이더넷 상태</Ethernet_State>
+                    </Device_info>
+                    <Operation_Info>
+                        <title>동작 정보</title>
+                        <System_Up_Time>시스템 업타임</System_Up_Time>
+                        <System_Running_Time>시스템 가동 시간</System_Running_Time>
+                        <Current_Time>현재 시간</Current_Time>
+                        <Memory_Use_Amount>메모리 사용량(1분/5분/15분)</Memory_Use_Amount>
+                        <CPU_Use_Amount>CPU 사용량(1분/5분/15분)</CPU_Use_Amount>
+                        <System_Load_Average>시스템 부하율(1분/5분/15분)</System_Load_Average>
+                    </Operation_Info>
+                    <Internet_Connect_State>
+                        <title>인터넷 연결 상태</title>
+                        <LAN_Set>
+                            <title>LAN 설정</title>
+                            <IP_Address>IP 주소</IP_Address>
+                            <Subnet_Mask>서브넷 마스크</Subnet_Mask>
+                            <Default_Gateway>기본 게이트웨이</Default_Gateway>
+                            <Mac_Address>MAC 주소</Mac_Address>
+                            <DHCP_Server>DHCP 서버</DHCP_Server>
+                        </LAN_Set>
+                        <WAN_Set>
+                            <title>WAN 설정</title>
+                            <Connection_Method>연결 방식</Connection_Method>
+                        </WAN_Set>
+                        <LTE_Information>
+                            <title>LTE 정보</title>
+                            <State>상태</State>
+                            <IP_Address>IP 주소</IP_Address>
+                            <Mac_Address>MAC 주소</Mac_Address>
+                            <TEL>전화번호</TEL>
+                            <Subnet_Mask>서브넷 마스크</Subnet_Mask>
+                            <Default_Gateway>기본 게이트웨이</Default_Gateway>
+                        </LTE_Information>
+                        <WiBro_Information>
+                            <title>WiBro 정보</title>
+                            <State>상태</State>
+                            <IP_Address>IP 주소</IP_Address>
+                            <Mac_Address>MAC 주소</Mac_Address>
+                            <Subnet_Mask>서브넷 마스크</Subnet_Mask>
+                            <Default_Gateway>기본 게이트웨이</Default_Gateway>
+                        </WiBro_Information>
+                        <Ethernet_Information>
+                            <title>Ethernet 정보</title>
+                            <IP_Address>IP 주소</IP_Address>
+                            <Mac_Address>MAC 주소</Mac_Address>
+                            <Subnet_Mask>서브넷 마스크</Subnet_Mask>
+                            <Default_Gateway>기본 게이트웨이</Default_Gateway>
+                        </Ethernet_Information>
+                    </Internet_Connect_State>
+                    <Install_Location>
+                        <title>설치 위치</title>
+                        <Business_Location>사업장 위치</Business_Location>
+                        <Detail_Location>상세 내역</Detail_Location>
+                        <EGG_CODE>EGG CODE</EGG_CODE>
+                    </Install_Location>
+                    <WIRELESS>
+                        <title>무선랜</title>
+                        <Wireless_Channel_24>2.4G 무선 랜 채널</Wireless_Channel_24>
+                        <Wireless_Channel_5>5G 무선 랜 채널</Wireless_Channel_5>
+                    </WIRELESS>
+                    <Wireless_SSID_24>
+                        <title>2.4G 무선 랜 SSID</title>
+                        <VAP>VAP</VAP>
+                        <SSID>SSID</SSID>
+                        <Use>사용</Use>
+                        <Security_Set>보안 설정</Security_Set>
+                        <WMM>WMM</WMM>
+                        <MAC_Address>MAC Address</MAC_Address>
+                    </Wireless_SSID_24>
+                    <Wireless_SSID_5>
+                        <title>5G 무선 랜 SSID</title>
+                        <VAP>VAP</VAP>
+                        <SSID>SSID</SSID>
+                        <Use>사용</Use>
+                        <Security_Set>보안 설정</Security_Set>
+                        <WMM>WMM</WMM>
+                        <MAC_Address>MAC Address</MAC_Address>
+                    </Wireless_SSID_5>
+                </content>
+            </NetworkInfoContent>
+        </translation>
+    </kr>
+</template>

@@ -1,0 +1,72 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "BandSteeringSettingContent": {
+          "title": "Band Steering Set",
+          "path1": "ADVANCED SET",
+          "path2": "Band Steering Set",
+          "content": {
+            "Band_Steering_Set" : {
+              "title" : "Band Steering Set",
+              "Band_Steering" : {
+                "title" : "Band Steering",
+                "Active" : "Active"
+              },
+              "Upgrade_to_5GHz" : {
+                "title" : "Upgrade to 5GHz",
+                "up_distance" : "(Default:10dBm, 0 ~ 30dBm)"
+              },
+              "Downgrade_to_24GHz" : {
+                "title" : "Downgrade to 2.4GHz",
+                "down_distance" : "(Default:30dBm, 0 ~ 50dBm)"
+              },
+              "Cancel" : "Cancel",
+              "Apply" : "Apply"
+            }
+          }
+        },
+        "alert" : {
+          "not_configured_5GHz" : "Upgrade to 5GHz is not configured.",
+          "incorrect_5GHz" : "Upgrade to 5GHz is incorrect.",
+          "not_configured_24GHz" : "Downgrade to 2.4GH is not configured.",
+          "incorrect_24GHz" : "Downgrade to 2.4GH is incorrect."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "BandSteeringSettingContent": {
+          "title": "Band Steering 설정",
+          "path1": "고급 설정",
+          "path2": "Band Steering 설정",
+          "content": {
+            "Band_Steering_Set" : {
+              "title" : "Band Steering 설정",
+              "Band_Steering" : {
+                "title" : "Band Steering",
+                "Active" : "활성"
+              },
+              "Upgrade_to_5GHz" : {
+                "title" : "Upgrade to 5GHz",
+                "up_distance" : "(기본:10dBm, 0 ~ 30dBm)"
+              },
+              "Downgrade_to_24GHz" : {
+                "title" : "Downgrade to 2.4GHz",
+                "down_distance" : "(기본:30dBm, 0 ~ 50dBm)"
+              },
+              "Cancel" : "취소",
+              "Apply" : "적용"
+            }
+          }
+        },
+        "alert" : {
+          "not_configured_5GHz" : "Upgrade to 5GHz가 설정되어 있지 않습니다.",
+          "incorrect_5GHz" : "Upgrade to 5GHz가 올바르지 않습니다.",
+          "not_configured_24GHz" : "Downgrade to 2.4GHz가 설정되어 있지 않습니다.",
+          "incorrect_24GHz" : "Downgrade to 2.4GHz가 올바르지 않습니다."
+        }
+      }
+    }
+  }
+}

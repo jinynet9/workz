@@ -1,0 +1,576 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/14 - 누락 id 추가
+7/23 - 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/jquery.form.min.js"></script>
+<script type="text/javascript" src="../js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<link href="../css/progressbar/bootstrap.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/progressbar/progressbar.min.js"></script>
+<script type="text/javascript" src="../js/progressbar/components_loaders.js"></script>
+
+<script language="javascript" type="text/javascript">
+		var www_enable;
+		var ssh_enable ;
+		var https_enable;
+		var nms_enable ;
+
+		var _lang_file = "../lang/lang_remote_access.json";
+
+		function page_init()
+		{
+			var url = "/cgi-bin/advanceinfo.cgi?Command=remote_setting";
+			XHRGet(getinfohandle, url, true);
+		}
+
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+			SetButtons(["btn_remote_setup", "btn_apply_http"]);
+
+			var PortDefault = getDataFromTag(xmlDoc,"www_port");
+			var ssh_port = getDataFromTag(xmlDoc,"ssh_port");
+
+			var www_timeout = getDataFromTag(xmlDoc,"www_timeout");
+
+			document.getElementById("www_port").value = PortDefault;
+			document.getElementById("ssh_port").value = ssh_port;
+
+			document.getElementById("www_timeout").value = www_timeout;
+
+			www_enable = getDataFromTag(xmlDoc,"www_enable");
+			if(www_enable == 1){
+				document.http_setup.www_enable.checked = true;
+			}
+			else{
+				document.http_setup.www_enable.checked = false;
+			}
+
+			ssh_enable = getDataFromTag(xmlDoc,"ssh_enable");
+			if(ssh_enable == 1){
+				document.remote_setup.ssh_enable.checked = true;
+			}
+			else{
+				document.remote_setup.ssh_enable.checked = false;
+			}
+
+			/* load nms */
+			/*
+			nms_enable = getDataFromTag(xmlDoc,"nms_enable");
+			document.nms_sect.nms_enable.checked = (nms_enable == 1) ? true : false;
+			document.getElementById("nms_url").value = getDataFromTag(xmlDoc, "nms_url");
+			document.getElementById("nms_msg_report_interval").value = getDataFromTag(xmlDoc, "nms_msg_report_interval");
+			document.getElementById("nms_msg_timeout").value = getDataFromTag(xmlDoc, "nms_msg_timeout");
+			document.getElementById("nms_alm_monitor_interval").value = getDataFromTag(xmlDoc, "nms_alm_monitor_interval");
+			document.getElementById("nms_alm_cpu_threshold").value = getDataFromTag(xmlDoc, "nms_alm_cpu_threshold");
+			document.getElementById("nms_alm_mem_threshold").value = getDataFromTag(xmlDoc, "nms_alm_mem_threshold");
+			*/
+
+			/*
+			load_xml ( "nms_enable", xmlDoc );
+			load_xml ( "nms_url", xmlDoc );
+			load_xml ( "nms_msg_report_interval", xmlDoc );
+			load_xml ( "nms_msg_timeout", xmlDoc );
+			load_xml ( "nms_alm_monitor_interval", xmlDoc );
+			load_xml ( "nms_alm_cpu_threshold", xmlDoc );
+			load_xml ( "nms_alm_mem_threshold", xmlDoc );
+			*/
+
+			node_tree_load_xml ( document.getElementById("nms_sect"), xmlDoc );
+
+			updateState();
+		}
+
+		function updateState()
+		{
+			var checkbox_wan = document.http_setup.www_enable;
+			var checkbox_ssh= document.remote_setup.ssh_enable;
+			var nms_enable = document.nms_sect.nms_enable;
+
+			if(!checkbox_wan.checked){
+				document.http_setup.www_port.disabled = true;
+			}
+			else	{
+				document.http_setup.www_port.disabled = false;
+			}
+
+			if(!checkbox_ssh.checked){
+				document.remote_setup.ssh_port.disabled = true;
+			}
+			else	{
+				document.remote_setup.ssh_port.disabled = false;
+			}
+
+			node_tree_enable ( document.getElementById("nms_sect_body"), nms_enable.checked );
+			//document.getElementById("nms_sect_body").style.display = nms_enable.checked ? "" : "none";
+			/*
+			document.nms_sect.nms_url.disabled = !nms_enable.checked;
+			document.nms_sect.nms_msg_report_interval.disabled = !nms_enable.checked;
+			document.nms_sect.nms_msg_timeout.disabled = !nms_enable.checked;
+			document.nms_sect.nms_alm_monitor_interval.disabled = !nms_enable.checked;
+			document.nms_sect.nms_alm_cpu_threshold.disabled = !nms_enable.checked;
+			document.nms_sect.nms_alm_mem_threshold.disabled = !nms_enable.checked;
+			*/
+
+			parent.callResize();
+		}
+
+		function httpFormCheck()
+		{
+			if( document.http_setup.www_enable.checked == true )
+			{
+				document.http_setup.www_enable.value = "1";
+				if ( document.http_setup.www_port.value == "" )
+				{
+					alert(i18next.store.data[i18next.language].translation.alert['enter_port']);
+					return false;
+				}
+
+				if ( document.http_setup.www_port.value != "" )
+				{
+					if ( parseInt(document.http_setup.www_port.value) < 1024 ||
+							parseInt(document.http_setup.www_port.value) > 65535 )
+					{
+						if( parseInt(document.http_setup.www_port.value) == 443 )
+						{
+							return true;
+						}
+						alert(i18next.store.data[i18next.language].translation.alert['number_range_or_443']);
+						return false;
+					}
+
+					if( parseInt(document.http_setup.www_port.value) == 44444)
+					{
+						alert(i18next.store.data[i18next.language].translation.alert['number_range_except_4444']);
+						return false;
+					}
+
+					for ( var i=0; i < document.http_setup.www_port.value.length; i++ )
+					{
+						var ch = document.http_setup.www_port.value.charCodeAt( i );
+						if ( ch < 0x30 || ch > 0x39 )
+						{
+							alert(i18next.store.data[i18next.language].translation.alert['number_range_or_443']);
+							return false;
+						}
+					}
+				}
+				if ( document.http_setup.www_timeout.value != "" )
+				{
+				    if ( parseInt(document.http_setup.www_timeout.value) < 60 ||
+					    parseInt(document.http_setup.www_timeout.value) > 3600 )
+				    {
+					alert(i18next.store.data[i18next.language].translation.alert['timeout_range']);
+					return false;
+				    }
+				}
+			}else {
+                document.http_setup.www_enable.value = "0";
+			}
+			return true;
+		}
+
+		function remoteFormCheck()
+		{
+			if( document.remote_setup.ssh_enable.checked == true )
+			{
+				document.remote_setup.ssh_enable.value = "1";
+				if ( document.remote_setup.ssh_port.value == "" )
+				{
+					alert(i18next.store.data[i18next.language].translation.alert['enter_port']);
+					return false;
+				}
+
+				if ( document.remote_setup.ssh_port.value != "" )
+				{
+
+
+					if ( parseInt(document.remote_setup.ssh_port.value) < 1024 ||
+							parseInt(document.remote_setup.ssh_port.value) > 65535 )
+					{
+						if ( parseInt(document.remote_setup.ssh_port.value) == 22 )
+						{
+							return true;
+						}
+
+						alert(i18next.store.data[i18next.language].translation.alert['number_range_or_22']);
+						return false;
+					}
+					for ( var i=0; i < document.remote_setup.ssh_port.value.length; i++ )
+					{
+						var ch = document.remote_setup.ssh_port.value.charCodeAt( i );
+						if ( ch < 0x30 || ch > 0x39 )
+						{
+							alert(i18next.store.data[i18next.language].translation.alert['number_range']);
+							return false;
+						}
+					}
+				}
+			}else {
+				document.remote_setup.ssh_enable.value = "0";
+			}
+			return true;
+
+		}
+
+		function submit_apply_http_setting()
+		{
+		    if (httpFormCheck()) 
+		    {
+			xalert ( 'reboot_need' );
+
+			document.http_setup.reboot_allow.value = "1";
+
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=http_setting"
+			    +"&"
+			    +serializeFormElement("http_setup");
+
+			XHRPost ( err_handle_reload, url, param, true );
+
+			/*
+			 * normal confirm popup & change to guide page
+			 * DAYOU_MKSHIN_200912
+			if ( xconfirm ('reload') )
+			{
+			    document.http_setup.reboot_allow.value = "1";
+			    EnableButtons( false );
+			    var url = "/cgi-bin/advanceset.cgi";
+			    var param = "Command=http_setting"
+				+"&"
+				+serializeFormElement("http_setup");
+
+			    XHRPost(jump_inform_reboot, url, param, true);
+			}
+			 */ 
+		    }
+		}
+
+		function submit_apply_remote_setting()
+		{
+		    if (remoteFormCheck()) 
+		    {
+			xalert ( 'reboot_need' );
+
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=remote_setting"
+			    +"&"
+			    +serializeFormElement("remote_setup");
+
+			XHRPost ( err_handle_reload, url, param, true );
+
+			/*
+			 * normal confirm popup & change to guide page
+			 * DAYOU_MKSHIN_200912
+			if ( xconfirm ('reload') )
+			{
+			    EnableButtons( false );
+			    var url = "/cgi-bin/advanceset.cgi";
+			    var param = "Command=remote_setting"
+				+"&"
+				+serializeFormElement("remote_setup");
+
+			    XHRPost(jump_inform_reboot, url, param, true);
+			}
+			 */ 
+		    }
+		}
+
+		function nms_form_check() {
+		    if ( document.nms_sect.nms_enable.checked == true )
+		    {
+			document.nms_sect.nms_enable.value = "1";
+		    }
+		    else
+		    {
+			document.nms_sect.nms_enable.value = "0";
+		    }
+
+		    return true;
+		}
+
+		function nms_form_post()
+		{
+		    if ( nms_form_check() ) 
+		    {
+			var url = "/cgi-bin/advanceset.cgi";
+			var param = "Command=nms_set"
+			    +"&"
+			    +serializeFormElement("nms_sect");
+
+			XHRPost ( err_handle_reload, url, param, true );
+		    }
+		}
+
+		function init()
+		{
+		    console.log ( `body onload:: ${_lang_file}` );
+		    prevent_enterkey ();
+		    languageFileLoad ( _lang_file );
+			CheckLogin(page_init);
+		}
+
+        function display_progress(timeout) {
+            $("#advanced_display").hide();
+            $("#progress_display").show();
+            parent.close_dialog();
+            TimeoutReload(timeout, true);
+        }
+
+	$(document).ready(function() {
+		    console.log("document ready");
+	});
+
+	</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section id="advanced_display" class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="RemoteAccess.title">원격 접속</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="RemoteAccess.path1">고급 설정</span>
+						<span class="path_arrow focus_on" data-i18n="RemoteAccess.path2">원격 접속</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<form method="POST" name="http_setup" id="http_setup" novalidate="novalidate">
+			<div class="cont_grp">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="RemoteAccess.content.HTTP.title">HTTPS</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<!--
+							<tr>
+								<td colspan="2" class="minititle" data-i18n="RemoteAccess.content.HTTP.HTTPS">
+									HTTPS
+								</td>
+							</tr>
+							-->
+							<tr>
+								<td data-i18n="RemoteAccess.content.HTTP.Remote_Access">
+									원격 접근
+								</td>
+								<td>
+									<label><input type="checkbox" name="www_enable" id="www_enable" value="0" checked="" onclick="updateState()">
+										<span data-i18n="RemoteAccess.content.HTTP.Active">활성</span></label>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="RemoteAccess.content.HTTP.HTTP_Port_Change">
+									HTTPS 포트 변경
+								</td>
+								<td>
+									<input type="text" name="www_port" id="www_port" size="20" maxlength="5" class="inputbox35per">&nbsp;
+									<span data-i18n="RemoteAccess.content.HTTP.http_port">(기본 : 443, 범위 : 1024 ~ 65535 와 443)</span>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="RemoteAccess.content.HTTP.HTTP_timeout">
+									Session timeout
+								</td>
+								<td>
+									<input type="text" name="www_timeout" id="www_timeout" size="20" maxlength="5" class="inputbox35per">&nbsp;
+									<span data-i18n="RemoteAccess.content.HTTP.noti_timeout">(기본 : 600, 범위 : 1024 ~ 65535)</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_basic">
+					<!--
+					<button type="button" class="btn_default btn_cancel_sm" name="refresh" onclick="javascript: window.location.reload()"
+							data-i18n="RemoteAccess.content.HTTP.Cancel">취소</button>
+					-->
+					<!--
+					* normal confirm popup
+					* DAYOU_MKSHIN_200912
+					-->
+					<button type="button" class="btn_default btn_save_sm" id="btn_apply_http" onClick="submit_apply_http_setting()" data-i18n="RemoteAccess.content.HTTP.Save">저장</button>
+					<input type="hidden" name="reboot_allow" id="reboot_allow" value="0">
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+
+		<form method="POST" name="remote_setup" id="remote_setup" novalidate="novalidate" onsubmit="return false;">
+			<div class="cont_grp">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="RemoteAccess.content.SSH.title">SSH</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<!--
+							<tr>
+								<td colspan="2" class="minititle" data-i18n="RemoteAccess.content.SSH.SSH">
+									SSH
+								</td>
+							</tr>
+							-->
+							<tr>
+								<td data-i18n="RemoteAccess.content.SSH.SSH_Server">
+									SSH 서버
+								</td>
+								<td>
+									<label><input type="checkbox" name="ssh_enable" id="ssh_enable" value="1" checked="" onclick="updateState()">
+										<span data-i18n="RemoteAccess.content.SSH.Active">활성</span></label>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="RemoteAccess.content.SSH.Server_Port">
+									서버 포트
+								</td>
+								<td>
+									<input type="text" name="ssh_port" id="ssh_port" range="1:65535" size="20" maxlength="5" class="inputbox35per">&nbsp;
+									<span data-i18n="RemoteAccess.content.SSH.ssh_server_port">(기본:22, 1024 ~ 65535)</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_basic">
+					<!--
+					<button type="button" class="btn_default btn_cancel_sm" name="set" onclick="javescript : window.location.reload()"
+							data-i18n="RemoteAccess.content.SSH.Cancel">취소</button>
+					-->
+					<!--
+					* normal confirm popup
+					* DAYOU_MKSHIN_200912
+					-->
+					<button type="button" class="btn_default btn_save_sm" id="btn_remote_setup" onClick="submit_apply_remote_setting()" data-i18n="RemoteAccess.content.SSH.Save">저장</button>
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+
+		<form method="POST" name="nms_sect" id="nms_sect" novalidate="novalidate" onsubmit="return false;">
+			<div class="cont_grp">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="RemoteAccess.content.NMS.title">NMS</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td>
+									Enable
+								</td>
+								<td>
+									<label><input type="checkbox" name="nms_enable" id="nms_enable" value="0" checked="" onclick="updateState()">
+										<span data-i18n="RemoteAccess.content.NMS.Active">활성</span></label>
+								</td>
+							</tr>
+							<tbody id="nms_sect_body">
+							<tr>
+								<td>
+									URL
+								</td>
+								<td>
+									<input type="text" name="nms_url" id="nms_url" size="20" class="inputbox60per">&nbsp;
+									<!--
+									<span>default url</span>
+									-->
+								</td>
+							</tr>
+							<tr>
+								<td>Message</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>- report interval</td>
+								<td>
+									<input type="text" name="nms_msg_report_interval" id="nms_msg_report_interval" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							<tr>
+								<td>- timeout</td>
+								<td>
+									<input type="text" name="nms_msg_timeout" id="nms_msg_timeout" size="20" class="inputbox35per">
+								</td>
+							</tr>
+
+							<tr>
+								<td>Alarm</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>- monitor interval</td>
+								<td>
+									<input type="text" name="nms_alm_monitor_interval" id="nms_alm_monitor_interval" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							<tr>
+								<td>- CPU threshold</td>
+								<td>
+									<input type="text" name="nms_alm_cpu_threshold" id="nms_alm_cpu_threshold" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							<tr>
+								<td>- Memory threshold</td>
+								<td>
+									<input type="text" name="nms_alm_mem_threshold" id="nms_alm_mem_threshold" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							<tr>
+								<td>FOTA</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>- Allowed Time</td>
+								<td>
+									<input type="text" name="nms_fota_allow_time" id="nms_fota_allow_time" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							<tr>
+								<td>- Allowed Duration</td>
+								<td>
+									<input type="text" name="nms_fota_allow_duration" id="nms_fota_allow_duration" size="20" class="inputbox35per">
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_basic">
+					<button type="button" class="btn_default btn_save_sm" id="btn_nms_setup" onClick="nms_form_post()" data-i18n="RemoteAccess.content.NMS.Apply">적용</button>
+				</div>
+			</div>
+		</form>
+	</section>
+</div>
+<script>
+    console.log ( "html body end" );
+</script>
+</body>
+</html>

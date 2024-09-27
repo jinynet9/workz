@@ -1,0 +1,113 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/15 - contbody에 content id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+        var _lang_file = "../lang/lang_wireless5_channel_scan.json";
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless5_ch_scan";
+            XHRGet(callback_get_scan_info, url, true);
+        }
+
+        function callback_get_scan_info(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            var ch_scan_num = parseInt(getDataFromTag(xmlDoc, "ch_scan_num"));
+            var table_name = document.getElementById("scan_table5");
+
+            for (k = 0; k < ch_scan_num; k++) {
+                var ch_scan_list = getDataFromTag(xmlDoc, "wireless5_ch_scan" + k);
+                var ch_arr = trim_split(ch_scan_list,",");
+
+                trs = document.createElement("tr");
+
+                for (n = 0; n < 7; n++) {
+                    td = document.createElement("td");
+                    if (n == 0) {
+                        td.innerText = ch_arr[n];
+                    } else {
+                        td.innerHTML = ch_arr[n];
+                    }
+                    trs.appendChild(td);
+                }
+
+                trs.appendChild(td);
+                table_name.appendChild(trs);
+            }
+            document.getElementById("main_page").style.display = "";
+            document.getElementById("loading").style.display = "none";
+            parent.callResize();
+        }
+
+        function init() {
+            prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div id="loading" class="loading"></div>
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless5ChannelScanContent.title">5G 채널 스캔</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless5ChannelScanContent.path1">5G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless5ChannelScanContent.path2">5G 채널 스캔</span>
+                    </p>
+                    <button type="button" class="btn_default btn_refresh" name="refresh"
+                            onclick="javascript: window.location.reload()" data-i18n="Wireless5ChannelScanContent.refresh">새로 고침
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="chscan_tbl">
+                    <table class="list" id="scan_table5" name="scan_table5">
+                        <thead>
+                        <tr>
+                            <th data-i18n="Wireless5ChannelScanContent.content.No">No</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.SSID">SSID</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.BSSID">BSSID</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.CHANNEL">CHANNEL</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.TYPE">TYPE</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.ENCRYPTION">ENCRYPTION</th>
+                            <th data-i18n="Wireless5ChannelScanContent.content.RSSI">RSSI</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- <div class="btm_btn_wireless">
+                 <button type="button" class="btn_default btn_save">저장</button>
+             </div>-->
+        </div>
+        <!-- //EDCA AP Parameter -->
+    </section>
+</div>
+</body>
+</html>

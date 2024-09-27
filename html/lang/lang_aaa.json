@@ -1,0 +1,70 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "AaaContent": {
+          "title": "Auth/Acct Setting",
+          "path1": "ADVANCED SET",
+          "path2": "Auth/Acct Setting"
+        },
+        "Wireless": {
+          "wifi_apply" : "WiFi Apply"
+	},
+        "Server_Global_Setup": {
+          "title" : "Auth/Acct Server Global Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "Restrict_Individual_Setup":"Restrict Individual Setup",
+            "Activate_Individual_Setup":"Activate",
+            "AuthServer" : "Auth Server",
+            "AcctServer" : "Acct Server",
+            "Save" : "Save"
+          }
+        },
+        "Server_Other_Setup": {
+          "title" : "Other Settings",
+          "Redirect_URL":"Redirection URL"
+        },
+        "alert": {
+          "Invalid_IP_Address":"Invalid IP address.",
+          "Invalid_Port_Number":"Invalid port number.",
+          "Short_Shared_Secret":"Shared Secret must be at least 16 characters long.",
+          "Invalid_Shared_Secret":"Shared Secret must contain at least 1 number and special character."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "AaaContent": {
+          "title": "인증/과금 설정",
+          "path1": "고급 설정",
+          "path2": "인증/과금 설정"
+        },
+        "Wireless": {
+          "wifi_apply" : "WiFi 적용"
+	},
+        "Server_Global_Setup": {
+          "title":"인증/과금 서버 전역 설정",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "Restrict_Individual_Setup":"SSID별 설정 제한",
+            "Activate_Individual_Setup":"활성",
+            "AuthServer" : "인증서버",
+            "AcctServer" : "과금서버",
+            "Save" : "저장"
+          }
+        },
+        "Server_Other_Setup": {
+          "title" : "기타 설정",
+          "Redirect_URL":"접속페이지"
+        },
+        "alert": {
+          "Invalid_IP_Address":"IP 주소가 잘못되었습니다.",
+          "Invalid_Port_Number":"PORT 번호가 잘못되었습니다.",
+          "Short_Shared_Secret":"Shared Secret 값은 16자 이상이어야 합니다..",
+          "Invalid_Shared_Secret":"Shared Secret 은 최소 1개 이상의 숫자 및 특수문자를 포함해야 합니다."
+        }
+      }
+    }
+  }
+}

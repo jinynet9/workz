@@ -1,0 +1,2 @@
+/home/jinynet9/work/makefile/cmake/hello-project/library/CMakeFiles/distclean.dir
+/home/jinynet9/work/makefile/cmake/hello-project/library/CMakeFiles/utility.dir

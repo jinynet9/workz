@@ -1,0 +1,76 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "BackhaulSearchContent": {
+          "title": "Backhaul Search",
+          "path1": "ADVANCED SET",
+          "path2": "Backhaul Search",
+          "content": {
+            "Backhaul_Search" : {
+              "title" : "Backhaul Search",
+              "Backhaul_Search" : {
+                "title" : "Backhaul Search",
+                "options" : {
+                  "Disable" : "Disable",
+                  "Enable" : "Enable"
+                }
+              },
+              "Save" : "Save"
+            },
+            "RF_Shut_Off_Time_by_backhaul" : {
+              "title" : "RF Shut Off Time by Backhaul",
+              "Time" : {
+                "title" : "Time",
+                "rfshutoff_time" : "(between 1 and 3600)"
+              },
+              "Cancel" : "Cancel",
+              "Apply" : "Apply"
+            }
+          }
+        },
+        "alert" : {
+          "enter_value": "Please enter the set value.",
+          "only_number": "Input Number Only",
+          "number_range": "The range of time is between 1 and 3600."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "BackhaulSearchContent": {
+          "title": "백홀 Search",
+          "path1": "고급 설정",
+          "path2": "백홀 Search",
+          "content": {
+            "Backhaul_Search" : {
+              "title" : "백홀 Search",
+              "Backhaul_Search" : {
+                "title" : "백홀 Search",
+                "options" : {
+                  "Disable" : "비활성화",
+                  "Enable" : "활성화"
+                }
+              },
+              "Save" : "저장"
+            },
+            "RF_Shut_Off_Time_by_backhaul" : {
+              "title" : "백홀에 따른 자동 WiFi Off 설정",
+              "Time" : {
+                "title" : "시간",
+                "rfshutoff_time" : "(between 1 and 3600)"
+              },
+              "Cancel" : "취소",
+              "Apply" : "적용"
+            }
+          }
+        },
+        "alert" : {
+          "enter_value": "설정값을 입력해주세요.",
+          "only_number": "숫자만 입력 가능합니다.",
+          "number_range": "시간의 범위는 1 ~3600 사이 입니다."
+        }
+      }
+    }
+  }
+}

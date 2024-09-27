@@ -1,0 +1,12 @@
+enable = 
+interval = 
+check_count = 
+period = 
+ping_count = 
+ping_timeout = 
+peer1 = 
+peer2 = 
+peer3 = 
+peer4 = 
+lock_count = 
+lock_timeout = 

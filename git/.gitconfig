@@ -1,0 +1,72 @@
+#
+# cat ~/.gitconfig
+#
+# [include]
+#	path = rootfs/home/.gitconfig
+#
+
+#
+# version 2.3
+# switch
+# restore
+#
+
+[user]
+	name = JINY
+	email = jinynet9@dayou.co.kr
+[alias]
+	a  = add
+	br = branch
+	co = checkout
+	sw = checkout
+	sw23 = switch
+	c  = commit
+	cm = commit -m
+	st = status
+	s  = status -s
+	# modify cancel
+	um = git checkout --
+	um23 = git restore
+	# stage cancel
+	us = reset HEAD --
+	us23 = git restore --staged
+	d  = diff
+	dm = difftool -t meld -y
+#
+#	lg = log --graph --abbrev-commit --decorate --format=format:'%C(cyan)%h%C(reset) - %C(green)(%ar)%C(reset) %C(dim white)%s%C(reset) %C(dim white)- %an%C(reset)%C(yellow)%d%C(reset)' --all
+#	lg = log --graph --abbrev-commit --decorate --pretty=oneline
+	lg = log --graph --abbrev-commit --decorate --oneline
+	l = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
+	hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+	rl = reflog
+
+	alias = "! \
+		git config --list \
+		| egrep '^alias.+' \
+		| sed 's/^alias\\.//' \
+		| sed '/^alias/d' \
+		| sed 's/=/\t/' \
+		"
+
+#	alias = "!# Prints all aliases.;\n\
+#    git config --list \
+#    | egrep '^alias.+' \
+#    | sed -e 's/^alias\\.//' \
+#    | sed -e 's/^[^=]*=/\\'$'\\033[31m&\\033[(B\\033[m/' \
+#    | column -t -s'=' \
+#    | sed 's/!#* *//; s/;$//' \
+#    | cut -c1-85" \
+
+#
+#
+[core]
+	excludesfile = ~/.gitignore
+	editor = gvim
+[color]
+	ui = auto
+[diff]
+	tool = meld
+[difftool]
+	prompt = false
+[difftool "meld"]
+	cmd = meld "$LOCAL" "$REMOTE"

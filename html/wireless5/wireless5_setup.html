@@ -1,0 +1,730 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/15 - contbody에 main_page id 추가, 빠진 button 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        var hw_mode;
+        var band_set;
+        var channel_value;
+        var tx_power;
+        var chlist;
+        var none_check_chlist;
+        var coext;
+        var radio_state;
+        var icc_enable;
+        var beacon_pwr;
+        var resp_pwr;
+        var enable_probe_auth_limit;
+        //var probe_auth_limit_check;
+	    var _lang_file = "../lang/lang_wireless5_setup.json";
+
+	var first_load;
+        var defaultSetting = {
+            "HT20" : ["ch36","ch40","ch44","ch48","ch52","ch56","ch60","ch64","ch100","ch104","ch108","ch112","ch116","ch120","ch124","ch128", "ch132", "ch136", "ch140", "ch144", "ch149","ch153","ch157","ch161", "ch165"],
+            "HT40" : ["ch40","ch48","ch56","ch64","ch104","ch112","ch120","ch128","ch153","ch161"],
+            "HT80" : ["ch48","ch64","ch112","ch128","ch161"]
+        };
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless5_setup";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            SetButtons(["btn_apply", "btn_save_wireless", "btn_apply_wireless"]);
+
+            init_tx_power_options();
+            value_setting(xmlDoc);
+            init_param();
+
+	    first_load = "1";
+            display_mode_setting();
+            display_setup_page();
+	    first_load = "0";
+
+            document.getElementById("main_page").style.display = "";
+            parent.callResize();
+        }
+
+        /* 최초 init 관련 -- start */
+        function value_setting(xmlDoc) {
+	    radio_state = getDataFromTag(xmlDoc, "radio_state");
+            hw_mode = getDataFromTag(xmlDoc, "hwmode");
+            band_set = getDataFromTag(xmlDoc, "band_set");
+            channel_value = getDataFromTag(xmlDoc, "channel_value");
+            tx_power = getDataFromTag(xmlDoc, "tx_power");
+            chlist = getDataFromTag(xmlDoc, "chlist");
+            none_check_chlist = getDataFromTag(xmlDoc, "none_check_chlist");
+	 /*
+            icc_enable = getDataFromTag(xmlDoc, "ICC");
+            beacon_pwr = isNaN(parseInt(getDataFromTag(xmlDoc, "txpowbcn"))) ?  0 : parseInt(getDataFromTag(xmlDoc, "txpowbcn"));
+            resp_pwr = isNaN(parseInt(getDataFromTag(xmlDoc, "txpowprbrap"))) ? 0 : parseInt(getDataFromTag(xmlDoc, "txpowprbrap"));
+            enable_probe_auth_limit = getDataFromTag(xmlDoc, "enable_probe_auth_limit");
+            //probe_auth_limit_check = getDataFromTag(xmlDoc, "probe_auth_limit_check");
+	  */
+
+            document.getElementById("band_setting").value = band_set;
+            document.getElementById("ch_setting").value = channel_value;
+            document.getElementById("wirelessmode").value = hw_mode;
+	  /*
+            document.getElementById("probe_auth_power").value = getDataFromTag(xmlDoc, "enable_probe_auth_limit");
+	   */
+
+            document.getElementById("tx_power").value = getDataFromTag(xmlDoc, "tx_power");
+        }
+
+        function init_param() {
+            if(channel_value == "auto") {
+                /* DMC_WOO 210601: use block channel list
+		   var ch_list_parse = chlist.split(",");
+                for (var i = 0; i < ch_list_parse.length; i++) {
+                    var j = ch_list_parse[i];
+
+                    if (j != "") {
+                        document.getElementById("ch" + j).checked = true;
+                    }
+                }
+		*/
+
+                var none_ch_list = none_check_chlist.split(",");
+
+		$("input:checkbox[name='channel']").each(function() {
+			this.checked = true;
+			});
+
+                for (var i = 0; i < none_ch_list.length; i++) {
+                    var  j = none_ch_list[i];
+
+                    if (j != "") {
+                        document.getElementById("ch" + j).checked = false;
+                    }
+                }
+            }
+	/*
+            if (enable_probe_auth_limit == "" || enable_probe_auth_limit == "0") {
+                document.form_probe_auth_req_limit.probe_auth_limit_check.checked = false;
+		document.getElementById("probe_auth_power").value = -60;
+            } else {
+                document.form_probe_auth_req_limit.probe_auth_limit_check.checked = true;
+            }
+
+            if (icc_enable == "" || icc_enable == "0") {
+                document.form_icc.icc_enable.checked = false;
+            } else {
+                document.form_icc.icc_enable.checked = true;
+
+                document.form_icc.beacon_pwr.options[beacon_pwr - 5].selected = true;
+                document.form_icc.resp_pwr.options[resp_pwr - 5].selected = true;
+            }
+	*/
+
+            if (radio_state == "0") {
+                document.getElementById("radio_5").checked = true;
+            } else {
+                document.getElementById("radio_5").checked = false;
+            }
+        }
+        /* 최초 init 관련 -- end */
+
+        /* display 관련 -- start*/
+        function init_tx_power_options() {
+            var objtxpower = document.getElementById("tx_power");
+	   /*
+            var objIccBcn = document.getElementById("beacon_pwr");
+            var objIccProbe = document.getElementById("resp_pwr");
+	    */
+            var arrStrtxpower = ["5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"];
+
+            for (var i = 0; i < arrStrtxpower.length; i++) {
+                var objOpt = document.createElement("option");
+                var txtOpt = document.createTextNode(arrStrtxpower[i]);
+
+                objOpt.value = i + 5;
+                objtxpower.appendChild(objOpt);
+                objOpt.appendChild(txtOpt);
+
+		/*
+                var objOpt_Bcn = document.createElement("option");
+                var objOpt_Probe = document.createElement("option");
+
+                var txtOpt_Bcn = document.createTextNode(arrStrtxpower[i]);
+                var txtOpt_Probe = document.createTextNode(arrStrtxpower[i]);
+
+                objIccBcn.appendChild(objOpt_Bcn);
+                objIccProbe.appendChild(objOpt_Probe);
+
+                objOpt_Bcn.appendChild(txtOpt_Bcn);
+                objOpt_Probe.appendChild(txtOpt_Probe);
+		*/
+            }
+        }
+
+        function display_setup_page() {
+            if (document.getElementById("radio_5").checked == true) {
+                document.getElementById("radio_enable").style.display = "";
+                document.getElementById("channel_select_section").style.display = "";
+                document.getElementById("txpower_form").style.display = "";
+		/*
+                document.getElementById("icc_form").style.display = "";
+                document.getElementById("probe_auth_req_limit_form").style.display = "";
+		*/
+
+                /*Chagebeamforming(); */
+
+                var mode = document.form_mode.wirelessmode.value
+
+		/* DMC_WOO 200904,200829: temp fix */
+		display_channel_setting();
+
+		/*
+		icc_Enable();
+		probe_auth_limit_Enable();
+		*/
+
+            } else {
+                document.getElementById("radio_enable").style.display = "none";
+                document.getElementById("channel_select_section").style.display = "none";
+                document.getElementById("txpower_form").style.display = "none";
+		/*
+                document.getElementById("icc_form").style.display = "none";
+                document.getElementById("probe_auth_req_limit_form").style.display = "none";
+		*/
+            }
+            parent.callResize();
+        }
+
+        function display_mode_setting() {
+            var mode = document.form_mode.wirelessmode.value
+            if (mode == "11a") {
+		document.form_mode.band_setting.selectedIndex = 0; /* DMC_WOO 200910 */
+                document.form_mode.band_setting.value = "HT20";
+                document.form_mode.band_setting.disabled = true;
+
+            } else if (mode == "11an" || mode == "11n") {
+		/* DMC_WOO 200910 */
+		if (document.form_mode.band_setting.value == "HT80") {
+		    document.form_mode.band_setting.selectedIndex = 0;
+		}
+
+                if (document.form_mode.band_setting.length == 3) {
+                    document.form_mode.band_setting.options.remove(2);
+                }
+
+                document.form_mode.band_setting.disabled = false;
+            } else {
+                if (document.form_mode.band_setting.length == 2) {
+                    var op = new Option();
+                    op.value = "HT80";
+                    op.text = "80MHz";
+                    document.form_mode.band_setting.options.add(op);
+                }
+                document.form_mode.band_setting.disabled = false;
+            }
+            parent.callResize();
+        }
+
+	// DMC_WOO 200923
+	function default_channel_setting() {
+	    // DMC_WOO 210601: use all channels for all bandwidth
+            //var bandwidth = document.form_mode.band_setting.value;
+            var bandwidth = "HT20";
+
+	    $("input:checkbox[name='channel']").each(function() {
+		    this.checked = false;
+	    });
+
+	    defaultSetting[bandwidth].forEach(function(element) {
+		    document.getElementById(element).checked = true;
+	    });
+	}
+
+        function display_channel_setting() {
+            var channel_auto = document.form_mode.ch_setting.value;
+            var bandwidth = document.form_mode.band_setting.value;
+            if (channel_auto == "auto") {
+		/* DMC_WOO 210601: always show all channels
+                if(bandwidth == "HT80" || bandwidth == "HT40") {
+                    document.getElementById("exclude_80mhz").style.display = "none";
+                    //document.getElementById("ch165").checked = false;
+                    //document.getElementById("ch116").checked = false;
+                    //document.getElementById("ch120").checked = false;
+                }
+		else {
+		    document.getElementById("exclude_80mhz").style.display = "";
+		}
+		*/
+
+		if (first_load == "0") 
+		    default_channel_setting(); 
+
+                document.getElementById("channel_select_section").style.display = "";
+            } else {
+                document.getElementById("channel_select_section").style.display = "none";
+            }
+
+            change_channel_value();
+            parent.callResize(); /* DMC_WOO 200907 */
+
+	    // DMC_WOO 200910
+	    if (bandwidth == "HT80" || bandwidth == "HT40") {
+		if (document.form_mode.ch_setting.length == 26) {
+		    document.form_mode.ch_setting.options.remove(25);
+		    if (channel_auto == "165") {
+			document.form_mode.ch_setting.selectIndex = 0;
+			display_channel_setting();
+		    }
+		}
+	    }
+	    else {
+		if (document.form_mode.ch_setting.length == 25) {
+		    var op = new Option();
+		    op.value = "165";
+		    op.text = "165CH";
+		    document.form_mode.ch_setting.options.add(op);
+		}
+	    }
+	    // DMC_WOO end
+        }
+
+        function change_channel_value() {
+            $("input:checkbox[name='channel']").each(function() {
+                if(this.checked) {
+                    this.value = "1";
+                }else {
+                    this.value = "0";
+                }
+            });
+        }
+
+        function change_wiaa() {
+            if (document.getElementById("wiaa_enable").checked == true) {
+                document.getElementById("change_wiaa").style.display = "";
+            } else {
+                document.getElementById("change_wiaa").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function change_ampdu_mode() {
+            if (document.form_ampdu.ampdu_mode.selectedIndex == 0) {
+                document.getElementById("ampdu_value").style.display = "";
+                document.getElementById("ampdu_threshold").style.display = "";
+            } else if (document.form_ampdu.ampdu_mode.selectedIndex == 1) {
+                document.getElementById("ampdu_value").style.display = "none";
+                document.getElementById("ampdu_threshold").style.display = "";
+            } else if (document.form_ampdu.ampdu_mode.selectedIndex == 2) {
+                document.getElementById("ampdu_value").style.display = "none";
+                document.getElementById("ampdu_threshold").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function amsdu_enable() {
+            var check = document.form_amsdu.amsdu_check;
+
+            if (check.checked == true) {
+                document.getElementById("amsdu_threshold").style.display = "";
+            } else {
+                document.getElementById("amsdu_threshold").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function Chagebeamforming() {
+            if (document.form_bf.bf_enable.checked == true) {
+                document.getElementById("MIMO").style.display = "";
+            } else {
+                document.getElementById("MIMO").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function icc_Enable() {
+            var enable = document.getElementById("icc_enable");
+            if (enable.checked == true) {
+                document.getElementById("beacon_tx_power").style.display = "";
+                document.getElementById("probe_tx_power").style.display = "";
+            } else {
+                document.getElementById("beacon_tx_power").style.display = "none";
+                document.getElementById("probe_tx_power").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function probe_auth_limit_Enable() {
+            var check = document.form_probe_auth_req_limit.probe_auth_limit_check;
+
+            if (check.checked == true) {
+                document.getElementById("probe_auth_limit_power").style.display = "";
+            } else {
+                document.getElementById("probe_auth_limit_power").style.display = "none";
+            }
+            parent.callResize(); /* DMC_WOO 200907 */
+        }
+
+        function change_mode() {
+            display_mode_setting();
+            //DMC_WOO 200910 document.form_mode.band_setting.selectedIndex = 0;
+            display_channel_setting();
+        }
+        /* display 관련 -- end*/
+
+        /* submit 관련 -- start*/
+        function submit_value_setting() {
+	    /*
+            if (document.getElementById("icc_enable").checked == true) {
+                document.getElementById("icc_enable").value = "1";
+            } else {
+                document.getElementById("icc_enable").value = "0";
+            }
+
+            if (document.getElementById("probe_auth_limit_check").checked == true) {
+                document.getElementById("probe_auth_limit_check").value = "1";
+            }
+	    */
+
+            if (document.getElementById("radio_5").checked == true) {
+                document.getElementById("radio_5").value = "1";
+            } else {
+                document.getElementById("radio_5").value = "0";
+            }
+
+            $("input:checkbox[name='channel']").each(function() {
+                if(this.checked) {
+                    this.value = "1"
+                }else {
+                    this.value = "0"
+                }
+            });
+
+        }
+
+        /* submit 관련 -- end*/
+        function makeParams() {
+            var param = "" + serializeFormElement("default");
+
+
+            if (document.getElementById("radio_5").checked == true) {
+                param += "&";
+                param += serializeFormElement("form_mode");
+                param += "&";
+                param += serializeFormElement("form_txpower");
+
+                if(document.getElementById("ch_setting").value == "auto") {
+                    param += "&";
+                    param += serializeFormElement("form_channel");
+                }
+		/*
+                if(document.getElementById("icc_enable").value == "1") {
+                    param += "&";
+                    param += serializeFormElement("form_icc");
+                }else {
+                    param += "&icc_enable=0";
+                }
+		
+                if(document.getElementById("probe_auth_limit_check").value == "1") {
+                    param += "&";
+                    param += serializeFormElement("form_probe_auth_req_limit");
+                }else {
+                    param += "&probe_auth_limit_check=0";
+                }
+		*/
+            }
+            return param
+        }
+
+        function submit_save_wireless() {
+                submit_value_setting();
+                /*if (bandwidth != "0") {
+                    submit_channel();
+                }*/
+
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=save_wireless5"
+                    + "&"
+                    + makeParams();
+
+                XHRPost(null, url, param, true);
+        }
+
+        function submit_apply_wireless() {
+                /* submit_value_setting();
+                if (bandwidth != "0") {
+                    submit_channel();
+                }*/
+
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=apply_wireless5";
+
+                XHRPost(null, url, param, true);
+        }
+
+        function submit_wifi() {
+            EnableButtons(false);
+            TimeoutReload(TIMEOUT_DEFAULT_TIME);
+            var url = "/cgi-bin/wirelessset.cgi";
+            var param = "Command=submit_wifi"
+                + "&"
+                + serializeFormElement("wifi");
+
+            XHRPost(null, url, param, true);
+        }
+
+        function init() {
+	        prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless5SetupContent.title">5G 무선 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless5SetupContent.path1">5G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless5SetupContent.path2">무선 설정</span>
+                    </p>
+                    <form method="post" name="wifi" id="wifi" style="margin-bottom:0px;">
+                        <button type="button" class="btn_default btn_wifi" onclick="jump_inform_wifi_restart();"
+                                id="btn_apply" data-i18n="Wireless5SetupContent.WIFI_Apply">WiFi 적용
+                        </button>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.title">5G WiFi Setup</div>
+                <div class="wireless_tbl">
+                    <table>
+                        <colgroup>
+                            <col class="td_width1">
+                            <col class="td_width2">
+                        </colgroup>
+                        <form id="default" name="default">
+                            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                            <tr>
+                                <td data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.Radio_Enable">라디오 활성</td>
+                                <td>
+
+                                    <input type="checkbox" id="radio_5" name="radio_5" onChange="display_setup_page();" ><lable data-i18n="common.Active">활성</lable>
+                                </td>
+                            </tr>
+                        </form>
+                        <form id="form_mode" name="form_mode">
+                            <tbody id="radio_enable">
+                            <tr>
+                                <td data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.Mode.title">Mode</td>
+                                <td>
+                                    <select name="wirelessmode" id="wirelessmode" onChange="change_mode(this)" class="wirelessmode_select">
+                                        <option value="11a">802.11a only</option>
+                                        <option value="11n">802.11n only</option>
+                                        <option value="11ac">802.11ac only</option>
+                                        <option value="11an">802.11a+n</option>
+                                        <!--option value="11nac">802.11n+ac</option-->
+                                        <option value="11anac">802.11a+n+ac</option>
+                                        <option value="11axa">802.11a+n+ac+ax</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.BandWidth.title">BandWidth</td>
+                                <td>
+                                    <select name="band_setting" id="band_setting" onChange="display_channel_setting()" class="wirelessmode_select">
+                                        <option value="HT20">20MHz</option>
+                                        <option value="HT40">40MHz</option>
+                                        <option value="HT80">80MHz</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.Channel.title">Channel</td>
+                                <td>
+                                    <select name="ch_setting" id="ch_setting" onChange="display_channel_setting()" class="wirelessmode_select">
+                                        <option value="auto">Auto</option>
+                                        <option value="36">36CH</option>
+                                        <option value="40">40CH</option>
+                                        <option value="44">44CH</option>
+                                        <option value="48">48CH</option>
+                                        <option value="52">52CH</option>
+                                        <option value="56">56CH</option>
+                                        <option value="60">60CH</option>
+                                        <option value="64">64CH</option>
+                                        <option value="100">100CH</option>
+                                        <option value="104">104CH</option>
+                                        <option value="108">108CH</option>
+                                        <option value="112">112CH</option>
+                                        <option value="116">116CH</option>
+                                        <option value="120">120CH</option>
+                                        <option value="124">124CH</option>
+                                        <option value="128">128CH</option>
+                                        <option value="132">132CH</option>
+                                        <option value="136">136CH</option>
+                                        <option value="140">140CH</option>
+                                        <option value="144">144CH</option>
+                                        <option value="149">149CH</option>
+                                        <option value="153">153CH</option>
+                                        <option value="157">157CH</option>
+                                        <option value="161">161CH</option>
+                                        <option value="165">165CH</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </form>
+                        <form id="form_channel" name="form_channel">
+                            <tbody id="channel_select_section">
+                            <tr>
+                                <td>BAND A</td>
+                                <td>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch36" name="channel" valign="middle" value="0">CH36</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch40" name="channel" valign="middle" value="0">CH40</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch44" name="channel" valign="middle" value="0">CH44</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch48" name="channel" valign="middle" value="0">CH48</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BAND B</td>
+                                <td>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch52" name="channel" valign="middle" value="0">CH52</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch56" name="channel" valign="middle" value="0">CH56</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch60" name="channel" valign="middle" value="0">CH60</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch64" name="channel" valign="middle" value="0">CH64</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1">BAND C</td>
+                                <td>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch100" name="channel" valign="middle" value="0">CH100</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch104" name="channel" valign="middle" value="0">CH104</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch108" name="channel" valign="middle" value="0">CH108</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch112" name="channel" valign="middle" value="0">CH112</span>
+				    </br>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch116" name="channel" valign="middle" value="0">CH116</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch120" name="channel" valign="middle" value="0">CH120</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch124" name="channel" valign="middle" value="0">CH124</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch128" name="channel" valign="middle" value="0">CH128</span>
+				    </br>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch132" name="channel" valign="middle" value="0">CH132</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch136" name="channel" valign="middle" value="0">CH136</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch140" name="channel" valign="middle" value="0">CH140</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch144" name="channel" valign="middle" value="0">CH144</span>
+				    <!-- DMC_WOO 200910
+                                    <div id="exclude_80mhz">
+                                        </br>
+                                        <span class="wireless_chbox"><input type="checkbox" id="ch116" name="channel" valign="middle" value="0">CH116</span>
+                                        <span class="wireless_chbox"><input type="checkbox" id="ch120" name="channel" valign="middle" value="0">CH120</span>
+                                    </div>
+				    -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>BAND D</td>
+                                <td rowspan="1">
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch149" name="channel" valign="middle" value="0">CH149</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch153" name="channel" valign="middle" value="0">CH153</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch157" name="channel" valign="middle" value="0">CH157</span>
+                                    <span class="wireless_chbox"><input type="checkbox" id="ch161" name="channel" valign="middle" value="0">CH161</span>
+				    </br>
+				    <span class="wireless_chbox"><input type="checkbox" id="ch165" name="channel" valign="middle" value="0">CH165</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </form>
+                        <form id="form_txpower" name="form_txpower">
+                            <tbody id="txpower_form">
+                            <tr>
+                                <td>TX Power</td>
+                                <td>
+                                    <select name="tx_power" id="tx_power" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            </tbody>
+			</form>
+			<!--
+                        <form id="form_icc" name="form_icc">
+                            <tbody id="icc_form">
+                            <tr>
+                                <td>TX Power for Management</td>
+                                <td>
+                                    <input type="checkbox" id="icc_enable" name="icc_enable" onChange="icc_Enable()">
+                                    <span data-i18n="common.Active">활성</span>
+                                </td>
+                            </tr>
+                            <tr id="beacon_tx_power">
+                                <td style="padding-left:40px;">Beacon Tx Power</td>
+                                <td>
+                                    <select id="beacon_pwr" name="beacon_pwr" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr id="probe_tx_power">
+                                <td style="padding-left:40px;">Probe Tx Power</td>
+                                <td>
+                                    <select id="resp_pwr" name="resp_pwr" class="wirelessmode_select">
+                                    </select>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </form>
+                        <form id="form_probe_auth_req_limit" name="form_probe_auth_req_limit">
+                            <tbody id="probe_auth_req_limit_form">
+                            <tr>
+                                <td>Probe & Auth Req Limit</td>
+                                <td>
+                                    <input type="checkbox" id="probe_auth_limit_check" name="probe_auth_limit_check" value="0" onChange="probe_auth_limit_Enable()">
+                                    <span data-i18n="common.Active">활성</span>
+                                </td>
+                            </tr>
+                            <tr id="probe_auth_limit_power">
+                                <td style="padding-left:40px;">RSSI threshold</td>
+                                <td>
+                                    <input type="text" id="probe_auth_power" name="probe_auth_power" size="16" maxlength="4" value="30"
+                                           onkeypress="IgnoreEnterKey( event );" class="wirelessmode_input">&nbsp;(-80 ~ -4 dBm)
+                                </td>
+                            </tr>
+                            </tbody>
+                        </form>
+			-->
+                    </table>
+                </div>
+            </div>
+            <div class="btm_btn_wireless">
+                <button type="button" class="btn_default btn_save" id="btn_save_wireless" onClick="submit_save_wireless();"
+                        data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.Save">저장</button>
+                <button type="button" class="btn_default btn_save" id="btn_apply_wireless" onClick="submit_apply_wireless();"
+                        data-i18n="Wireless5SetupContent.content.5G_WiFi_Setup.Apply">적용</button>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

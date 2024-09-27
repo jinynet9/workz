@@ -1,0 +1,8 @@
+{
+    "result":"success",
+    "report_interval":"1800",
+
+    "reboot": {
+	"reboot": true
+    }
+}

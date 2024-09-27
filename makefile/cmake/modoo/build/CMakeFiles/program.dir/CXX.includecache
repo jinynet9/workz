@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../includes/foo.h
+
+../includes/shape.h
+
+/home/jinynet9/work/makefile/cmake/modoo/main.cc
+iostream
+-
+foo.h
+/home/jinynet9/work/makefile/cmake/modoo/foo.h
+shape.h
+/home/jinynet9/work/makefile/cmake/modoo/shape.h
+

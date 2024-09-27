@@ -1,0 +1,246 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "HotspotSettingContent": {
+          "title": "HOTSPOT Set",
+          "path1": "ADVANCED SET",
+          "path2": "HOTSPOT Set",
+          "content": {
+            "HOTSPOT_Set" : {
+              "title" : "HOTSPOT Set",
+              "HOTSPOT_Set" : "HOTSPOT Set",
+              "Active" : "Active"
+            },
+            "DGAF" : {
+              "title" : "DGAF",
+              "DGAF_Disabled" : "DGAF_Disabled",
+              "Active" : "Active"
+            },
+            "Wl_HOTSPOT" : {
+              "title" : "Wl (HOTSPOT)",
+              "Interworking_Element" : {
+                "title" : "Interworking Element",
+                "Access_Network_Type": "Access Network Type",
+                "Private_network" : "0: Private network",
+                "Private_network_with_quest_access" : "1: Private network with quest access",
+                "Chargeable_public_network" : "2: Chargeable public network",
+                "Free_public_network" : "3: Free public network",
+                "Personal_network" : "4: Personal network",
+                "Emergency_services_only_network" : "5: Emergency services only network",
+                "Test_or_experimental" : "14: Test or experimental",
+                "Wildcard" : "15: Wildcard",
+                "Venue_Info" : "Venue Info(Group+Type)",
+                "Unspecified" : "0 0: Unspecified",
+                "Unspecified_Assembly": "1 0: Unspecified Assembly",
+                "Stadium" : "1 2: Stadium",
+                "Passenger_Terminal" : "1 3: Passenger Terminal",
+                "Amusement_Park" : "1 5: Amusement Park",
+                "Place_of_Worship" : "1 6: Place of Worship",
+                "Convention_Center" : "1 7: Convention Center",
+                "Restaurant" : "1 10: Restaurant",
+                "Theater" : "1 11: Theater",
+                "Coffee_Shop" : "1 13: Coffee Shop",
+                "Unspecified_Business" : "2 0: Unspecified Business",
+                "Bank" : "2 2: Bank",
+                "Unspecified_Educational" : "3 0: Unspecified Educational",
+                "School_Primary" : "3 1: School, Primary",
+                "School_Secondary" : "3 2: School, Secondary",
+                "University_or_College" : "3 3: University or College",
+                "Unspecified_Factory_and_Industrial" : "4 0: Unspecified Factory and Industrial",
+                "Hospital" : "5 1: Hospital",
+                "Unspecified_Mercantile" : "6 0: Unspecified Mercantile",
+                "Shopping_Mall" : "6 4: Shopping Mall",
+                "Hotel_or_Motel" : "7 2: Hotel or Motel",
+                "Dormitory" : "7 3: Dormitory",
+                "Bus" : "10 3: Bus",
+                "Train" : "10 6: Train",
+                "Unspecified_Outdoor" : "11 0: Unspecified Outdoor",
+                "Enabled_HESSID" : "Enabled HESSID",
+                "HESSID_Active" : "HESSID Active",
+                "HESSID" : "HESSID"
+              },
+              "Roaming_Consortium_Element" : {
+                "title" : "Roaming Consortium Element",
+                "OI_1" : "OI 1 (Even hex value: 6~30)",
+                "OI_2" : "OI 2 (Even hex value: 6~30)",
+                "OI_3" : "OI 3 (Even hex value: 6~30)"
+              },
+              "ANQP_Element_Venue_Name" : {
+                "title" : "ANQP Element (Venue Name)",
+                "Venue_Name_Duple_Code" : "Venue Name Duple Code",
+                "English" : "English",
+                "Korea" : "Korea",
+                "Venue_Name_Duple_Name" : "Venue Name Duple Name"
+              },
+              "ANQP_Element_NAI_Realm" : {
+                "title" : "ANQP Element (NAI Realm)",
+                "NAI_Realm_1_Name" : "NAI Realm 1 Name",
+                "NAI_Realm_1_Method" : "NAI Realm 1 Method",
+                "NAI_Realm_2_Name" : "NAI Realm 2 Name",
+                "NAI_Realm_2_Method" : "NAI Realm 2 Method",
+                "NAI_Realm_3_Name" : "NAI Realm 3 Name",
+                "NAI_Realm_3_Method" : "NAI Realm 3 Method",
+                "AKA_Active" : "AKA Active",
+                "SIM_Active" : "SIM Active",
+                "TLS_Active" : "TLS Active",
+                "TTLS_Active" : "TTLS Active"
+              },
+              "ANQP_Element_3GPP_Cellular_Network" : {
+                "title" : "ANQP Element (3GPP Cellular Network)",
+                "Payload_1" : "Payload 1 (mcc(3)+mnc(2))",
+                "Payload_2" : "Payload 2 (mcc(3)+mnc(2))",
+                "Payload_3" : "Payload 3 (mcc(3)+mnc(2))"
+              },
+              "ANQP_Element_Domain_Name" : {
+                "title" : "ANQP Element (Domain Name)",
+                "Domain_Name_1" : "Domain Name Duple 1",
+                "Domain_Name_2" : "Domain Name Duple 2",
+                "Domain_Name_3" : "Domain Name Duple 3"
+              },
+              "ANQP_Element_Operator_Friendly_Name" : {
+                "title" : "ANQP Element (Vendor Specific: Operator Friendly Name)",
+                "FRIENDLY_NAME_DUPLE_1_CODE" : "FRIENDLY NAME DUPLE 1 CODE",
+                "FRIENDLY_NAME_DUPLE_1_NAME" : "FRIENDLY NAME DUPLE 1 NAME",
+                "FRIENDLY_NAME_DUPLE_2_CODE" : "FRIENDLY NAME DUPLE 2 CODE",
+                "FRIENDLY_NAME_DUPLE_2_NAME" : "FRIENDLY NAME DUPLE 2 NAME",
+                "FRIENDLY_NAME_DUPLE_3_CODE" : "FRIENDLY NAME DUPLE 3 CODE",
+                "FRIENDLY_NAME_DUPLE_3_NAME" : "FRIENDLY NAME DUPLE 3 NAME",
+                "English" : "English",
+                "Korea" : "Korea"
+              },
+              "Cancel" : "Cancel",
+              "Save" : "Save"
+            }
+          }
+        },
+        "alert" : {
+          "Roadmin_Consortium_Element" : "Roadmin Consortium Element is incorrect.",
+          "Domain_Name" : "Domain Name is incorrect.",
+          "Payload" : "Payload is incorrect."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "HotspotSettingContent": {
+          "title": "HOTSPOT 설정",
+          "path1": "고급 설정",
+          "path2": "HOTSPOT 설정",
+          "content": {
+            "HOTSPOT_Set" : {
+              "title" : "HOTSPOT 설정",
+              "HOTSPOT_Set" : "HOTSPOT 설정",
+              "Active" : "활성"
+            },
+            "DGAF" : {
+              "title" : "DGAF",
+              "DGAF_Disabled" : "DGAF_Disabled",
+              "Active" : "활성"
+            },
+            "Wl_HOTSPOT" : {
+              "title" : "Wl (HOTSPOT)",
+              "Interworking_Element" : {
+                "title" : "Interworking Element",
+                "Access_Network_Type": "Access Network Type",
+                "Private_network" : "0: Private network",
+                "Private_network_with_quest_access" : "1: Private network with quest access",
+                "Chargeable_public_network" : "2: Chargeable public network",
+                "Free_public_network" : "3: Free public network",
+                "Personal_network" : "4: Personal network",
+                "Emergency_services_only_network" : "5: Emergency services only network",
+                "Test_or_experimental" : "14: Test or experimental",
+                "Wildcard" : "15: Wildcard",
+                "Venue_Info" : "Venue Info(Group+Type)",
+                "Unspecified" : "0 0: Unspecified",
+                "Unspecified_Assembly": "1 0: Unspecified Assembly",
+                "Stadium" : "1 2: Stadium",
+                "Passenger_Terminal" : "1 3: Passenger Terminal",
+                "Amusement_Park" : "1 5: Amusement Park",
+                "Place_of_Worship" : "1 6: Place of Worship",
+                "Convention_Center" : "1 7: Convention Center",
+                "Restaurant" : "1 10: Restaurant",
+                "Theater" : "1 11: Theater",
+                "Coffee_Shop" : "1 13: Coffee Shop",
+                "Unspecified_Business" : "2 0: Unspecified Business",
+                "Bank" : "2 2: Bank",
+                "Unspecified_Educational" : "3 0: Unspecified Educational",
+                "School_Primary" : "3 1: School, Primary",
+                "School_Secondary" : "3 2: School, Secondary",
+                "University_or_College" : "3 3: University or College",
+                "Unspecified_Factory_and_Industrial" : "4 0: Unspecified Factory and Industrial",
+                "Hospital" : "5 1: Hospital",
+                "Unspecified_Mercantile" : "6 0: Unspecified Mercantile",
+                "Shopping_Mall" : "6 4: Shopping Mall",
+                "Hotel_or_Motel" : "7 2: Hotel or Motel",
+                "Dormitory" : "7 3: Dormitory",
+                "Bus" : "10 3: Bus",
+                "Train" : "10 6: Train",
+                "Unspecified_Outdoor" : "11 0: Unspecified Outdoor",
+                "Enabled_HESSID" : "Enabled HESSID",
+                "HESSID_Active" : "HESSID 활성",
+                "HESSID" : "HESSID"
+              },
+              "Roaming_Consortium_Element" : {
+                "title" : "Roaming Consortium Element",
+                "OI_1" : "OI 1 (Even hex value: 6~30)",
+                "OI_2" : "OI 2 (Even hex value: 6~30)",
+                "OI_3" : "OI 3 (Even hex value: 6~30)"
+              },
+              "ANQP_Element_Venue_Name" : {
+                "title" : "ANQP Element (Venue Name)",
+                "Venue_Name_Duple_Code" : "Venue Name Duple Code",
+                "English" : "English",
+                "Korea" : "Korea",
+                "Venue_Name_Duple_Name" : "Venue Name Duple Name"
+              },
+              "ANQP_Element_NAI_Realm" : {
+                "title" : "ANQP Element (NAI Realm)",
+                "NAI_Realm_1_Name" : "NAI Realm 1 Name",
+                "NAI_Realm_1_Method" : "NAI Realm 1 Method",
+                "NAI_Realm_2_Name" : "NAI Realm 2 Name",
+                "NAI_Realm_2_Method" : "NAI Realm 2 Method",
+                "NAI_Realm_3_Name" : "NAI Realm 3 Name",
+                "NAI_Realm_3_Method" : "NAI Realm 3 Method",
+                "AKA_Active" : "AKA 사용",
+                "SIM_Active" : "SIM 사용",
+                "TLS_Active" : "TLS 사용",
+                "TTLS_Active" : "TTLS 사용"
+              },
+              "ANQP_Element_3GPP_Cellular_Network" : {
+                "title" : "ANQP Element (3GPP Cellular Network)",
+                "Payload_1" : "Payload 1 (mcc(3)+mnc(2))",
+                "Payload_2" : "Payload 2 (mcc(3)+mnc(2))",
+                "Payload_3" : "Payload 3 (mcc(3)+mnc(2))"
+              },
+              "ANQP_Element_Domain_Name" : {
+                "title" : "ANQP Element (Domain Name)",
+                "Domain_Name_1" : "Domain Name Duple 1",
+                "Domain_Name_2" : "Domain Name Duple 2",
+                "Domain_Name_3" : "Domain Name Duple 3"
+              },
+              "ANQP_Element_Operator_Friendly_Name" : {
+                "title" : "ANQP Element (Vendor Specific: Operator Friendly Name)",
+                "FRIENDLY_NAME_DUPLE_1_CODE" : "FRIENDLY NAME DUPLE 1 CODE",
+                "FRIENDLY_NAME_DUPLE_1_NAME" : "FRIENDLY NAME DUPLE 1 NAME",
+                "FRIENDLY_NAME_DUPLE_2_CODE" : "FRIENDLY NAME DUPLE 2 CODE",
+                "FRIENDLY_NAME_DUPLE_2_NAME" : "FRIENDLY NAME DUPLE 2 NAME",
+                "FRIENDLY_NAME_DUPLE_3_CODE" : "FRIENDLY NAME DUPLE 3 CODE",
+                "FRIENDLY_NAME_DUPLE_3_NAME" : "FRIENDLY NAME DUPLE 3 NAME",
+                "English" : "English",
+                "Korea" : "Korea"
+              },
+              "Cancel" : "취소",
+              "Save" : "저장"
+            }
+          }
+        },
+        "alert" : {
+          "Roadmin_Consortium_Element" : "Roadming Consortium Element가 올바르지 않습니다.",
+          "Domain_Name" : "도메인 네임이 올바르지 않습니다.",
+          "Payload" : "페이로드가 올바르지 않습니다."
+        }
+      }
+    }
+  }
+}

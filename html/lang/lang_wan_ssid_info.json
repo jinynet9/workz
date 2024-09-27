@@ -1,0 +1,46 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Save" : "Save",
+          "Cancel" : "Cancel",
+          "Refresh" : "Refresh",
+          "LogCancel" : "Log Cancel",
+          "LogSave" : "Log Save",
+          "Active" : "Active",
+          "Delete" : "Delete",
+          "Auth" : "ID<br/>(Auth)"
+        },
+        "Content": {
+          "title": "AP Information",
+          "path1": "State Info",
+          "path2": "AP Info",
+          "24GTitle" : "2.4G AP Info",
+          "5GTitle" : "5G AP Info"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Save" : "저장",
+          "Cancel" : "취소",
+          "Refresh" : "새로 고침",
+          "LogCancel" : "로그 삭제",
+          "LogSave" : "로그 저장",
+          "Active" : "활성",
+          "Delete" : "삭제",
+          "Auth" : "ID<br/>(인증)"
+        },
+        "Content": {
+          "title": "AP 정보",
+          "path1": "상태 정보",
+          "path2": "AP 정보",
+          "24GTitle" : "2.4G AP 정보",
+          "5GTitle" : "5G AP 정보"
+        }
+      }
+    }
+  }
+}

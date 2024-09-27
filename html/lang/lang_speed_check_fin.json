@@ -1,0 +1,98 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common" : {
+          "No" : "No",
+          "Measure_Time" : "Measure Time",
+          "Server" : "Server",
+          "Measure_Result" : "Measure Result",
+          "Measure_List" : "Measure List",
+          "Ping_Result" : "Ping Result",
+          "Ping_Delay" : "Ping Delay(ms)",
+          "Download" : "Download<br/>(Mbps)",
+          "Upload" : "Upload<br/>(Mbps)",
+          "Cancel" : "Cancel",
+          "Save" : "Save",
+          "Modify" : "Modify",
+          "Apply" : "Apply"
+        },
+        "SpeedCheckFinContent": {
+          "title": "Speed Check",
+          "path1": "ADVANCED SET",
+          "path2": "Speed Check",
+          "content": {
+            "Auto_Measure_Result" : {
+              "title" : "Auto Measure Result",
+              "Auto_Measure_Setting" : "Auto Measure Setting",
+              "Disable" : "Disable",
+              "Enable" : "Enable"
+            },
+            "Manual_Measure_Result" : {
+              "title" : "Manual Measure Result",
+              "Iperf_Server_1" : "Iperf Server 1",
+              "Iperf_Server_2" : "Iperf Server 2",
+              "Iperf_Server_3" : "Iperf Server 3",
+              "Run_Manual_Measure" : "Run Manual Measure"
+            }
+          }
+        },
+        "alert" : {
+          "valid_port" : "Please input valid port",
+          "exceeded_range" : "It exceeded the range.",
+          "valid_address" : "Please input valid address",
+          "Iperf_Server_1" : "[Iperf Server 1]\nPlease Input IP Address",
+          "Iperf_Server_2" : "[Iperf Server 2]\nPlease Input IP Address",
+          "Iperf_Server_3" : "[Iperf Server 3]\nPlease Input IP Address"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common" : {
+          "No" : "No",
+          "Measure_Time" : "측정 시간",
+          "Server" : "서버",
+          "Measure_Result" : "측정 결과",
+          "Measure_List" : "측정 항목",
+          "Ping_Result" : "Ping 결과",
+          "Ping_Delay" : "Ping Delay(ms)",
+          "Download" : "다운로드<br/>(Mbps)",
+          "Upload" : "업로드<br/>(Mbps)",
+          "Cancel" : "취소",
+          "Save" : "저장",
+          "Modify" : "수정",
+          "Apply" : "적용"
+        },
+        "SpeedCheckFinContent": {
+          "title": "Speed Check",
+          "path1": "고급 설정",
+          "path2": "Speed Check",
+          "content": {
+            "Auto_Measure_Result" : {
+              "title" : "자동 측정 결과",
+              "Auto_Measure_Setting" : "자동 측정",
+              "Disable" : "비활성화",
+              "Enable" : "활성화"
+            },
+            "Manual_Measure_Result" : {
+              "title" : "수동 측정 결과",
+              "Iperf_Server_1" : "Iperf Server 1",
+              "Iperf_Server_2" : "Iperf Server 2",
+              "Iperf_Server_3" : "Iperf Server 3",
+              "Run_Manual_Measure" : "수동 측정 시작"
+            }
+          }
+        },
+        "alert" : {
+          "valid_port" : "포트번호를 잘못 입력하였습니다. 1 ~ 65535 사이에 값을 입력해 주세요",
+          "exceeded_range" : "설정 범위를 초과 하였습니다.",
+          "valid_address" : "잘못된 주소 입니다. 유효한 주소를 입력해 주세요.",
+          "Iperf_Server_1" : "[Iperf 서버 1]\nIP 주소를 입력해 주세요",
+          "Iperf_Server_2" : "[Iperf 서버 2]\nIP 주소를 입력해 주세요",
+          "Iperf_Server_3" : "[Iperf 서버 3]\nIP 주소를 입력해 주세요"
+        }
+      }
+    }
+  }
+}

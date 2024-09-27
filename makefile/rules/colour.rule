@@ -1,0 +1,59 @@
+
+
+################################################
+# Define ANSI Color Code
+################################################
+
+#Font Color
+ANSI_BLACK              = ^[[30m
+ANSI_RED                = ^[[31m
+ANSI_GREEN              = ^[[32m
+ANSI_YELLOW             = ^[[33m
+ANSI_BLUE               = ^[[34m
+ANSI_PINK               = ^[[35m
+ANSI_BLS_GREEN  	= ^[[36m
+ANSI_WHITE              = ^[[37m
+
+#Font Background Color
+ANSI_BG_BLACK           = ^[[30m
+ANSI_BG_RED		= ^[[31m
+ANSI_BG_GREEN           = ^[[32m
+ANSI_BG_YELLOW          = ^[[33m
+ANSI_BG_BLUE            = ^[[34m
+ANSI_BG_PINK            = ^[[35m
+ANSI_BG_BLS_GREEN       = ^[[36m
+ANSI_BG_WHITE           = ^[[37m
+
+#Font High Intensity Color
+ANSI_H_BLACK            = ^[[90m
+ANSI_H_RED              = ^[[91m
+ANSI_H_GREEN            = ^[[92m
+ANSI_H_YELLOW           = ^[[93m
+ANSI_H_BLUE             = ^[[94m
+ANSI_H_PINK             = ^[[95m
+ANSI_H_BLS_GREEN        = ^[[96m
+ANSI_H_WHITE            = ^[[97m
+
+#Font Background High Intensity Color
+ANSI_BG_BLACK           = ^[[100m
+ANSI_BG_RED             = ^[[101m
+ANSI_BG_GREEN           = ^[[102m
+ANSI_BG_YELLOW          = ^[[103m
+ANSI_BG_BLUE            = ^[[104m
+ANSI_BG_PINK            = ^[[105m
+ANSI_BG_BLS_GREEN       = ^[[106m
+ANSI_BG_WHITE           = ^[[107m
+
+
+
+#Font Attribute
+ANSI_BOLD               = ^[[1m
+ANSI_ITALIC             = ^[[3m
+ANSI_UNDERBAR           = ^[[4m
+ANSI_BLINK		= ^[[5m
+ANSI_COL_REVERS		= ^[[6m
+
+# Font All Init
+ANSI_NORMAL		= ^[[0m
+
+

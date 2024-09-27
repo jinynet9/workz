@@ -1,0 +1,820 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+
+7/16
+- 접속모드 수정 버튼 늘 보이도록 수정
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+<script language="javascript" type="text/javascript">
+
+        var get_wan_limit_value;
+        var get_wan_limit;
+
+        var _lang_file = "../lang/lang_basic_setting.json";
+
+
+        function page_init() {
+            var url = "/cgi-bin/waninfo.cgi?Command=basicInfo";
+            XHRGet(getinfohandle, url, true);
+        }
+
+
+        function getinfohandle(xmlDoc) {
+
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+
+            SetButtons( ["btn_apply_wan_mode_select", "btn_apply_dm_setting", "btn_apply_wan_speed_limit"] );
+
+            var wan_ipaddr, wan_gateway, wan_netmask, wan_dns, dns_list;
+
+            wan_ipaddr = getDataFromTag(xmlDoc, "ipaddr");
+            wan_gateway = getDataFromTag(xmlDoc, "gateway");
+            wan_netmask = getDataFromTag(xmlDoc, "netmask");
+            wan_dns = getDataFromTag(xmlDoc, "dns");
+            dns_list = wan_dns.split(" ");
+
+            document.getElementById("wan_ipaddr").value = wan_ipaddr;
+            document.getElementById("wan_gateway").value = wan_gateway;
+            document.getElementById("wan_subnet").value = wan_netmask;
+            document.getElementById("wan_dns1").value = dns_list[0] ? dns_list[0] : "";
+            document.getElementById("wan_dns2").value = dns_list[1] ? dns_list[1] : "";
+
+            display_wan_mode (xmlDoc);
+            display_DM_INFO (xmlDoc);
+            /* display_wan_speed_limit(); */
+	    display_wan_qos ( xmlDoc );
+
+            parent.callResize();
+        }
+
+        function display_wan_speed_limit() {
+            var tmp;
+
+            get_wan_limit_value = getDataFromTag(xmlDoc, "get_wan_limit");
+            get_wan_limit = get_wan_limit_value.split(",");
+
+            if (get_wan_limit[0] == "1") {
+                document.getElementById("qos_enable_wan").checked = true;
+                document.getElementById("limit_ul_tp_wan").disabled = false;
+                //document.getElementById("limit_ul_unit_wan").disabled = false;
+                document.getElementById("limit_dl_tp_wan").disabled = false;
+                //document.getElementById("limit_dl_unit_wan").disabled = false;
+            } else {
+                document.getElementById("qos_enable_wan").checked = false;
+                document.getElementById("limit_ul_tp_wan").disabled = true;
+                //document.getElementById("limit_ul_unit_wan").disabled = true;
+                document.getElementById("limit_dl_tp_wan").disabled = true;
+                //document.getElementById("limit_dl_unit_wan").disabled = true;
+            }
+
+            if(get_wan_limit.length > 3) {
+                document.getElementById("limit_ul_tp_wan").value = get_wan_limit[1].trim();
+                //document.getElementById("limit_ul_unit_wan").value = get_wan_limit[2].trim();
+                document.getElementById("limit_dl_tp_wan").value = get_wan_limit[3].trim();
+                //document.getElementById("limit_dl_unit_wan").value = get_wan_limit[4].trim();
+            }
+        }
+
+        function display_wan_qos ( xmlDoc )
+	{
+	    /* rate limit */
+	    var rlimit_enable = getDataFromTag ( xmlDoc, "wan_rate_limit_enable" );
+	    var rlimit_up     = getDataFromTag ( xmlDoc, "wan_rate_limit_up" );
+	    var rlimit_dn     = getDataFromTag ( xmlDoc, "wan_rate_limit_dn" );
+
+	    var e_rlimit_enable = document.getElementById ( "wan_rate_limit_enable" );
+	    var e_rlimit_up     = document.getElementById ( "wan_rate_limit_up" );
+	    var e_rlimit_dn     = document.getElementById ( "wan_rate_limit_dn" );
+
+	    e_rlimit_up.value = rlimit_up;
+	    e_rlimit_dn.value = rlimit_dn;
+
+	    if ( rlimit_enable == "1" )
+	    {
+		e_rlimit_enable.checked = true;
+		e_rlimit_up.disabled    = false;
+		e_rlimit_dn.disabled    = false;
+	    }
+	    else
+	    {
+		e_rlimit_enable.checked = false;
+		e_rlimit_up.disabled    = true;
+		e_rlimit_dn.disabled    = true;
+	    }
+
+	    document.getElementById("wan_voip_prio_enable").checked = getDataFromTag(xmlDoc, "wan_voip_prio_enable") == "1" ? true : false;
+	}
+
+        function display_wan_mode (xmlDoc) {
+            
+            var wan_mode = getDataFromTag(xmlDoc, "wan_mode");
+            var wan_proto = getDataFromTag(xmlDoc, "wan_proto");
+
+            document.wan_mode_setting.sel_wan_mode_select.selectedIndex = wan_mode - 1;
+            document.wan_mode_setting.sel_wan_protocol.selectedIndex = wan_proto;
+
+            adjust_wan_display (xmlDoc);
+        }
+
+        function adjust_wan_display (xmlDoc)
+        {
+            var wan_mode = document.wan_mode_setting.sel_wan_mode_select.value;
+
+            if (wan_mode == 1)
+            {
+                mode = "LAN";
+                document.getElementById("eth_mode_wan").style.display = "none";
+            } else {
+                mode = "WAN";
+                document.getElementById("eth_mode_wan").style.display = "";
+            }
+            document.getElementById("mode").innerHTML = mode;
+
+            display_wan_protocol(xmlDoc);
+
+            parent.callResize();
+        }
+
+        function display_wan_protocol(xmlDoc)
+        {
+            var wan_protocol = document.wan_mode_setting.sel_wan_protocol.selectedIndex;
+
+            document.getElementById("wan_protocol_static").style.display = wan_protocol == 1 ? "" : "none";
+
+            parent.callResize();
+        }
+
+        function display_DM_INFO(xmlDoc)
+        {
+            var lte_dm_on = getDataFromTag(xmlDoc,"LTE_DM_ON");
+
+            if(lte_dm_on == "0")
+            {
+                document.dm_setting.sel_dm_setting.selectedIndex = 0;
+            }
+            else if(lte_dm_on == "1")
+            {
+                document.dm_setting.sel_dm_setting.selectedIndex = 1;
+            }
+        }
+
+
+        function checkAllNum(str) {
+            var i;
+            for (i = 0; i < str.length; i++) {
+                if (str.charAt(i) >= '0' && str.charAt(i) <= '9') {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+
+
+        function limit_change() {
+
+            if (document.getElementById("qos_enable_wan").checked) {
+                document.getElementById("limit_ul_tp_wan").disabled = false;
+                //document.getElementById("limit_ul_unit_wan").disabled = false;
+                document.getElementById("limit_dl_tp_wan").disabled = false;
+                //document.getElementById("limit_dl_unit_wan").disabled = false;
+
+            } else {
+                document.getElementById("limit_ul_tp_wan").disabled = true;
+                //document.getElementById("limit_ul_unit_wan").disabled = true;
+                document.getElementById("limit_dl_tp_wan").disabled = true;
+                //document.getElementById("limit_dl_unit_wan").disabled = true;
+
+                document.getElementById("limit_ul_tp_wan").value = get_wan_limit[1];
+                //document.getElementById("limit_ul_unit_wan").value = get_wan_limit[2];
+                document.getElementById("limit_dl_tp_wan").value = get_wan_limit[3];
+                //document.getElementById("limit_dl_unit_wan").value = get_wan_limit[4];
+            }
+        }
+
+        function formCheck() {
+            var i;
+            var check_ul;
+            var check_ul_unit;
+            var check_dl;
+            var check_dl_unit;
+            var j = 0;
+
+            var brlan_limit = 0;
+
+            if (document.getElementById("qos_enable_wan").checked == true)
+                brlan_limit = 1;
+
+            if (brlan_limit == 1) {
+
+                check_ul = document.getElementById("limit_ul_tp_wan").value;
+                //check_ul_unit = document.getElementById("limit_ul_unit_wan").value;
+                check_dl = document.getElementById("limit_dl_tp_wan").value;
+                //check_dl_unit = document.getElementById("limit_dl_unit_wan").value;
+
+                if (check_ul == "" || check_dl == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                    return false;
+                }
+
+                if (checkAllNum(check_ul) == false || checkAllNum(check_dl) == false) {
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+                    return false;
+                }
+
+                /*if (check_ul_unit == "kbit") {
+                    if ((parseInt(check_ul) < 100) && (parseInt(check_ul) > 0)) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                    if (parseInt(check_ul) > 950000) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                } else {
+                    if (parseInt(check_ul) > 950) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                }*/
+
+                /*if (check_dl_unit == "kbit") {
+                    if ((parseInt(check_dl) < 100) && (parseInt(check_dl) > 0)) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                    if (parseInt(check_dl) > 950000) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                } else {
+                    if (parseInt(check_dl) > 950) {
+                        alert(" 설정 가능한 BW의 범위는 100Kbps ~ 950Mbps ( 0:무제한 ) 입니다");
+                        return false;
+                    }
+                }*/
+                document.getElementById("chkbox_brlan_limit").value = 1;
+                return true;
+            } else {
+		/*
+		 * set zero value as speed limit is disabled
+		 * mantis#7449, JINY_200919
+		 */
+                document.getElementById("chkbox_brlan_limit").value = 0;
+                document.getElementById("limit_ul_tp_wan").value    = 0;
+                document.getElementById("limit_dl_tp_wan").value    = 0;
+
+		/*
+                document.getElementById("chkbox_brlan_limit").value = 0;
+                document.getElementById("limit_ul_tp_wan").value = get_wan_limit[1];
+                //document.getElementById("limit_ul_unit_wan").value = get_wan_limit[2];
+                document.getElementById("limit_dl_tp_wan").value = get_wan_limit[3];
+                //document.getElementById("limit_dl_unit_wan").value = get_wan_limit[4];
+		*/
+
+                return true;
+            }
+
+
+        }
+
+        function apply_wan_speed_limit() {
+            if (formCheck()) {
+		/*
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+		*/
+                var url = "/cgi-bin/wanset.cgi";
+                var param = "Command=speedLimitSet"
+                    + "&"
+                    + serializeFormElement("wan_speed_limit_setting");
+
+                XHRPost ( err_handle_reload, url, param, true );
+            }
+        }
+
+        function wan_rate_limit_changed ()
+	{
+	    var e_rlimit_enable = document.getElementById ( "wan_rate_limit_enable" );
+	    var e_rlimit_up     = document.getElementById ( "wan_rate_limit_up" );
+	    var e_rlimit_dn     = document.getElementById ( "wan_rate_limit_dn" );
+
+	    if ( e_rlimit_enable.checked )
+	    {
+		e_rlimit_up.disabled    = false;
+		e_rlimit_dn.disabled    = false;
+	    }
+	    else
+	    {
+		e_rlimit_up.disabled    = true;
+		e_rlimit_dn.disabled    = true;
+	    }
+        }
+
+        function form_wan_qos_check ()
+	{
+	    var e_rlimit_enable = document.getElementById ( "wan_rate_limit_enable" );
+	    var e_rlimit_up     = document.getElementById ( "wan_rate_limit_up" );
+	    var e_rlimit_dn     = document.getElementById ( "wan_rate_limit_dn" );
+
+	    var e_voip_prio_enable = document.getElementById ( "wan_voip_prio_enable" );
+
+	    if ( e_rlimit_enable.checked )
+	    {
+	        document.getElementById("chkbox_wan_rate_limit_enable").value = 1;
+	    }
+	    else
+	    {
+	        document.getElementById("chkbox_wan_rate_limit_enable").value = 0;
+	        document.getElementById("wan_rate_limit_up").value            = 0;
+	        document.getElementById("wan_rate_limit_dn").value            = 0;
+	    }
+
+	    if ( ! checkAllNum(e_rlimit_up.value) || ! checkAllNum(e_rlimit_dn.value) )
+	    {
+		alert(i18next.store.data[i18next.language].translation.alert['only_number']);
+		return false;
+	    }
+
+	    document.getElementById("chkbox_wan_voip_prio_enable").value = e_voip_prio_enable.checked ? 1 : 0;
+
+	    return true;
+        }
+
+        function apply_wan_qos()
+	{
+            if ( form_wan_qos_check() )
+	    {
+                var url = "/cgi-bin/wanset.cgi";
+                var param = "Command=wan_qos_set"
+                    + "&"
+                    + serializeFormElement("wan_qos_setting");
+
+                XHRPost ( err_handle_reload, url, param, true );
+            }
+        }
+
+        function EthModeFormCheck() {
+            if (document.wan_mode_setting.sel_wan_mode_select.value == 2 && document.wan_mode_setting.sel_wan_protocol.value == 1) {
+                if (document.wan_mode_setting.wan_ipaddr.value == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['Input_IP_Address']);
+                    return false;
+                }
+                if (document.wan_mode_setting.wan_ipaddr.value != "") {
+                    if (!checkIPAddr(document.wan_mode_setting.wan_ipaddr)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+                        return false;
+                    }
+                }
+
+                if (document.wan_mode_setting.wan_subnet.value == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['Input_Subnet_Mask']);
+                    return false;
+                }
+                if (document.wan_mode_setting.wan_subnet.value != "") {
+                    if (!checkSubnetMask(document.wan_mode_setting.wan_subnet)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['Invalid_Subnet_Mask']);
+                        return false;
+                    }
+                }
+
+                if (document.wan_mode_setting.wan_gateway.value == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['Input_Gateway']);
+                    return false;
+                }
+                if (document.wan_mode_setting.wan_gateway.value != "") {
+                    if (!checkIPAddr(document.wan_mode_setting.wan_gateway)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['Invalid_Gateway']);
+                        return false;
+                    }
+                }
+
+                if (document.wan_mode_setting.wan_dns1.value != "") {
+                    if (!checkIPAddr(document.wan_mode_setting.wan_dns1)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['Invalid_DNS']);
+                        return false;
+                    }
+                }
+                if (document.wan_mode_setting.wan_dns2.value != "") {
+                    if (!checkIPAddr(document.wan_mode_setting.wan_dns2)) {
+                        alert(i18next.store.data[i18next.language].translation.alert['Invalid_DNS']);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function apply_wan_mode_select() {
+	    if (EthModeFormCheck()) 
+	    {
+		xalert ( 'reboot_need' );
+
+		var url = "/cgi-bin/wanset.cgi";
+		var param = "Command=modeSet"
+		    + "&"
+		    + serializeFormElement("wan_mode_setting");
+
+		XHRPost ( err_handle_reload, url, param, true );
+
+		/*
+		 * normal confirm popup & change to guide page
+		 * DAYOU_MKSHIN_200912
+		if ( xconfirm ('reload') ) {
+
+		    EnableButtons(false);
+
+		    var url = "/cgi-bin/wanset.cgi";
+		    var param = "Command=modeSet"
+			+ "&"
+			+ serializeFormElement("wan_mode_setting");
+
+		    XHRPost(jump_inform_reboot, url, param, true);
+		}
+		*/
+	    }
+        }
+
+        function renewal(obj, ary) {
+            var i, len;
+            var select = obj;
+            var values = ary.split(',');
+
+            len = values.length;
+
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+            for (i = len - 1; i >= 0; i--) {
+                var option = document.createElement('option');
+                option.text = option.value = values[i];
+                select.add(option, 0);
+            }
+        }
+
+        function apply_dm_setting()
+        {
+	    /*
+            EnableButtons( false );
+            TimeoutReload( TIMEOUT_DEFAULT_TIME );
+	    */
+
+            var url = "/cgi-bin/wanset.cgi";
+            var param = "Command=lteDM"
+                +"&"
+                +serializeFormElement("dm_setting");
+
+            XHRPost ( err_handle_reload, url, param, true );
+        }
+
+        function init() {
+	        prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+
+        function display_progress(timeout) {
+            $("#setting_display").hide();
+            $("#progress_display").show();
+            parent.close_dialog();
+            TimeoutReload(timeout, true);
+        }
+</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section id="setting_display" class="setting">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="BasicSettingContent.title">기본 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="BasicSettingContent.path1">WAN</span>
+                        <span class="path_arrow focus_on" data-i18n="BasicSettingContent.path2">기본 설정</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+
+        <form method="post" name="wan_mode_setting" id="wan_mode_setting">
+            <!-- 접속 모드 설정 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.title">접속 모드 설정</div>
+                    <div class="setting_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.title">모드 설정</td>
+                                <td>
+                                    <select name="sel_wan_mode_select" id="sel_wan_mode_select" onChange="adjust_wan_display();" class="select_box">
+                                        <option value="1" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.options.MobileOnly">LTE WAN 모드</option>
+                                        <option value="2" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.options.EthernetOnly">이더넷 WAN 모드</option>
+                                        <option value="3" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.options.LoadBalancing">하이브리드 (로드밸런싱)</option>
+                                        <option value="4" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.options.MobilePrefer">하이브리드 (LTE 우선)</option>
+                                        <option value="5" data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Mode_Setting.options.EthernerPrefer">하이브리드 (이더넷 우선)</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Connection_Mode_Setting.Ethernet_Mode">
+                                    이더넷 모드
+                                </td>
+                                <td id="mode" name="mode">
+                                    WAN
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- //접속 모드 설정 -->
+
+            <!-- 이더넷 설정 -->
+            <div class="cont_grp" id="eth_mode_wan" style="display:none;">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSettingContent.content.Ethernet_Set.title">이더넷 설정</div>
+                    <div class="setting_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Ethernet_Set.Protocol.title">
+                                    프로토콜
+                                </td>
+                                <td>
+                                    <select name="sel_wan_protocol" id="sel_wan_protocol" onChange="display_wan_protocol();">
+                                        <option value="0" data-i18n="BasicSettingContent.content.Ethernet_Set.Protocol.options.DHCP">DHCP</option>
+                                        <option value="1" data-i18n="BasicSettingContent.content.Ethernet_Set.Protocol.options.STATIC">STATIC</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tbody id="wan_protocol_static">
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Ethernet_Set.IP_Address">
+                                    IP 주소
+                                </td>
+                                <td>
+                                    <input type="text" id="wan_ipaddr" name="wan_ipaddr" maxlength="15"
+                                           size="25" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Ethernet_Set.Subnet_Maske">
+                                    서브넷 마스크
+                                </td>
+                                <td>
+                                    <input type="text" id="wan_subnet" name="wan_subnet" maxlength="15"
+                                           size="25" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.Ethernet_Set.Gateway">
+                                    게이트웨이
+                                </td>
+                                <td>
+                                    <input type="text" id="wan_gateway" name="wan_gateway" maxlength="15"
+                                           size="25" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DNS 1</td>
+                                <td>
+                                    <input type="text" id="wan_dns1" name="wan_dns1" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>DNS 2</td>
+                                <td>
+                                    <input type="text" id="wan_dns2" name="wan_dns2" value="">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="btm_btn_setting">
+	    <!--
+	    * normal confirm popup
+	    * DAYOU_MKSHIN_200912
+	    -->
+                <button type="button" class="btn_default btn_save" id="btn_apply_wan_mode_select"
+                        onclick="apply_wan_mode_select()" data-i18n="common.Save">저장
+                </button>
+                <input type="hidden" name="reboot_allow" id="reboot_allow" value="0">
+                <input type="hidden" name="SessionKey" id="SessionKey" value="">
+            </div>
+            <!-- //이더넷 설정 -->
+        </form>
+
+        <form method="post" name="wan_speed_limit_setting" id="wan_speed_limit_setting">
+            <!-- WAN 속도 제한 -->
+            <div style="display:none" class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSettingContent.content.WAN_speed_limit.title">WAN 속도 제한</div>
+                    <div class="setting_tbl">
+                        <table class="list" id="wan_speed_limit">
+                            <tr>
+                                <td align="center" data-i18n="BasicSettingContent.content.WAN_speed_limit.Enable">Enable</td>
+                                <td align="center" data-i18n="BasicSettingContent.content.WAN_speed_limit.UL_BW">UL BW(Mbps)</td>
+                                <td align="center" data-i18n="BasicSettingContent.content.WAN_speed_limit.DL_BW">DL BW(Mbps)</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="qos_enable_wan" name="qos_enable_wan"
+                                           onchange="limit_change()">
+                                    <input type="hidden" name="chkbox_brlan_limit" id="chkbox_brlan_limit"
+                                           value="0">
+                                </td>
+                                <td>
+                                    <input type="text" name="limit_ul_tp_wan" id="limit_ul_tp_wan" size="5"
+                                           maxlength="7" class="inputbox_sm">
+                                    <!--<select name="limit_ul_unit_wan" id="limit_ul_unit_wan">
+                                        <option value="mbit" data-i18n="common.Mbps">Mbps</option>
+                                        <option value="kbit" data-i18n="common.Kbps">Kbps</option>
+                                    </select>-->
+                                </td>
+                                <td>
+                                    <input type="text" name="limit_dl_tp_wan" id="limit_dl_tp_wan" size="5"
+                                           maxlength="7" class="inputbox_sm">
+                                    <!--<select name="limit_dl_unit_wan" id="limit_dl_unit_wan">
+                                        <option value="mbit" data-i18n="common.Mbps">Mbps</option>
+                                        <option value="kbit" data-i18n="common.Kbps">Kbps</option>
+                                    </select>-->
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_setting">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_wan_speed_limit" onclick="apply_wan_speed_limit()"
+                            data-i18n="common.Apply">적용</button>
+                </div>
+            </div>
+            <!-- //WAN 속도 제한 -->
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+        </form>
+
+	<!-- WAN QOS { -->
+        <form method="post" name="wan_qos_setting" id="wan_qos_setting">
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSettingContent.content.WAN_QOS.title">WAN QOS</div>
+                    <div class="setting_tbl">
+                        <table class="list_noline" id="wan_rate_limit">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+
+			    <tr>
+			        <td>Rate Limit</td>
+				<td>
+                                    <input type="checkbox" id="wan_rate_limit_enable" name="wan_rate_limit_enable"
+                                           onchange="wan_rate_limit_changed()">
+                                    <input type="hidden" name="chkbox_wan_rate_limit_enable" id="chkbox_wan_rate_limit_enable">
+				    <span data-i18n="common.Enable">활성</span>
+                                </td>
+			    </tr>
+			    <tr>
+                                <td data-i18n="BasicSettingContent.content.WAN_QOS.RateLimit.UL_BW">UL BW(Mbps)</td>
+				<td>
+                                    <input type="text" name="wan_rate_limit_up" id="wan_rate_limit_up" size="5"
+                                           maxlength="7" class="inputbox_sm">
+                                </td>
+			    </tr>
+			    <tr>
+                                <td data-i18n="BasicSettingContent.content.WAN_QOS.RateLimit.DL_BW">DL BW(Mbps)</td>
+
+				<td>
+                                    <input type="text" name="wan_rate_limit_dn" id="wan_rate_limit_dn" size="5"
+                                           maxlength="7" class="inputbox_sm">
+				</td>
+			    </tr>
+
+			    <tr>
+			        <td></td>
+			        <td></td>
+			    </tr>
+
+			    <tr>
+			        <td data-i18n="BasicSettingContent.content.WAN_QOS.VOIP.title">VoIP Priority Processing</td>
+                                <td>
+				  <label>
+                                    <input type="checkbox" id="wan_voip_prio_enable" name="wan_voip_prio_enable">
+                                    <input type="hidden" name="chkbox_wan_voip_prio_enable" id="chkbox_wan_voip_prio_enable">
+				    <span data-i18n="common.Enable">활성</span>
+				  </label>
+                                </td>
+			    </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_setting">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_wan_qos_" onclick="apply_wan_qos()"
+                            data-i18n="common.Apply">적용</button>
+                </div>
+            </div>
+        </form>
+	<!-- } WAN QOS -->
+
+        <form method="post" name="dm_setting" id="dm_setting">
+            <!-- DM 설정 -->
+            <div style="display:none" class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="BasicSettingContent.content.DM_Setting.title">DM 설정</div>
+                    <div class="setting_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="BasicSettingContent.content.DM_Setting.Mode_Setting.title">모드 설정</td>
+                                <td>
+                                    <select name="sel_dm_setting" id="sel_dm_setting" class="select_box">
+                                        <option value="0" data-i18n="BasicSettingContent.content.DM_Setting.Mode_Setting.options.Disable">비활성화</option>
+                                        <option value="1" data-i18n="BasicSettingContent.content.DM_Setting.Mode_Setting.options.Enable">활성화</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_setting">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_dm_setting" onclick="apply_dm_setting()"
+                            data-i18n="common.Apply">적용</button>
+                    <!--<input type="hidden" name="reboot_allow" id="reboot_allow" value="0">-->
+                </div>
+            </div>
+            <!-- //DM 설정 -->
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+        </form>
+
+    </section>
+    <section id="progress_display" class="setting" style="display: none">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="LteSettingContent.title">LTE 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="LteSettingContent.path1">WAN</span>
+                        <span class="path_arrow focus_on" data-i18n="LteSettingContent.path2">LTE 설정</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <!-- 기본설정 reboot 부분 -->
+        <div class="cont_grp" id="firmware_progress">
+            <!-- Reboot 진행중 -->
+            <div class="cont_progressbar">
+                <p class="progress_txt1" data-i18n="Progress.Reboot_Title">시스템을 재시작 합니다.</p>
+                <!-- Progressbar -->
+		<!-- remark progress bar, DAYOU_MKSHIN_200912 
+                <div class="progressbar_panel">
+                    <div class="progress" id="h-default-basic">
+                        <div id="update_progress_bar" class="progress-bar progress-bar-striped active" data-transitiongoal-backup="75" data-transitiongoal="75" style="width: 0%">
+                            <span class="sr-only">0%</span>
+                        </div>
+                    </div>
+                </div>
+		-->
+                <!-- //Progressbar -->
+                <p class="progress_txt2"  data-i18n="Progress.Content">이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.</p>
+		<!-- remark login button, DAYOU_MKSHIN_200913
+                <div class="login_link">
+                    <button type="button" class="btn_default btn_login_link" onclick="parent.location.href='/login.html'" data-i18n="Progress.MoveToLogin">Login 페이지 이동</button>
+                </div>
+		-->
+            </div>
+            <!-- //Reboot 진행중 -->
+        </div>
+        <!-- 기본설정 reboot 부분 -->
+    </section>
+</div>
+</body>
+</html>

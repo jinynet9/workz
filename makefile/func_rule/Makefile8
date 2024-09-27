@@ -1,0 +1,17 @@
+define tworules
+$(info 111)
+$$(info 222)
+AA := 100
+$(if $(AA),$(info 333333),$(info 444444))
+$$(if $$(AA),$$(info 555555),$$(info 666666))
+$1 :
+    @echo xxxxxxxxxx
+    @$$(if $$(AA),echo aaaaaaaaaa,echo bbbbbbbbbb)
+
+$2 :
+    @echo yyyyyyyyyy
+endef
+
+$(info start.....)
+$(eval $(call tworules,foo,bar))
+$(info end.....)

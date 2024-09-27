@@ -1,0 +1,28 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "alert": {
+          "reload" : "It will reboot for feature application.\n\nDo you want to continue?",
+          "reboot" : "It will reboot the system.\n\nDo you want to continue?",
+          "reboot_need" : "It's required to reboot for feature application.",
+          "wifi_restart" : "It will restart the WiFi.\n\nDo you want to continue?",
+          "session_timeout" : "Session closed. Please login again.",
+          "help"   : "help"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "alert": {
+          "reload" : "기능 적용을 위해 단말을 재부팅 합니다.\n\n계속 하시겠습니까?",
+          "reboot" : "단말이 재부팅 됩니다.\n\n계속 하시겠습니까?",
+          "reboot_need" : "기능 적용을 위해 단말 재부팅이 필요합니다.",
+          "wifi_restart" : "WiFi를 재시작합니다.\n\n계속 하시겠습니까?",
+          "session_timeout" : "세션이 만료되었습니다. 재접속 해주세요.",
+          "help"   : "help"
+        }
+      }
+    }
+  }
+}

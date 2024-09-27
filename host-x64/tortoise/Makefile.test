@@ -1,0 +1,19 @@
+
+TARGET = test
+
+CC = gcc
+
+CFLAGS = -Wall
+
+LDFLAGS += -lpthread
+
+all: $(TARGET)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $^
+
+test: test.o zut.o
+	$(CC) $(LDFLAGS) -o $@ $^
+
+clean:
+	rm -f *.o $(TARGET)

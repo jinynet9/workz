@@ -1,0 +1,42 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Reboot": {
+          "String1": "The system is restarting.",
+          "String2": "This operation will take several minutes.",
+          "String3": "Please reconnect after system restart."
+        },
+	"Upgrade": {
+	  "String1": "The system upgrade is starting.",
+	  "String2": "This operation will take several minutes.",
+	  "String3": "The system restarts after the upgrade completes.",
+	  "String4": "Please reconnect after system restart."
+	},
+	"WifiRestart": {
+	  "String1": "WiFi is restarting.",
+	  "String2": "Please reconnect after WiFi is reactivated."
+	}
+      }
+    },
+    "kr": {
+      "translation": {
+        "Reboot": {
+          "String1": "시스템을 재시작 합니다.",
+          "String2": "이 작업은 수 분 소요됩니다.",
+	  "String3": "시스템이 재시작된 후 다시 접속하여 주십시오."
+        },
+	"Upgrade": {
+	  "String1": "Upgrade를 시작합니다.",
+	  "String2": "작업에 수 분 소요됩니다.",
+	  "String3": "Upgrade 완료 후 시스템이 재시작됩니다.",
+	  "String4": "시스템이 재시작된 후 다시 접속하여 주십시오."
+	},
+	"WifiRestart": {
+	  "String1": "WiFi를 재시작합니다.",
+	  "String2": "WiFi가 재활성화된 후 다시 접속하여 주십시오."
+	}
+      }
+    }
+  }
+}

@@ -1,0 +1,541 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/15 - contbody에 main_page id 추가, table에 filter_table id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        var arrSSID;
+        var arrpolicy;
+        var arrlist;
+        var arrfilter_rule = new Array();
+        var arrfilter_list = new Array();
+	    var _lang_file = "../lang/lang_wireless5_macfilter.json";
+
+        var nSelectSSID = 0;
+
+        function page_init() {
+            var url = "/cgi-bin/wirelessinfo.cgi?Command=wireless5_macfilter";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+
+            value_setting(xmlDoc);
+            SetButtons(["btn_apply_save", "btn_apply_delete", "btn_apply_reboot", "btn_apply_change", "btn_apply"]);
+
+            var objSSID = document.getElementById("ssidIndex");
+
+            var t = 0;
+            var list;
+
+            for (var j = 0; j < 4; j++) {
+
+                arrfilter_list[t] = new Array();
+                list = arrlist[j].split(" ");
+
+                for (var i = 0; i < 8; i++) {
+
+                    if (list[i]) {
+                        arrfilter_list[t][i] = list[i];
+                    } else {
+                        break;
+                    }
+                }
+
+                t++;
+            }
+
+            for (i = 0; i < arrpolicy.length; i++) {
+
+                arrfilter_rule[i] = arrpolicy[i];
+            }
+
+            for (var i = 0; i < arrSSID.length; i++) {
+
+                var objOpt = document.createElement("option");
+                var txtOpt = document.createTextNode(arrSSID[i]);
+
+                objOpt.value = i;
+                objSSID.appendChild(objOpt);
+                objOpt.appendChild(txtOpt);
+
+            }
+
+            filter_rule();
+            parent.callResize();
+        }
+
+        function value_setting(xmlDoc) {
+            arrSSID = [getDataFromTag(xmlDoc, "ssid0"), getDataFromTag(xmlDoc, "ssid1"), getDataFromTag(xmlDoc, "ssid2"),
+                getDataFromTag(xmlDoc, "ssid3")];
+	    /*
+	      , getDataFromTag(xmlDoc, "ssid4"), getDataFromTag(xmlDoc, "ssid5"),
+                getDataFromTag(xmlDoc, "ssid6"), getDataFromTag(xmlDoc, "ssid7")];
+		*/
+
+            arrpolicy = [getDataFromTag(xmlDoc, "macfilter0"), getDataFromTag(xmlDoc, "macfilter1"), getDataFromTag(xmlDoc, "macfilter2"),
+                getDataFromTag(xmlDoc, "macfilter3")];
+	    /*
+	      , getDataFromTag(xmlDoc, "macfilter4"), getDataFromTag(xmlDoc, "macfilter5"),
+                getDataFromTag(xmlDoc, "macfilter6"), getDataFromTag(xmlDoc, "macfilter7")];
+		*/
+
+            arrlist = [getDataFromTag(xmlDoc, "maclist0"), getDataFromTag(xmlDoc, "maclist1"), getDataFromTag(xmlDoc, "maclist2"),
+                getDataFromTag(xmlDoc, "maclist3")];
+	    /*
+	      , getDataFromTag(xmlDoc, "maclist4"), getDataFromTag(xmlDoc, "maclist5"),
+                getDataFromTag(xmlDoc, "maclist6"), getDataFromTag(xmlDoc, "maclist7")];
+		*/
+        }
+
+        function delRowAll() {
+            var ln = document.getElementById("filter_table").rows.length;
+            for (i = 1; i < ln; i++) {
+                filter_table.deleteRow(1);
+            }
+        }
+
+        function filter_rule() {
+            var selected_ssid = document.mac_filter.ssidIndex.selectedIndex;
+            var objTblfilter = document.getElementById("filter_table");
+            var mactext = document.getElementById("mac").value;
+            var txtTD4;
+	    var row = 0;
+	    var num = 0;
+
+            delRowAll();
+
+		for(var i = 0; i < 4 ; i++) {
+           	 for (var j = 0; j < arrfilter_list[i].length; j++) {
+                if (arrfilter_list[i][j] != "") {
+
+                    var objTR = document.createElement("tr");
+                    var objTD1 = document.createElement("td");
+                    var objTD2 = document.createElement("td");
+                    var objTD3 = document.createElement("td");
+                    var objTD4 = document.createElement("td");
+                    var objInput = document.createElement("input");
+                    var txtTD3 = document.createTextNode(arrfilter_list[i][j]);
+                    var txtTD2 = document.createTextNode(arrSSID[i]);
+
+                    if (arrfilter_rule[i] == "allow") {
+                        txtTD4 = document.createTextNode(i18next.store.data[i18next.language].translation.filter_rule['allow']);
+                    } else {
+                        txtTD4 = document.createTextNode(i18next.store.data[i18next.language].translation.filter_rule['reject']);
+                    }
+
+                    objTblfilter.appendChild(objTR);
+                    objTR.appendChild(objTD1);
+                    objTD1.style.width = "10%";
+                    objTD1.appendChild(objInput);
+                    objInput.type = "checkbox";
+                    objInput.id = "rule" + num;
+		    objInput.name = "user_CheckBox";
+                    objTR.appendChild(objTD2);
+                    objTD2.appendChild(txtTD2);
+                    objTD2.style.width = "20%";
+                    objTR.appendChild(objTD3);
+                    objTD3.appendChild(txtTD3);
+                    objTD3.style.width = "50%";
+                    objTR.appendChild(objTD4);
+                    objTD4.style.width = "20%";
+                    objTD4.appendChild(txtTD4);
+
+		    num++;
+
+
+                }
+            }
+	}
+
+		btn_Activate ();
+		parent.callResize();
+        }
+
+        function check_redundancy() {
+            var ssid = document.mac_filter.ssidIndex.selectedIndex;
+
+            for (i = 0; i < arrfilter_list[ssid].length; i++) {
+                if (arrfilter_list[ssid][i] == document.mac_filter.mac.value.toUpperCase()) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function RuleFormCheck() {
+            var ssid = document.mac_filter.ssidIndex.selectedIndex;
+
+            if (document.mac_filter.policy.value != "disable") {
+                if (document.mac_filter.mac.value == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['mac_input']);
+                    return false;
+                }
+
+                if (document.mac_filter.mac.value != "") {
+                    if (!checkMac(document.mac_filter.mac)) {
+                        document.mac_filter.mac.select();
+                        alert(i18next.store.data[i18next.language].translation.alert['mac_invalid']);
+                        return false;
+                    }
+                }
+
+                if (!check_redundancy()) {
+                    alert(i18next.store.data[i18next.language].translation.alert['mac_duplicate']);
+                    return false;
+                }
+
+                if (arrfilter_list[ssid].length > 7) {
+                    alert(i18next.store.data[i18next.language].translation.alert['rule_overflow']);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function checkRule() {
+            var check;
+
+            for (var i = 0; i < 8; i++) {
+                check = document.getElementById("rule" + i);
+
+                if (check) {
+                    if (check.checked == true) {
+                        return true;
+                    }
+                }
+            }
+
+            alert(i18next.store.data[i18next.language].translation.alert['select_rule']);
+            return false;
+        }
+
+        function apply_filter() {
+            var selected_ssid = document.mac_filter.ssidIndex.selectedIndex;
+            var filter = document.mac_filter.policy.selectedIndex;
+            var mac_txt = document.getElementById("mac").value;
+
+            if (filter != 0) {
+                if (arrfilter_list[selected_ssid] == "") {
+                    alert(i18next.store.data[i18next.language].translation.alert['mac_first']);
+                    return false;
+                }
+
+                if (document.mac_filter.mac.disabled != true) {
+                    if (mac_txt == "") {
+                        alert(i18next.store.data[i18next.language].translation.alert['mac_input']);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        function submit_apply_macfilter() {
+            var select_index = document.getElementById("ssidIndex").selectedIndex;
+            var macaddr = document.getElementById("mac").value;
+
+            if (RuleFormCheck()) {
+                for (var i = 0; arrfilter_list[select_index][i]; i++) {
+                    if (arrfilter_list[select_index][i] == "") {
+                        break;
+                    }
+                }
+                arrfilter_list[select_index][i] = macaddr.toUpperCase();
+                arrfilter_rule[select_index] = document.getElementById("policy").value;
+                filter_rule();
+
+            }
+        }
+
+        function submit_apply_reboot() {
+            var list = new Array();
+
+            if (apply_filter()) {
+                for (var i = 0; i < 4; i++) {
+                    for (var j = 0; j < arrfilter_list[i].length; j++) {
+
+                        if (arrfilter_list[i][j]) {
+                            if (!list[i]) {
+                                list[i] = arrfilter_list[i][j];
+                            } else {
+                                list[i] = list[i] + " " + arrfilter_list[i][j];
+                            }
+                        }
+                    }
+
+                    if (list[i]) {
+                        document.getElementById("submit_list" + i).value = list[i];
+                        document.getElementById("submit_policy" + i).value = arrfilter_rule[i];
+                    }
+                }
+
+                EnableButtons(false);
+                TimeoutReload(TIMEOUT_DEFAULT_TIME);
+                var url = "/cgi-bin/wirelessset.cgi";
+                var param = "Command=apply_macfilter5"
+                    + "&"
+                    + serializeFormElement("reboot");
+
+                XHRPost(null, url, param, true);
+            }
+        }
+
+	function deleteTableRow () {
+            var table = document.getElementById("filter_table");
+	    var j = 1;
+	    
+	    for (var i = 0; i < 32 ; i++) {
+		var check = document.getElementById("rule"+i);
+
+		if (check) {
+		    if (check.checked == true) {
+			table.deleteRow(j);
+			j--;
+		    }
+		    j++;
+		}
+	    }
+
+	}
+
+	function btn_Activate () {
+            var ln = document.getElementById("filter_table").rows.length;
+
+	    if (ln > 1) {
+		document.getElementById("btn_apply_delete").disabled = false;
+		document.getElementById("btn_apply_change").disabled = false;
+	    } else {
+		document.getElementById("btn_apply_delete").disabled = true;
+		document.getElementById("btn_apply_change").disabled = true;
+	    }
+	}
+	
+	function find_ssid (ssid) {
+	    for (var i = 0 ; i < 4 ; i++) {
+		if (ssid == arrSSID[i]) {
+		    return i;
+		}
+	    }
+	}
+
+	function find_mac (ssid_index, mac) {
+	    for (var i = 0; i < 8 ; i++) {
+		if (mac == arrfilter_list[ssid_index][i]) {
+		    arrfilter_list[ssid_index][i] = "";
+		}
+	    }
+	}
+
+        function submit_apply_Del() {
+	    var checkbox = $("input[name=user_CheckBox]:checked");
+
+	    checkbox.each(function(i) {
+		    var tr = checkbox.parent().parent().eq(i);
+		    var td = tr.children();
+
+
+		    var ssid = td.eq(1).text();
+		    var mac = td.eq(2).text();
+
+		    var ssid_index = find_ssid (ssid);
+		    find_mac (ssid_index, mac);
+
+		    deleteTableRow();
+		    });
+
+	    btn_Activate ();
+	}
+
+        function submit_apply_Change() {
+        var tdArr = new Array();
+	    var rowData = new Array();
+
+	    var checkbox = $("input[name=user_CheckBox]:checked");
+
+	    checkbox.each(function(i) {
+		    var tr = checkbox.parent().parent().eq(i);
+		    var td = tr.children();
+
+		    rowData.push(tr.text());
+
+		    var ssid = td.eq(1).text();
+
+		    tdArr.push(ssid); 
+
+		    for (var j = 0 ; j < 4; j++) {
+		    	if (tdArr == arrSSID[j]) {
+		    		if (arrfilter_rule[j] == "deny") {
+		    			arrfilter_rule[j] = "allow";
+		    		} else {
+		    			arrfilter_rule[j] = "deny";
+		    		}
+		    	}
+		    }
+
+		    tdArr.pop(ssid);
+	    });
+
+            filter_rule();
+        }
+
+        function submit_wifi() {
+            EnableButtons(false);
+            TimeoutReload(TIMEOUT_DEFAULT_TIME);
+            var url = "/cgi-bin/wirelessset.cgi";
+            var param = "Command=submit_wifi"
+                + "&"
+                + serializeFormElement("wifi");
+
+            XHRPost(null, url, param, true);
+        }
+
+        function init() {
+	        prevent_enterkey ();
+            languageFileLoad ( _lang_file );
+            CheckLogin(page_init);
+        }
+    </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="wireless">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="Wireless5MacfilterContent.title">5G 무선 MAC 차단</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="Wireless5MacfilterContent.path1">5G 무선랜 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="Wireless5MacfilterContent.path2">무선 MAC 차단</span>
+                    </p>
+                    <form method="post" name="wifi" id="wifi" style="margin-bottom:0px;">
+                        <button type="button" class="btn_default btn_wifi" id="btn_apply"
+                                onclick="jump_inform_wifi_restart();" data-i18n="Wireless5MacfilterContent.WIFI_Apply">WiFi 적용
+                        </button>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <form method="post" name="mac_filter" id="mac_filter">
+            <!-- 2.4G 무선 MAC 관리 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.title">5G 무선 MAC 관리</div>
+                    <div class="wireless_tbl">
+                        <table>
+                            <colgroup>
+                                <col class="td_width1">
+                                <col class="td_width2">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.SSID">SSID</td>
+                                <td>
+                                    <select id="ssidIndex" name="ssidIndex" class="select_box2">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.Filter_Rule.title">필터 정책</td>
+                                <td>
+                                    <select name="policy" id="policy" class="select_box2">
+                                        <option value="allow" data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.Filter_Rule.options.allow">허용</option>
+                                        <option value="deny" data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.Filter_Rule.options.deny">차단</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.Filter_Address">필터 주소</td>
+                                <td>
+					<input type="text" id="mac" name="mac" size="20" maxlength="17" class="inputbox_sm">
+					<!-- DMC_WOO 200904: mac address example -->
+					<span data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.ExAddress"> ex) FF:FF:FF:FF:FF:FF</span>
+				</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_wireless">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_save"
+                            onClick="submit_apply_macfilter();" data-i18n="Wireless5MacfilterContent.content.5G_Mac_filter_Setup.Add">추가
+                    </button>
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </div>
+            </div>
+            <!-- //2.4G 무선 MAC 관리 -->
+        </form>
+
+        <!-- 목록 -->
+        <div class="cont_grp">
+            <div class="cont_grp_inner">
+                <div class="cont_stitl" data-i18n="Wireless5MacfilterContent.content.List.title">목록</div>
+                <div class="wireless_tbl">
+                    <table class="list" id="filter_table">
+                        <tr class="titlebar">
+                            <th data-i18n="Wireless5MacfilterContent.content.List.Select">선택</th>
+                            <th data-i18n="Wireless5MacfilterContent.content.List.SSID">SSID</th>
+                            <th data-i18n="Wireless5MacfilterContent.content.List.Filter_Address">필터 주소</th>
+                            <th data-i18n="Wireless5MacfilterContent.content.List.State">상태</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="btm_btn_wireless">
+                <form method="post" name="reboot" id="reboot">
+                    <input id="submit_type" name="submit_type" type="hidden" value="0">
+                    <input id="submit_change" name="submit_change" type="hidden" value="0">
+                    <input id="submit_list0" name="submit_list0" type="hidden">
+                    <input id="submit_list1" name="submit_list1" type="hidden">
+                    <input id="submit_list2" name="submit_list2" type="hidden">
+                    <input id="submit_list3" name="submit_list3" type="hidden">
+                    <input id="submit_list4" name="submit_list4" type="hidden">
+                    <input id="submit_list5" name="submit_list5" type="hidden">
+                    <input id="submit_list6" name="submit_list6" type="hidden">
+                    <input id="submit_list7" name="submit_list7" type="hidden">
+                    <input id="submit_policy0" name="submit_policy0" type="hidden">
+                    <input id="submit_policy1" name="submit_policy1" type="hidden">
+                    <input id="submit_policy2" name="submit_policy2" type="hidden">
+                    <input id="submit_policy3" name="submit_policy3" type="hidden">
+                    <input id="submit_policy4" name="submit_policy4" type="hidden">
+                    <input id="submit_policy5" name="submit_policy5" type="hidden">
+                    <input id="submit_policy6" name="submit_policy6" type="hidden">
+                    <input id="submit_policy7" name="submit_policy7" type="hidden">
+                    <button type="button" class="btn_default btn_save" id="btn_apply_delete"
+                            onClick="submit_apply_Del();" disabled data-i18n="Wireless5MacfilterContent.content.List.Delete">삭제
+                    </button>
+                    <button type="button" class="btn_default btn_save" id="btn_apply_change"
+                            onClick="submit_apply_Change();" disabled data-i18n="Wireless5MacfilterContent.content.List.State_Change">상태변경
+                    </button>
+                    <button type="button" class="btn_default btn_save" id="btn_apply_reboot"
+                            onClick="submit_apply_reboot();" data-i18n="Wireless5MacfilterContent.content.List.Save">저장
+                    </button>
+                    <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                </form>
+            </div>
+            <p class="txt_info_vap" data-i18n="[html]Wireless5MacfilterContent.content.List.Help_Font">
+                ※ MAC List 추가 및 삭제 그리고 상태변경 후에는 반드시 상단에 있는 적용 버튼을 눌러주십시오.
+            </p>
+        </div>
+        <!-- //목록 -->
+    </section>
+</div>
+</body>
+</html>

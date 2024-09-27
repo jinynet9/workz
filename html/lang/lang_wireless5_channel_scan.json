@@ -1,0 +1,42 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "Wireless5ChannelScanContent": {
+          "title": "5G Channel Scan",
+          "path1": "5G WIRELESS SETUP",
+          "path2": "Channel Scan",
+          "refresh" : "refresh",
+          "content": {
+            "No" : "No",
+            "SSID" : "SSID",
+            "BSSID" : "BSSID",
+            "CHANNEL" : "CHANNEL",
+            "TYPE" : "TYPE",
+            "ENCRYPTION" : "ENCRYPTION",
+            "RSSI" : "RSSI"
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "Wireless5ChannelScanContent": {
+          "title": "5G 채널 스캔",
+          "path1": "5G 무선랜 설정",
+          "path2": "5G 채널 스캔",
+          "refresh" : "새로 고침",
+          "content": {
+            "No" : "No",
+            "SSID" : "SSID",
+            "BSSID" : "BSSID",
+            "CHANNEL" : "CHANNEL",
+            "TYPE" : "TYPE",
+            "ENCRYPTION" : "ENCRYPTION",
+            "RSSI" : "RSSI"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+almmask = 2
+online = 1
+rx_interval = 1800
+.rmnet_data1_traffic_rx = 146486696
+.rmnet_data1_traffic_tx = 5389550
+.eth0_traffic_rx = 190037413
+.eth0_traffic_tx = 89837901
+rx_message = 5
+rx_result = updatable

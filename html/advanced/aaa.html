@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<link href="../css/reset.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+    function page_init() {
+        var url = "/cgi-bin/advanceinfo.cgi?Command=advnc_get_auth_acct_setting";
+        XHRGet(getinfohandle, url, true);
+    }
+
+    function getinfohandle(xmlDoc) {
+
+        if (hasError(xmlDoc)) {
+            showError(xmlDoc);
+            return;
+        }
+        document.getElementById("main_page").style.display = "";
+        SetButtons(["btn_autoReoot_cancle", "btn_autoReoot_set"]);
+
+        setGlobalSettingValues(xmlDoc);
+
+        document.getElementById("redirect_url").value = getDataFromTag(xmlDoc,"redirect_url");
+
+        parent.callResize();
+    }
+
+    function onGlobalLockChange() {
+
+        var radius_global_lock = document.getElementById("radius_global_lock").checked;
+
+        document.getElementById("radius_global_lock").value = radius_global_lock == true ? "1" : "0";
+    }
+
+    function setGlobalSettingValues(xmlDoc) {
+
+        var radius_global_lock = getDataFromTag(xmlDoc, "radius_global_lock");
+
+        if (radius_global_lock == "1") {
+            document.formGlobalSetup.radius_global_lock.value = "1";
+            document.formGlobalSetup.radius_global_lock.checked = true;
+        } else {
+            document.formGlobalSetup.radius_global_lock.value = "0";
+            document.formGlobalSetup.radius_global_lock.checked = false;
+        }
+
+        document.getElementById("auth_server").value = getDataFromTag(xmlDoc,"auth_server");
+        document.getElementById("auth_port").value = getDataFromTag(xmlDoc,"auth_port");
+        document.getElementById("auth_secret").value = getDataFromTag(xmlDoc,"auth_secret");
+        document.getElementById("auth_server2").value = getDataFromTag(xmlDoc,"auth_server2");
+        document.getElementById("auth_port2").value = getDataFromTag(xmlDoc,"auth_port2");
+        document.getElementById("auth_secret2").value = getDataFromTag(xmlDoc,"auth_secret2");
+
+        document.getElementById("acct_server").value = getDataFromTag(xmlDoc,"acct_server");
+        document.getElementById("acct_port").value = getDataFromTag(xmlDoc,"acct_port");
+        document.getElementById("acct_secret").value = getDataFromTag(xmlDoc,"acct_secret");
+        document.getElementById("acct_server2").value = getDataFromTag(xmlDoc,"acct_server2");
+        document.getElementById("acct_port2").value = getDataFromTag(xmlDoc,"acct_port2");
+        document.getElementById("acct_secret2").value = getDataFromTag(xmlDoc,"acct_secret2");
+    }
+
+    function checkServerSettings (svr_type, svr_index)
+    {
+        var idstr = (svr_index > 1) ? svr_index : "";
+        var obj_addr = document.getElementById(svr_type + "_server" + idstr);
+        var obj_port = document.getElementById(svr_type + "_port" + idstr);
+        var obj_secret = document.getElementById(svr_type + "_secret" + idstr);
+
+        if (obj_addr.value == "") {
+            obj_port.value = "";
+            obj_secret.value = "";
+            return true;
+        }
+
+        if (!checkIPAddr(obj_addr)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_IP_Address']);
+            return false;
+        }
+
+        var portnum = atoi(obj_port.value, 1);
+
+        if ((portnum <= 0) || (portnum >= 65535)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_Port_Number']);
+            return false;
+        }
+
+        if (obj_secret.value.length < 16) {
+            alert(i18next.store.data[i18next.language].translation.alert['Short_Shared_Secret']);
+            return false;
+        }
+
+        if (!checkSharedSecret(obj_secret.value)) {
+            alert(i18next.store.data[i18next.language].translation.alert['Invalid_Shared_Secret']);
+            return false;
+        }
+
+        return true;
+    }
+
+    function checkGlobalValidate() {
+
+        if (checkServerSettings ("auth", 1) == false)
+            return false;
+        if (checkServerSettings ("auth", 2) == false)
+            return false;
+        if (checkServerSettings ("acct", 1) == false)
+            return false;
+        if (checkServerSettings ("acct", 2) == false)
+            return false;
+
+        return true;
+    }
+
+    function submit_radius_global_set() {
+
+        if(!checkGlobalValidate()) {
+            return false;
+        }
+
+        TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+        var url = "/cgi-bin/advanceset.cgi";
+        var param = "Command=set_radius_global"
+            + "&"
+            + serializeFormElement("formGlobalSetup");
+
+        XHRPost(null, url, param, true);
+    }
+
+    function submit_auth_other_set() {
+
+        TimeoutReload(TIMEOUT_DEFAULT_TIME);
+
+        var url = "/cgi-bin/advanceset.cgi";
+        var param = "Command=set_other_conf"
+            + "&"
+            + serializeFormElement("formOtherSetup");
+
+        XHRPost(null, url, param, true);
+    }
+
+    function init() {
+        languageFileLoad ("../lang/lang_aaa.json");
+        CheckLogin(page_init);
+    }
+</script>
+    
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:">
+    <section class="advanced">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="AaaContent.title">인증/과금 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="AaaContent.path1">고급 설정</span>
+                        <span class="path_arrow focus_on" data-i18n="AaaContent.path2">인증/과금 설정</span>
+                    </p>
+                    <form method="post" name="wifi" id="wifi">
+                        <button type="button" class="btn_default btn_wifi" id="btn_apply" onclick="jump_inform_wifi_restart();" data-i18n="Wireless.wifi_apply"></button>
+                        <input type="hidden" name="SessionKey" id="SessionKey" value="">
+                    </form>
+                </li>
+            </ul>
+        </div>
+        <form method="POST" action="/goform/formGlobalSetup" name="formGlobalSetup" id="formGlobalSetup">
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Server_Global_Setup.title">인증/과금 서버 전역 설정</div>
+                    <div class="advanced_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width20per">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="Server_Global_Setup.content.Restrict_Individual_Setup">SSID별 설정 제한</td>
+                                <td>
+                                    <input type="checkbox" name="radius_global_lock" id="radius_global_lock" onchange="onGlobalLockChange()">
+                                    <span data-i18n="Server_Global_Setup.content.Activate_Individual_Setup">활성</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="cont_grp_inner">
+                    <div class="advanced_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width20per">
+                            </colgroup>
+                            <tr>
+                                <td></td>
+                                <td> IP Address</td>
+                                <td> Port</td>
+                                <td> Shared Secret</td>
+                            </tr>
+                            <tr>
+                                <td><label data-i18n="Server_Global_Setup.content.AuthServer">인증서버</label> #1</td>
+                                <td><input type="text" name="auth_server" id="auth_server" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="text" name="auth_port" id="auth_port" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="password" name="auth_secret" id="auth_secret" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                            </tr>
+                            <tr>
+                                <td><label data-i18n="Server_Global_Setup.content.AuthServer">인증서버</label> #2</td>
+                                <td><input type="text" name="auth_server2" id="auth_server2" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="text" name="auth_port2" id="auth_port2" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="password" name="auth_secret2" id="auth_secret2" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                            </tr>
+                            <tr>
+                                <td><label data-i18n="Server_Global_Setup.content.AcctServer">과금서버</label> #1</td>
+                                <td><input type="text" name="acct_server" id="acct_server" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="text" name="acct_port" id="acct_port" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="password" name="acct_secret" id="acct_secret" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                            </tr>
+                            <tr>
+                                <td><label data-i18n="Server_Global_Setup.content.AcctServer">과금서버</label> #2</td>
+                                <td><input type="text" name="acct_server2" id="acct_server2" size="20" maxlength="20" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="text" name="acct_port2" id="acct_port2" size="8" maxlength="8" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                                <td><input type="password" name="acct_secret2" id="acct_secret2" size="32" maxlength="32" onkeypress="IgnoreEnterKey( event );" class="vap_secu_input"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <button type="button" class="btn_default btn_save_sm" name="btn_radius_global_set" id="btn_radius_global_set" onclick="submit_radius_global_set()" data-i18n="Server_Global_Setup.content.Save">저장</button>
+                </div>
+            </div>
+        </form>
+        <form method="POST" action="/goform/formOtherSetup" name="formOtherSetup" id="formOtherSetup">
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="Server_Other_Setup.title">기타 설정</div>
+                    <div class="advanced_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width20per">
+                            </colgroup>
+                            <tr>
+                                <td data-i18n="Server_Other_Setup.Redirect_URL">접속페이지</td>
+                                <td><input type="text" name="redirect_url" id="redirect_url" size="100per" maxlength="256" onkeypress="IgnoreEnterKey( event );" class="wirelessmode_input"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <button type="button" class="btn_default btn_save_sm" name="btn_auth_other_set" id="btn_auth_other_set" onclick="submit_auth_other_set()" data-i18n="Server_Global_Setup.content.Save">저장</button>
+                </div>
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+</html>

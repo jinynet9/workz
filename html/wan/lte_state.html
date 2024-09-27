@@ -1,0 +1,603 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/13 - CA 작업
+7/17
+- 스크립트 오류 수정
+- 기존 input형태에서 span으로 변경으로 인한 value가 아닌 innerHTML 처리
+7/22 - 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script>
+            var objRSFrame;
+            var objRSFrame_Run;
+            var objBtnDebug;
+            var objRefreshTime;
+            var nRefreshTime;
+            var objItems_lte = new Array();
+			var objItems_ca = new Array();
+            var ul_uicc;
+            var dl_uicc;
+            var arrVerInfos;
+            var verFW;
+	    var objRenewState;
+
+            function page_init()
+            {
+            	var url = "/cgi-bin/waninfo.cgi?Command=debugInfo";
+            	XHRGet(getinfohandle, url, true);
+            }
+			
+            function getinfohandle(xmlDoc)
+            {
+            	if (hasError(xmlDoc))
+            	{
+            		showError(xmlDoc);
+            		return;
+            	}
+            	document.getElementById("main_page").style.display="";            
+			
+                SetButtons( ["btn_apply_debug"] );                        	
+            
+            	objRSFrame = document.getElementById( "RSFrame" );
+            	objRSFrame_Run = document.getElementById( "RSFrame2" );
+            	objBtnDebug = document.getElementById( "btn_apply_debug" );
+            	objRenewState = document.getElementById( "renew_state");
+            	objRefreshTime = document.getElementById( "refresh_time" );
+            
+            	objRSFrame.contentWindow.location.href = "about:blank";
+            	objBtnDebug.value = "ON";
+            	objRenewState.style.display = "none";
+				
+		reject_cause_display(xmlDoc);
+
+		printData(xmlDoc);
+
+                parent.callResize();
+            }
+
+	    function reject_cause_display(xmlDoc)
+	    {
+		var Reject_Cause = getDataFromTag(xmlDoc,"lte_status_emm_cause");
+		var lte_block_cause = getDataFromTag(xmlDoc,"lte_status_reject_type");
+		var emm_cause = getDataFromTag(xmlDoc,"lte_ds_emm_cause");
+		var esm_cause = getDataFromTag(xmlDoc,"lte_ds_esm_cause");
+		var strRejectCause = "";
+
+		if( Reject_Cause != "" ){
+		    switch( parseInt(Reject_Cause) )
+		    {
+			case 0:
+				strRejectCause = "-";
+				break;
+			case 3:
+				strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['fail_auth'] + "(#"+ Reject_Cause +") ";
+				break;
+			case 6:
+				strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['fail_auth_usim'] + "(#"+ Reject_Cause +") ";
+				break;
+			case 7:
+			case 14:
+				strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['data_service']+ "(#"+ Reject_Cause +") ";
+				break;
+			case 8:
+			case 11:
+			case 12:
+			case 13:
+			case 15:
+				strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['fail_regist'] + "(#"+ Reject_Cause +") ";
+				break;
+			case 16:
+			case 17:
+			case 22:
+				strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['registrating'] + "(#"+ Reject_Cause +") ";
+				break;
+
+			case 19:
+				if ( esm_cause == 27 )
+					strRejectCause = i18next.store.data[i18next.language].translation.reject_cause['unknown_apn'] + "(#"+ Reject_Cause +") ";
+				else
+					strRejectCause = "EMM_REJECT_CAUSE : #" + emm_cause + " - ESM_REJECT_CAUSE : #" + esm_cause;
+				break;
+
+			default:
+				strRejectCause = "EMM_REJECT_CAUSE : #" + emm_cause;
+				break;
+		    }
+		}
+		else{
+		    strRejectCause = "-";
+		}
+
+		if( parseInt(lte_block_cause) == 2 )
+		{
+		    strRejectCause += ": Detach";
+		}
+
+		document.getElementById( "emm_cause" ).firstChild.nodeValue = strRejectCause;
+	    }
+
+            
+			function printData(xmlDoc)
+			{
+				//LTE
+				debug_lte_status = document.getElementById( "debug_lte_status" );
+				debug_lte_status.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_status");
+
+				/* 
+				debug_lte_rat = document.getElementById( "debug_lte_rat" );
+				debug_lte_rat.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_rat");
+				*/
+
+				debug_lte_plmn = document.getElementById( "debug_lte_plmn" );
+				debug_lte_plmn.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_plmn");
+
+				debug_lte_band = document.getElementById( "debug_lte_band" );
+				debug_lte_band.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_band");
+
+				debug_lte_earfcn = document.getElementById( "debug_lte_earfcn" );
+				debug_lte_earfcn.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_earfcn");
+			/*	
+				debug_lte_bandwidth = document.getElementById( "debug_lte_bandwidth" );
+				debug_lte_bandwidth.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_bandwidth");
+
+				debug_lte_pci = document.getElementById( "debug_lte_pci" );
+				debug_lte_pci.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_pci");
+			*/
+
+				debug_lte_cell_id = document.getElementById( "debug_lte_cell_id" );
+				debug_lte_cell_id.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_cellid");
+
+			/*
+				debug_lte_tmsi = document.getElementById( "debug_lte_tmsi" );
+				debug_lte_tmsi.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_tmsi");
+
+				debug_lte_guti = document.getElementById( "debug_lte_guti" );
+				debug_lte_guti.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_guti");
+			*/
+
+				debug_lte_tac = document.getElementById( "debug_lte_tac" );
+				debug_lte_tac.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_tac");
+
+				debug_lte_rsrp = document.getElementById( "debug_lte_rsrp" );
+				debug_lte_rsrp.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_rsrp");
+
+				debug_lte_rsrq = document.getElementById( "debug_lte_rsrq" );
+				debug_lte_rsrq.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_rsrq");
+
+				debug_lte_rssi = document.getElementById( "debug_lte_rssi" );
+				debug_lte_rssi.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_rssi");
+
+			/*
+				debug_lte_sinr = document.getElementById( "debug_lte_sinr" );
+				debug_lte_sinr.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_sinr");
+			*/
+
+				debug_lte_drx = document.getElementById( "debug_lte_drx" );
+				debug_lte_drx.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_drx");
+
+				debug_lte_emm_idel_state = document.getElementById( "debug_lte_emm_idel_state" );
+				debug_lte_emm_idel_state.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_emm_idle_state");
+
+				debug_lte_emm_sub_state = document.getElementById( "debug_lte_emm_sub_state" );
+				debug_lte_emm_sub_state.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_emm_sub_state");
+
+				debug_lte_rrc_state = document.getElementById( "debug_lte_rrc_state" );
+				debug_lte_rrc_state.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_rrc_state");
+
+				debug_lte_emm_cause = document.getElementById( "debug_lte_emm_cause" );
+				debug_lte_emm_cause.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_emm_cause");
+
+				debug_lte_esm_cause = document.getElementById( "debug_lte_esm_cause" );
+				debug_lte_esm_cause.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_esm_cause");
+
+				debug_lte_tx_power = document.getElementById( "debug_lte_tx_power" );
+				debug_lte_tx_power.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_txpwr");
+
+			/*
+				debug_lte_bler = document.getElementById( "debug_lte_bler" );
+				debug_lte_bler.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_bler");
+
+				debug_lte_imei = document.getElementById( "debug_lte_imei" );
+				debug_lte_imei.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_imei");
+			*/	
+
+				debug_lte_imsi = document.getElementById( "debug_lte_imsi" );
+				debug_lte_imsi.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_imsi");
+
+				debug_lte_mdn = document.getElementById( "debug_lte_mdn" );
+				debug_lte_mdn.innerHTML = getDataFromTag(xmlDoc,"lte_dbgscr_mdn");
+
+				//CA
+				debug_ca_band = document.getElementById( "debug_ca_band" );
+				debug_ca_band.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_band");
+
+				debug_ca_bandwidth = document.getElementById( "debug_ca_bandwidth" );
+				debug_ca_bandwidth.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_bandwidth");
+
+				debug_ca_pci = document.getElementById( "debug_ca_pci" );
+				debug_ca_pci.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_pci");
+
+				debug_ca_rsrp = document.getElementById( "debug_ca_rsrp" );
+				debug_ca_rsrp.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_rsrp");
+
+				debug_ca_rsrq = document.getElementById( "debug_ca_rsrq" );
+				debug_ca_rsrq.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_rsrq");
+
+				debug_ca_rssi = document.getElementById( "debug_ca_rssi" );
+				debug_ca_rssi.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_rssi");
+
+				debug_ca_sinr = document.getElementById( "debug_ca_sinr" );
+				debug_ca_sinr.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_pcc_sinr");
+
+				debug_scc_band = document.getElementById( "debug_scc_band" );
+				debug_scc_band.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_band");
+
+				debug_scc_bandwidth = document.getElementById( "debug_scc_bandwidth" );
+				debug_scc_bandwidth.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_bandwidth");
+
+				debug_scc_pci = document.getElementById( "debug_scc_pci" );
+				debug_scc_pci.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_pci");
+
+				debug_scc_rsrp = document.getElementById( "debug_scc_rsrp" );
+				debug_scc_rsrp.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_rsrp");
+
+				debug_scc_rsrq = document.getElementById( "debug_scc_rsrq" );
+				debug_scc_rsrq.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_rsrq");
+
+				debug_scc_rssi = document.getElementById( "debug_scc_rssi" );
+				debug_scc_rssi.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_rssi");
+
+				debug_scc_sinr = document.getElementById( "debug_scc_sinr" );
+				debug_scc_sinr.innerHTML = getDataFromTag(xmlDoc,"ca_dbgscr_scc_sinr");
+			}
+			
+        function callback_SetDebugInfo( xmlDoc )
+        {
+         	EnableButtons( true );
+            
+            	printData(xmlDoc);
+            	
+        }
+            
+            function getIndexFromStringArray( arr, str )
+            {
+            	for ( var i = 0; i < arr.length; i++ )
+            	{
+            		if ( arr[i] == str )
+            		{ return i; }
+            	}
+            
+            	return -1;
+            }
+            
+            function apply_debug()
+            {
+            	if ( objBtnDebug.value == "ON" )
+            	{
+            		nRefreshTime = parseInt( objRefreshTime.value );
+            		if ( !isAllNum( objRefreshTime.value ) || nRefreshTime < 10 || nRefreshTime > 30 )
+            		{
+            			alert( i18next.store.data[i18next.language].translation.alert['invalid_time'] );
+            			return;
+            		}
+            		objRefreshTime.disabled = true;
+            		objBtnDebug.value = "OFF";
+                    objBtnDebug.innerHTML = "OFF";
+            		objRenewState.style.display = "";
+					objRSFrame.contentWindow.location.href = page_load_url_header() + "wan/lte_refresh_state.html";
+            	}
+            	else
+            	{
+            		objRefreshTime.disabled = false;
+            		objBtnDebug.value = "ON";
+                    objBtnDebug.innerHTML = "ON";
+            		objRenewState.style.display = "none";
+					/* DAYOU_DONGJUN : 2020-09-16 Debug Sereen renew bug fix */
+            		objRSFrame.contentWindow.location.href = "about:blank";
+            		clearDebugInfo();
+            	}
+            }
+            
+            function reset_per()
+            {
+            	EnableButtons( false );
+            	clearDebugInfo();
+            	objRSFrame.contentWindow.reset_per();
+            }
+            
+            function clearDebugInfo()
+            {
+            	for ( i=0; i < objItems_lte.length; i++ )
+            	{
+            		objItems_lte[i].style.color = "";
+            		objItems_lte[i].firstChild.nodeValue = "-";
+            	}
+				
+				for ( i=0; i < objItems_ca.length; i++ )
+            	{
+            		objItems_ca[i].style.color = "";
+            		objItems_ca[i].firstChild.nodeValue = "-";
+            	}
+            }
+            
+            function init()
+            {
+		prevent_enterkey ();
+		languageFileLoad("../lang/lang_debug_screen.json");
+		CheckLogin(page_init);
+            }
+        </script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<iframe id="RSFrame" name="RSFrame" style="width:0px; height:0px; border:0px;"></iframe>
+	<section class="debug">
+
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="DebugScreenContent.title">LTE 상태 정보</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="DebugScreenContent.path1">WAN</span>
+						<span class="path_arrow focus_on" data-i18n="DebugScreenContent.path2">LTE 상태 정보</span>
+					</p>
+					<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+				</li>
+			</ul>
+		</div>
+
+		<!-- LTE 장애 정보 -->
+		<div class="cont_grp">
+			<div class="cont_grp_inner">
+				<div class="cont_stitl" data-i18n="DebugScreenContent.content.Reject_Information.title">LTE 장애 정보</div>
+				<div class="connection_tbl">
+					<table class="list_noline">
+						<colgroup>
+							<col class="td_width1">
+							<col class="td_width2">
+						</colgroup>
+						<tr>
+							<td data-i18n="DebugScreenContent.content.Reject_Information.Reject_Cause">장애 사유</td>
+							<td id="emm_cause">-</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<!-- //LTE 장애 정보 -->
+
+		<!-- 접속 모드 설정 -->
+		<div class="cont_grp">
+			<div class="cont_stitl" data-i18n="DebugScreenContent.content.Debug_Screen.title">LTE 상태 정보</div>
+			<div class="time_set">
+				<ul>
+					<li data-i18n="DebugScreenContent.content.Debug_Screen.Renew_Time">갱신 시간(10~30초)</li>
+					<li>
+                                        <span class="timeset_inpbox">
+                                            <input type="text" id="refresh_time" size="2" maxlength="2" value="15" onkeydown="IgnoreEnterKey( event );">
+                                        </span>
+						<span>
+                                            <button type="button" class="btn_default btn_timeset" id="btn_apply_debug" onClick="apply_debug();"
+													data-i18n="DebugScreenContent.content.Debug_Screen.ON">ON</button>
+							<!--<button type="button" class="btn_default btn_timeset" id="btn_reset_per" onClick="reset_per();"
+                                    data-i18n="DebugScreenContent.content.Debug_Screen.Reset_PER">PRR초기화</button>-->
+                                    		<li id="renew_state" 
+                                    			data-i18n="DebugScreenContent.content.Debug_Screen.Renew_State">(갱신 동작 중)</li>
+									    </span>
+					</li>
+				</ul>
+			</div>
+			<!--
+            <table class="maincontent" id="tbl_debug_info" colspan="4" style="margin-bottom:0px;">
+            <tr>
+                <td class="titlebar" colspan="2">LTE 디버그 스크린</td>
+                <td class="titlebar" colspan="2">CA 디버그 스크린</td>
+            <tr>
+            </table>
+            -->
+
+			<div class="debug_cont">
+				<ul>
+					<li class="debug_list_tt" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.title">LTE 디버그 스크린</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.STATUS">STATUS</span>
+						<span class="debug_list_r" id="debug_lte_status">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.RAT">RAT</span>
+						<span class="debug_list_r" id="debug_lte_rat">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.PLMN">PLMN</span>
+						<span class="debug_list_r" id="debug_lte_plmn">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.BAND">BAND</span>
+						<span class="debug_list_r" id="debug_lte_band">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.EARFCN">EARFCN</span>
+						<span class="debug_list_r" id="debug_lte_earfcn">-</span>
+					</li>
+					<!--
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.BANDWIDTH">BANDWIDTH</span>
+						<span class="debug_list_r" id="debug_lte_bandwidth">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.PCI">PCI</span>
+						<span class="debug_list_r" id="debug_lte_pci">-</span>
+					</li>
+					-->
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.CELL_ID">CELL-ID</span>
+						<span class="debug_list_r" id="debug_lte_cell_id">-</span>
+					</li>
+					<!--
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.TMSI">TMSI</span>
+						<span class="debug_list_r" id="debug_lte_tmsi">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.GUTI">GUTI</span>
+						<span class="debug_list_r" id="debug_lte_guti">-</span>
+					</li>
+					-->
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.TAC">TAC</span>
+						<span class="debug_list_r" id="debug_lte_tac">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.RSRP">RSRP</span>
+						<span class="debug_list_r" id="debug_lte_rsrp">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.RSRQ">RSRQ</span>
+						<span class="debug_list_r" id="debug_lte_rsrq">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.RSSI">RSSI</span>
+						<span class="debug_list_r" id="debug_lte_rssi">-</span>
+					</li>
+					<!--
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.SINR">SINR</span>
+						<span class="debug_list_r" id="debug_lte_sinr">-</span>
+					</li>
+					-->
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.DRX">DRX</span>
+						<span class="debug_list_r" id="debug_lte_drx">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.EMM_IDLE_STATE">EMM IDLE STATE</span>
+						<span class="debug_list_r" id="debug_lte_emm_idel_state">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.EMM_SUB_STATE">EMM SUB STATE</span>
+						<span class="debug_list_r" id="debug_lte_emm_sub_state">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.RRC_STATE">RRC STATE</span>
+						<span class="debug_list_r" id="debug_lte_rrc_state">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.EMM_CAUSE">EMM CAUSE</span>
+						<span class="debug_list_r" id="debug_lte_emm_cause">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.ESM_CAUSE">ESM CAUSE</span>
+						<span class="debug_list_r" id="debug_lte_esm_cause">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.TX_POWER">TX POWER</span>
+						<span class="debug_list_r" id="debug_lte_tx_power">-</span>
+					</li>
+					<!--
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.BLER">BLER</span>
+						<span class="debug_list_r" id="debug_lte_bler">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.IMEI">IMEI</span>
+						<span class="debug_list_r" id="debug_lte_imei">-</span>
+					</li>
+					-->
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.IMSI">IMSI</span>
+						<span class="debug_list_r" id="debug_lte_imsi">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.LTE_Debug_Screen.MDN">MDN</span>
+						<span class="debug_list_r" id="debug_lte_mdn">-</span>
+					</li>
+
+				</ul>
+				<ul>
+				<li>
+					<li class="debug_list_tt" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.title">CA 디버그 스크린</li>
+					<!-- PCC -->
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.PCC">PCC</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.Band">Band</span>
+						<span class="debug_list_r" id="debug_ca_band">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.Bandwidth">Bandwidth</span>
+						<span class="debug_list_r" id="debug_ca_bandwidth">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.PCI">PCI</span>
+						<span class="debug_list_r" id="debug_ca_pci">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSRP">RSRP</span>
+						<span class="debug_list_r" id="debug_ca_rsrp">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSRQ">RSRQ</span>
+						<span class="debug_list_r" id="debug_ca_rsrq">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSSI">RSSI</span>
+						<span class="debug_list_r" id="debug_ca_rssi">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.SINR">SINR</span>
+						<span class="debug_list_r" id="debug_ca_sinr">-</span>
+					</li>
+					<!-- //PCC -->
+
+					<!-- SCC -->
+					<li class="mg_top20">
+						<span class="debug_list_l" id="debug_scc_scc" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.SCC">SCC</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.Band">Band</span>
+						<span class="debug_list_r" id="debug_scc_band">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.Bandwidth">Bandwidth</span>
+						<span class="debug_list_r" id="debug_scc_bandwidth">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.PCI">PCI</span>
+						<span class="debug_list_r" id="debug_scc_pci">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSRP">RSRP</span>
+						<span class="debug_list_r" id="debug_scc_rsrp">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSRQ">RSRQ</span>
+						<span class="debug_list_r" id="debug_scc_rsrq">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.RSSI">RSSI</span>
+						<span class="debug_list_r" id="debug_scc_rssi">-</span>
+					</li>
+					<li>
+						<span class="debug_list_l" data-i18n="DebugScreenContent.content.Debug_Screen.CA_Debug_Screen.SINR">SINR</span>
+						<span class="debug_list_r" id="debug_scc_sinr">-</span>
+					</li>
+					<!-- //SCC -->
+				</ul>
+			</div>
+		<!-- //접속 모드 설정 -->
+	</section>
+</div>
+</body>
+</html>

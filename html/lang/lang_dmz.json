@@ -1,0 +1,72 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Modify" : "Modify",
+          "Cancel" : "Cancel",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "FirewallContent": {
+          "title": "DMZ Setting",
+          "path1": "FIREWALL",
+          "path2": "DMZ Setting",
+          "content": {
+            "title" : "DMZ Setting",
+	    "dmz" : "DMZ",
+	    "dmz_ipaddr" : "DMZ IP Address",
+	    "Enable_dmz" : "Enable"
+          }
+        },
+        "alert" : {
+          "Input_Limit_ICMP_Flood" : "Please Input Limit ICMP Flood.",
+          "Input_IP_Address" : "Please Input IP Address",
+          "Invalid_IP_Address" : "Invalid IP Address",
+          "only_number_Limit_ICMP_Flood" : "Please Input Number Only.(Limit ICMP Flood)",
+          "range_of_Limit_ICMP_Flood" : "The range of Limit ICMP Flood is between 1 and 1000.",
+          "Input_Rate_Synflood" : "Please Input Rate Synflood.",
+          "only_number_Rate_Synflood" : "Please Input Number Only.(Rate Synflood)",
+          "range_of_Rate_Synflood" : "The range of Rate Synflood is between 1 and 1000.",
+	  "restart_network" : "It will restart the network service."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Modify" : "수정",
+          "Cancel" : "취소",
+          "Mbps" : "Mbps",
+          "Kbps" : "Kbps"
+        },
+        "FirewallContent": {
+          "title": "DMZ 설정",
+          "path1": "방화벽",
+          "path2": "DMZ 설정",
+          "content": {
+            "title" : "DMZ 설정",
+	    "dmz" : "DMZ",
+	    "dmz_ipaddr" : "DMZ IP 주소",
+            "Enable_dmz" : "활성"
+          }
+        },
+        "alert" : {
+          "Input_Limit_ICMP_Flood" : "Limit ICMP Flood를 입력해주세요.",
+	  "Input_IP_Address" : "IP 주소를 입력해 주세요",
+          "Invalid_IP_Address" : "유효하지 않은 IP 주소 입니다.",
+          "only_number_Limit_ICMP_Flood" : "숫자만 입력 가능합니다. (Limit ICMP Flood)",
+          "range_of_Limit_ICMP_Flood" : "Limit ICMP Flood의 범위는 1 ~ 1000 사이 입니다.",
+          "Input_Rate_Synflood" : "Rate Synflood를 입력해주세요.",
+          "only_number_Rate_Synflood" : "숫자만 입력 가능합니다. (Rate Synflood)",
+          "range_of_Rate_Synflood" : "Rate Synflood의 범위는 1 ~ 1000 사이 입니다.",
+	  "restart_network" : "네트워크 서비스를 재시작 합니다."
+        }
+      }
+    }
+  }
+}

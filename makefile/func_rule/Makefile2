@@ -1,0 +1,9 @@
+
+AA = $1 = $2
+
+#$(call AA,foo,bar)
+#$(eval $(call AA,foo,bar))
+
+$(info $(foo))
+
+target: ;

@@ -1,0 +1,137 @@
+
+$ git status
+
+# stage
+$ git add [file]
+
+# unstage
+$ git reset [file]
+
+# commit
+$ git commit -m "message"
+$ git commit -m "message" --amend
+
+# uncommit
+# refer below
+
+
+# push
+$ git push origin master
+
+
+# pull = fetch + merge
+$ git pull [origin master]
+
+# origin에서 master 브랜치를 가져오고, 지역 저장소 복사본의 이름을 origin/master로 지정한다
+$ git fetch [origin master]
+$ git merge origin/master
+
+# remote 저장소의 정보를 로컬 저장소의 FETCH_HEAD 브랜치로 가져온다
+$ git fetch
+$ git checkout FETCH_HEAD
+$ git log --decorate --oneline
+$ git checkout master
+$ git merge FETCH_HEAD
+
+#
+# stash
+#
+# show list
+$ git stash list
+$ git stash show stash@{0}
+# push
+$ git stash [save] [-m 'xxx']
+# pop = apply + drop
+$ git stash pop [stash@{0}]
+
+
+#
+# history & revision
+#
+
+# log
+# -p  patch
+$ git log
+$ git log --oneline
+$ git log -p
+
+
+# show HEAD
+$ git reflog
+
+# uncommit
+# reset: 로컬 저장소의 HEAD 위치를 바꿔서 변경
+# revert: 이전 커밋과 정반대의 데이터를 추가하여 되돌림
+#
+$ git reset --hard HEAD^
+$ git reset --hard HEAD~2
+$ git reset --mixed 991ee8c
+
+
+#
+# branch/commit traverse
+#
+$ git checkout <branch>
+$ git checkout <commit-id>
+$ git checkout main (or master)
+
+
+#
+# diff
+#
+
+# Working Directory <--> Staging Area
+$ git diff [-- file]
+
+# Working/Staging <--> Repository
+$ git diff HEAD
+
+# Staging <--> Repository
+$ git diff --staged
+
+# branch1 Repository <--> branch2 Repository
+$ git diff <branch1>..<branch2>
+# Working directory <--> currrent Repository <--> branch2 Repository
+$ git diff <branch2>
+
+# commit1 <--> commit2
+$ git diff <commit1-hash>..<commit2-hash>
+$ git diff HEAD~1..HEAD
+$ git diff HEAD~1..HEAD --stat
+$ git diff HEAD~1..HEAD --compact-summary
+$ git diff HEAD~1..HEAD [-- PATH]
+
+# files changed between branch1 and branch2 
+git diff --name-status branch1..branch2
+git diff --name-only branch1..branch2
+
+# local branch <--> remote branch
+$ git fetch
+$ git branch -a
+$ git diff <local-branch> <remote-branch>
+$ git diff master origin/master
+
+#
+# difftool
+#
+$ git difftool master..work
+
+$ git diff origin/<branch1>..origin/<branch2>
+
+
+#
+# tag
+#
+# show
+$ git tag
+# add
+$ git tag <tagname>
+# delete (local)
+$ git tag -d <tagname>
+# delete (remote)
+$ git push --delete origin <tagname>
+# push
+$ git push origin <tagname>
+
+$ git --version
+

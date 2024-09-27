@@ -1,0 +1,62 @@
+{
+    "message": "report",
+    "IMEI": "123456789",
+
+    "status": {
+
+        "model": "DSW1024XL",
+        "serial": "123456789",
+        "CTN": "123456789",
+        "device_fw_ver": "1.2.3",
+        "modem_fw_ver": "1.2.3",
+        "alarm": [ "cpu", "memory", "eth0", "wwan" ],
+
+        "uptime": 123,
+        "cpu_load": [ 1, 5, 15 ],
+        "memory_usage": 12,
+        "mobile_ip": "1.2.3.4",
+        "ethernet_ip": "1.2.3.4",
+        "band": [ "band1", "band5", "band7", "n78", "n257" ],
+        "modem_signal": {
+            "tx_power": 5,
+            "rsrp": -95,
+            "sinr": 12
+        },
+        "MOBILE": {
+            "traffic_rx": "123456789",
+            "traffic_tx": "123456789",
+            "traffic_rx_delta": "1234",
+            "traffic_tx_delta": "1234"
+        },
+        "ETHERNET": {
+            "eth0": {
+                "link": true,
+                "traffic_rx": "123456789",
+                "traffic_tx": "123456789",
+                "traffic_rx_delta": "1234",
+                "traffic_tx_delta": "1234"
+            }
+        },
+        "WiFi5G": {
+            "ath0": {
+                "ssid": "public5g",
+                "users": 123,
+                "traffic_rx": "123456789",
+                "traffic_tx": "123456789",
+                "traffic_rx_delta": "1234",
+                "traffic_tx_delta": "1234"
+            }
+        },   
+        "WiFi24G": {
+            "ath1": {
+                "ssid": "public24g",
+                "users": 123,
+                "traffic_rx": "123456789",
+                "traffic_tx": "123456789",
+                "traffic_rx_delta": "1234",
+                "traffic_tx_delta": "1234"
+            }
+        }
+    }
+}
+

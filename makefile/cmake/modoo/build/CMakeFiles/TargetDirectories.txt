@@ -1,0 +1,2 @@
+/home/jinynet9/work/makefile/cmake/modoo/build/CMakeFiles/program.dir
+/home/jinynet9/work/makefile/cmake/modoo/build/lib/CMakeFiles/shape.dir

@@ -1,0 +1,325 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/14 - 누락 id 추가
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+        function auth() {
+            var url = "/cgi-bin/auth.cgi";
+            param = "Command=LoginCheck";
+            XHRPost(authCheckhandle, url, param, true);
+        }
+
+        function authCheckhandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+
+            var authcheck = getDataFromTag(xmlDoc, "LoginMode");
+            var Session_name = getDataFromTag(xmlDoc, "session");
+            setCookie(Session_name, getDataFromTag(xmlDoc, "sessionkey"));
+            var objSessionKeys = document.getElementsByName("SessionKey");
+            for (i = 0; i < objSessionKeys.length; i++) {
+                objSessionKeys[i].value = getDataFromTag(xmlDoc, "sessionkey");
+            }
+            if (authcheck == "1") {
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+                //page_init();
+            } else {
+                parent.location.href="/login.html";
+            }
+        }
+
+        function page_init() {
+            var url = "/cgi-bin/firewall.cgi?Command=firewallinfo";
+            XHRGet(getinfohandle, url, true);
+        }
+
+        function getinfohandle(xmlDoc) {
+            if (hasError(xmlDoc)) {
+                showError(xmlDoc);
+                return;
+            }
+            document.getElementById("main_page").style.display = "";
+            SetButtons(["btn_try_save", "btn_reset"]);
+            updateState(xmlDoc);
+            parent.callResize();
+        }
+
+        function updateState(xmlDoc) {
+            var drop_invalid_packet = getDataFromTag(xmlDoc, "drop_invalid_packet");
+            var icmp_block = getDataFromTag(xmlDoc, "icmp_block");
+            var lan_icmp_block = getDataFromTag(xmlDoc, "lan_icmp_block");
+            var block_arp_spoofing = getDataFromTag(xmlDoc, "block_arp_spoofing");
+            var broadcast_ping_drop = getDataFromTag(xmlDoc, "broadcast_ping_drop");
+            var limit_icmp_flood = getDataFromTag(xmlDoc, "limit_icmp_flood");
+            var limit_synflood = getDataFromTag(xmlDoc, "limit_synflood");
+
+            if (drop_invalid_packet == "1") {
+                document.formFirewall.drop_packet.checked = true;
+            } else {
+                document.formFirewall.drop_packet.checked = false;
+            }
+            if (icmp_block == "1") {
+                document.formFirewall.block_icmp.checked = true;
+            } else {
+                document.formFirewall.block_icmp.checked = false;
+            }
+            if (lan_icmp_block == "1") {
+                document.formFirewall.block_icmp_lan.checked = true;
+            } else {
+                document.formFirewall.block_icmp_lan.checked = false;
+            }
+            if (block_arp_spoofing == "1") {
+                document.formFirewall.block_arp_spoofing.checked = true;
+            } else {
+                document.formFirewall.block_arp_spoofing.checked = false;
+            }
+
+            if (broadcast_ping_drop == "1") {
+                document.formFirewall.drop_broadcast_ping.checked = true;
+            } else {
+                document.formFirewall.drop_broadcast_ping.checked = false;
+            }
+
+            document.getElementById("limit_icmp_flood").value = limit_icmp_flood;
+            document.getElementById("limit_synflood").value = limit_synflood;
+        }
+
+        function checkAllNum(str) {
+            var i;
+            for (i = 0; i < str.length; i++) {
+                if (str.charAt(i) >= '0' && str.charAt(i) <= '9') {
+                    continue;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        function rullcheck() {
+            var flood = document.getElementById("limit_icmp_flood").value;
+            var limit = document.getElementById("limit_synflood").value;
+
+            if (flood == "") {
+                alert(i18next.store.data[i18next.language].translation.alert['Input_Limit_ICMP_Flood']);
+                return false;
+            }
+            if (flood != "") {
+                if (!checkAllNum(flood)) {
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number_Limit_ICMP_Flood']);
+                    return false;
+                }
+
+                if (parseInt(flood) < 1 || parseInt(flood) > 1000) {
+                    alert(i18next.store.data[i18next.language].translation.alert['range_of_Limit_ICMP_Flood']);
+                    return false;
+                }
+            }
+
+            if (limit == "") {
+                alert(i18next.store.data[i18next.language].translation.alert['Input_Limit_Synflood']);
+                return false;
+            }
+            if (limit != "") {
+                if (!checkAllNum(limit)) {
+                    alert(i18next.store.data[i18next.language].translation.alert['only_number_Limit_Synflood']);
+                    return false;
+                }
+
+                if (parseInt(limit) < 1 || parseInt(limit) > 1000) {
+                    alert(i18next.store.data[i18next.language].translation.alert['range_of_Limit_Synflood']);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function value_check() {
+            var block_icmp_check = document.getElementById("block_icmp");
+            if (block_icmp_check.checked == true) {
+                block_icmp_check.value = "1";
+            } else {
+                block_icmp_check.value = "0";
+            }
+
+            var block_icmp_lan_check = document.getElementById("block_icmp_lan");
+            if (block_icmp_lan_check.checked == true) {
+                block_icmp_lan_check.value = "1";
+            } else {
+                block_icmp_lan_check.value = "0";
+            }
+
+            var drop_packet_check = document.getElementById("drop_packet");
+            if (drop_packet_check.checked == true) {
+                drop_packet_check.value = "1";
+            } else {
+
+                drop_packet_check.value = "0";
+            }
+
+            var block_arp_spoofing_check = document.getElementById("block_arp_spoofing");
+            if (block_arp_spoofing_check.checked == true) {
+                block_arp_spoofing_check.value = "1";
+            } else {
+                block_arp_spoofing_check.value = "0";
+            }
+
+            var drop_broadcast_ping_check = document.getElementById("drop_broadcast_ping");
+            if (drop_broadcast_ping_check.checked == true) {
+                drop_broadcast_ping_check.value = "1";
+            } else {
+                drop_broadcast_ping_check.value = "0";
+            }
+        }
+
+        function fwsubmit() {
+            if (rullcheck()) {
+                value_check();
+
+                alert(i18next.store.data[i18next.language].translation.alert['restart_network']);
+		/*
+                EnableButtons(false);
+                TimeoutReload(1);
+		 */
+
+                var url = "/cgi-bin/firewall.cgi";
+                var param = "Command=firewallSet"
+                    + "&"
+                    + serializeFormElement("formFirewall");
+
+                XHRPost(err_handle_reload, url, param, true);
+            }
+        }
+
+        function init() {
+    	    prevent_enterkey ();
+            languageFileLoad("../lang/lang_firewall.json");
+            CheckLogin(page_init);
+        }
+</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+    <section class="nat">
+        <div class="cont_titl_iframe">
+            <ul>
+                <li class="titl_l" data-i18n="FirewallContent.title">방화벽 설정</li>
+                <li class="titl_r">
+                    <p class="path">
+                        <span class="path_bullet" data-i18n="FirewallContent.path1">방화벽</span>
+                        <span class="path_arrow focus_on" data-i18n="FirewallContent.path2">방화벽 설정</span>
+                    </p>
+                    <!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+                </li>
+            </ul>
+        </div>
+        <form method="POST" name="formFirewall" id="formFirewall">
+            <!-- 보안 설정 -->
+            <div class="cont_grp">
+                <div class="cont_grp_inner">
+                    <div class="cont_stitl" data-i18n="FirewallContent.content.title">보안 설정</div>
+                    <div class="nat_tbl">
+                        <table class="list_noline">
+                            <colgroup>
+                                <col class="td_width40per">
+                                <col class="td_width60per">
+                            </colgroup>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.WAN_ICMP">WAN ICMP (Ping, Traceroute) 차단</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="block_icmp" name="block_icmp" value="ON">
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.LAN_ICMP">LAN ICMP (Ping, Traceroute) 차단</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="block_icmp_lan" name="block_icmp_lan"value="ON">                                   
+				       	</label>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.Invalid_Packet_Drop">Invalid Packet 차단</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="drop_packet" name="drop_packet" value="ON"
+                                               checked> 
+	   			       </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.ARP_Spoofing">ARP Spoofing 차단</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="block_arp_spoofing" name="block_arp_spoofing"
+                                               value="ON" checked> 
+	   			       </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.Broadcasting_Ping_Drop">Broadcasting Ping 차단</td>
+                                <td>
+                                    <label>
+                                        <input type="checkbox" id="drop_broadcast_ping"
+                                               name="drop_broadcast_ping" value="ON" checked> 
+	   			       </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.Limit_ICMP">Limit ICMP Flood</td>
+                                <td>
+                                    <label>
+                                        <input type="text" id="limit_icmp_flood" name="limit_icmp_flood"
+                                               maxLength="4" class="inputbox60per" placeholder="100">&nbsp;(1~1000 pps)
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style=font-weight:bold data-i18n="FirewallContent.content.Limit_Synflood">Limit SYN Flood</td>
+                                <td>
+                                    <label>
+                                        <input type="text" id="limit_synflood" name="limit_synflood" maxLength="4"
+                                               class="inputbox60per" placeholder="100">&nbsp;(1~1000 pps)
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="btm_btn_basic">
+                    <!--<button type="button" class="btn_default btn_cancel_sm" id="btn_reset" name="reset"
+                            onclick="javescript : window.location.reload()"> <span data-i18n="common.Cancel"> </span>
+                    </button>-->
+                    <button type="button" class="btn_default btn_save_sm" id="btn_try_save"
+                            onclick="fwsubmit()"> <span data-i18n="common.Apply"></span>
+                    </button>
+                    <input type="hidden" name="reboot" value="">
+                    <input type="hidden" value="/firewall.asp" name="submit-url">
+                </div>
+            </div>
+            <input type="hidden" name="SessionKey" id="SessionKey" value="">
+            <!-- //보안 설정 -->
+        </form>
+    </section>
+</div>
+</body>
+</html>

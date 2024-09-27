@@ -1,0 +1,64 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common" : {
+          "Advanced_Setting" : "Advanced Setting"
+        },
+        "Wireless5VapSettingContent": {
+          "title": "5G VAP Setup",
+          "path1": "5G WIRELESS SET",
+          "path2": "VAP Setup",
+          "WIFI_Apply" : "WiFi Apply",
+          "content": {
+            "5G_VAP_Setup" : {
+              "title" : "5G VAP Setup",
+              "Setting" : "Setting",
+              "Select" : "Select",
+              "Hidden" : "Hidden",
+              "SSID" : "SSID",
+              "Isolate" : "Isolate",
+              "WMM" : "WMM",
+              "Save" : "Save",
+              "Help_Font" : "※ VAP Setup<br/>1. If you disable the Isolate function, you may be vulnerable to ARP related security."
+            }
+          }
+        },
+        "alert":{
+          "ssid_null":"SSID name cannot be null",
+          "ssid_check":"Please check at least one SSID."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common" : {
+          "Advanced_Setting" : "상세설정"
+        },
+        "Wireless5VapSettingContent": {
+          "title": "5G VAP 설정",
+          "path1": "5G 무선랜 설정",
+          "path2": "VAP 설정",
+          "WIFI_Apply" : "WiFi 적용",
+          "content": {
+            "5G_VAP_Setup" : {
+              "title" : "5G VAP 설정",
+              "Setting" : "설정",
+              "Select" : "선택",
+              "Hidden" : "숨김",
+              "SSID" : "SSID",
+              "Isolate" : "Isolate",
+              "WMM" : "WMM",
+              "Save" : "저장",
+              "Help_Font" : "※ VAP 설정<br/>1. Isolate 기능을 비활성화 하면, ARP 관련 보안에 취약할 수 있습니다."
+            }
+          }
+        },
+        "alert":{
+          "ssid_null":"SSID 명은 공백이 될 수 없습니다.",
+          "ssid_check":"하나 이상 SSID를 체크하여 주시기 바랍니다."
+        }
+      }
+    }
+  }
+}

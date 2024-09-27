@@ -1,0 +1,57 @@
+<html>
+<head>
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title></title>
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+<script language="javascript" type="text/javascript">
+//TimeoutReload( window.parent.nRefreshTime );
+//window.parent.callback_SetDebugInfo( [<% getArray_LTE_DebugInfo(); %>, <% getArray_WiBro_DebugInfo(); %>] );
+
+function reset_per()
+{
+	TimeoutReload( TIMEOUT_DEFAULT_TIME );
+	var url = "/cgi-bin/wanset.cgi";
+	var param = "Command=frm_per_reset"
+				+"&"
+				+serializeFormElement("frm_per_reset");
+		
+	XHRPost(null, url, param, true);
+}
+
+function getinfohandle(xmlDoc)
+{
+	if (hasError(xmlDoc))
+	{
+		showError(xmlDoc);
+		return;
+	}
+	
+	//var lte_debug = getDataFromTag(xmlDoc,"LTE_debug");
+		
+	
+	TimeoutReload( window.parent.nRefreshTime );
+	window.parent.callback_SetDebugInfo( xmlDoc );
+
+}
+function init()
+{
+    	prevent_enterkey ();
+	var url = "/cgi-bin/waninfo.cgi?Command=debugInfo";
+	XHRGet(getinfohandle, url, true);
+}
+
+
+</script>
+</head>
+
+<body onload="init()">
+<form method="post" name="frm_per_reset" id="frm_per_reset">
+	<input type="hidden" name="dummy" id="dummy">
+	<input type="hidden" id="SessionKey" value="pass">
+</form>
+</body>
+</html>

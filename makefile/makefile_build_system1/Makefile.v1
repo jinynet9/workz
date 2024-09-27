@@ -1,0 +1,55 @@
+#
+# all
+# lib or liball
+# target or targetall
+# clean or cleanall
+# distclean or distcleanall
+#
+
+SUBDIRS = sub1 sub2
+
+
+TARGET = a.out
+
+all : subdir lib target
+
+subdir :
+	@for DIR in $(SUBDIRS); do \
+		$(MAKE) -C $$DIR all; \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+
+lib : $(LIB_TARGET)
+
+liball : lib
+	@for DIR in $(SUBDIRS); do \
+		$(MAKE) -C $$DIR liball; \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+
+target : $(TARGET)
+
+targetall : target
+	@for DIR in $(SUBDIRS); do \
+		$(MAKE) -C $$DIR targetall; \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+
+.PHONY : subdirs $(SUBDIRS)
+
+
+cleanall : clean
+	@for DIR in $(SUBDIRS); do \
+		$(MAKE) -C $$DIR clean; \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+
+distcleanall : distclean
+	@for DIR in $(SUBDIRS); do \
+		$(MAKE) -C $$DIR distclean; \
+		if [ $$? != 0 ]; then exit 1; fi; \
+	done
+
+
+include Makefile.skel
+

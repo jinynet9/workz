@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+
+<script language="javascript" type="text/javascript">
+		function auth()
+		{
+			var url = "/cgi-bin/auth.cgi";
+			param = "Command=LoginCheck";
+			XHRPost(authCheckhandle, url, param, true);
+		}
+
+		function authCheckhandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+
+			var authcheck = getDataFromTag(xmlDoc,"LoginMode");
+			var Session_name = getDataFromTag(xmlDoc,"session");
+			setCookie( Session_name, getDataFromTag(xmlDoc,"sessionkey"));
+			//var objSessionKeys = document.getElementsByName( "SessionKey" );
+			//for(i=0; i<objSessionKeys.length; i++)
+			//{
+			//	objSessionKeys[i].value = getDataFromTag(xmlDoc,"sessionkey");
+			//}
+			if(authcheck == "1")
+			{
+               var language = getDataFromTag(xmlDoc, "lang");
+				
+                page_init();
+                commonInit(language);
+				//page_init();
+			}
+			else
+			{
+				parent.location.href="/login.html";
+			}
+		}
+		function page_init()
+		{
+			var url = "/cgi-bin/stateinfo.cgi?Command=net_statistics";
+			XHRGet(getinfohandle, url, true);
+		}
+		function getinfohandle(xmlDoc)
+		{
+			if (hasError(xmlDoc))
+			{
+				showError(xmlDoc);
+				return;
+			}
+			document.getElementById("main_page").style.display="";
+
+			maketable(xmlDoc);
+		}
+		function maketable(xmlDoc)
+		{
+			var line_num = parseInt(getDataFromTag(xmlDoc,"stats_line"));
+			var table_name = document.getElementById("network_ifstats");
+
+			for(k=1; k<=line_num; k++)
+			{
+				var ifstat = getDataFromTag(xmlDoc,"stats"+k);
+				var ifstat_array = ifstat.split(",");
+				trs = document.createElement("tr");
+
+				for(n=0; n<11; n++)
+				{
+					td = document.createElement("td");
+					td.innerHTML = ifstat_array[n].split("=")[1];
+					trs.appendChild(td);
+				}
+				table_name.appendChild(trs);
+			}
+			trs = document.createElement("tr");
+			table_name.appendChild(trs);
+            parent.callResize();
+		}
+		function init()
+		{
+            languageFileLoad("../lang/lang_net_statistics.json");
+			CheckLogin(page_init);
+		}
+	</script>
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<div class="cont_titl_iframe">
+			<ul>
+				<li class="titl_l" data-i18n="NetStatContent.title">네트워크 통계</li>
+				<li class="titl_r">
+					<p class="path">
+						<span class="path_bullet" data-i18n="NetStatContent.path1"></span>
+						<span class="path_arrow focus_on" data-i18n="NetStatContent.path2">네트워크 통계</span>
+					</p>
+					<button type="button" class="btn_default btn_refresh" data-i18n="NetStatContent.refresh" onclick="javascript: window.location.reload()">새로 고침</button>
+				</li>
+			</ul>
+		</div>
+
+		<form action="/goform/gofrom_readifstats" method="POST" name="gofrom_readifstats">
+			<div class="cont_grp">
+				<div class="cont_inner_check">
+					<div class="cont_stitl" data-i18n="NetStatContent.title">statistics Information</div>
+					<div class="advanced_tbl">
+						<table class="view" id="network_ifstats">
+							<tr>
+								<th rowspan="2" data-i18n="NetStatContent.table.Interface">Interface</th>
+								<th colspan="5" data-i18n="NetStatContent.table.Receive">Receive</th>
+								<th colspan="5" data-i18n="NetStatContent.table.Transmit">Transmit</th>
+							</tr>
+							<tr>
+								<th data-i18n="NetStatContent.table.Byte">Byte</th>
+								<th data-i18n="NetStatContent.table.Packets">Packets</th>
+								<th data-i18n="NetStatContent.table.Errors">Errors</th>
+								<th data-i18n="NetStatContent.table.Drop">Drop</th>
+								<th data-i18n="NetStatContent.table.Multicast">Multicast</th>
+								<th data-i18n="NetStatContent.table.Byte">Byte</th>
+								<th data-i18n="NetStatContent.table.Packets">Packets</th>
+								<th data-i18n="NetStatContent.table.Errors">Errors</th>
+								<th data-i18n="NetStatContent.table.Drop">Drop</th>
+								<th data-i18n="NetStatContent.table.Collisions">Collisions</th>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</form>
+	</section>
+</div>
+</body>
+</html>

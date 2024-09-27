@@ -1,0 +1,9 @@
+define onerule
+$1 : $2
+    @echo target: $$@, prerequisites: $$^
+endef
+
+$(eval $(call onerule,t1,p1 p2 p3))
+$(eval $(call onerule,t2,r1 r2 r3))
+
+.DEFAULT: ;

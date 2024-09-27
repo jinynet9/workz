@@ -1,0 +1,56 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Save" : "Save",
+          "Apply" : "Apply",
+          "Modify" : "Modify",
+          "Cancel" : "Cancel"
+        },
+        "contents": {
+          "title": "ACS",
+          "path1": "ADVANCED SET",
+          "path2": "CWMP",
+          "acs": {
+            "url" : "URL",
+            "user" : "User name",
+            "pass" : "Password"
+          }
+        },
+        "alert" : {
+          "ACS_URL" : "Please input ACS URL",
+          "empty_ID" : "ID is empty.",
+          "empty_Password" : "Passsword is empty.",
+          "empty_file_path" : "file path is empty."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Save" : "저장",
+          "Apply" : "적용",
+          "Modify" : "수정",
+          "Cancel" : "취소"
+        },
+        "contents": {
+          "title": "ACS",
+          "path1": "고급 설정",
+          "path2": "CWMP",
+          "acs": {
+            "url" : "URL",
+            "user" : "User name",
+            "pass" : "Password"
+          }
+        },
+        "alert" : {
+          "ACS_URL" : "ACS URL를 입력해 주세요",
+          "empty_ID" : "ID is empty.",
+          "empty_Password" : "Passsword is empty.",
+          "empty_file_path" : "file path is empty."
+        }
+      }
+    }
+  }
+}

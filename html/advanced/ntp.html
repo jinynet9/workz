@@ -1,0 +1,182 @@
+<!--
+7/8 - auth 실패시 /login.html 이동
+7/14 - 누락 id 추가
+7/23 - 다국어 지원 작업
+-->
+<!doctype html>
+<html>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="../css/components.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../js/ajaxbasic.js"></script>
+<script type="text/javascript" src="../common/functions.js"></script>
+<script type="text/javascript" src="../js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../js/i18n.js"></script>
+<script type="text/javascript" src="../js/jquery-i18n.js"></script>
+<script type="text/javascript" src="../common/multilang.js"></script>
+<script type="text/javascript" src="../js/error.js"></script>
+
+<script language="javascript" type="text/javascript">
+
+	function page_init()
+	{
+		var url = "/cgi-bin/advanceinfo.cgi?Command=sntp";
+		XHRGet(getinfohandle, url, true);
+	}
+	function getinfohandle(xmlDoc)
+	{
+		if (hasError(xmlDoc))
+		{
+			showError(xmlDoc);
+			return;
+		}
+		document.getElementById("main_page").style.display="";
+		SetButtons(["btn_apply_ntp_set"]);
+
+		init_param(xmlDoc);
+		parent.callResize();
+	}
+
+	function init_param(xmlDoc)
+	{
+		var sel = doc_elm ( "time_zone" );
+		sel.selectedIndex = getDataFromTag ( xmlDoc, "time_zone" );
+
+		var ntp_server1 = getDataFromTag(xmlDoc,"ntp_server_1");
+		var ntp_server2 = getDataFromTag(xmlDoc,"ntp_server_2");
+
+		document.setNtp.ntp_server_1.value = spec_display_replace(ntp_server1);
+		document.setNtp.ntp_server_2.value = spec_display_replace(ntp_server2);
+	}
+
+	function submit_apply_ntp_setting()
+	{
+		var sel = doc_elm ( "time_zone" );
+		var idx = sel.selectedIndex;
+
+		sel.options[idx].value = idx;
+
+		EnableButtons( false );
+		TimeoutReload( TIMEOUT_DEFAULT_TIME );
+		var url = "/cgi-bin/advanceset.cgi";
+		var param = "Command=ntp_setting"
+		    +"&"
+		    +serializeFormElement("setNtp");
+
+		XHRPost(null, url, param, true);
+	}
+
+	function init()
+	{
+	    	prevent_enterkey ();
+		languageFileLoad("../lang/lang_ntp.json");
+        CheckLogin(page_init);
+	}
+</script>
+
+<body onload="init()">
+<div class="contbody_iframe_inner" id="main_page" style="display:none">
+	<section class="advanced">
+		<form method="POST" name="setNtp" id="setNtp" novalidate="novalidate">
+			<div class="cont_titl_iframe">
+				<ul>
+					<li class="titl_l" data-i18n="SntpContent.title">NTP 설정</li>
+					<li class="titl_r">
+						<p class="path">
+							<span class="path_bullet" data-i18n="SntpContent.path1">고급 설정</span>
+							<span class="path_arrow focus_on" data-i18n="SntpContent.path2">NTP 설정</span>
+						</p>
+						<!--<button type="button" class="btn_default btn_wifi">WiFi Apply</button>-->
+					</li>
+				</ul>
+			</div>
+
+			<div class="cont_grp">
+				<div class="cont_grp_inner">
+					<div class="cont_stitl" data-i18n="SntpContent.content.Set_Up.title">설정</div>
+					<div class="advanced_tbl">
+						<table class="list_noline">
+							<colgroup>
+								<col class="td_width1">
+								<col class="td_width2">
+							</colgroup>
+							<tr>
+								<td data-i18n="SntpContent.content.Set_Up.Time_Zone_Select">
+									타임존 선택
+								</td>
+								<td>
+									<select id="time_zone" name="time_zone" class="select_box2">
+										<!--
+										<option value="KST-9"selected="" data-i18n="SntpContent.content.Set_Up.Asia_Seoul">(KST-9)Asia/Seoul</option>
+										-->
+										<option>Asia/Seoul</option>
+										<option>Africa/Accra</option>
+										<option>Africa/Cairo</option>
+										<option>Africa/Kampala</option>
+										<option>Africa/Nairobi</option>
+										<option>America/Chicago</option>
+										<option>America/Los Angeles</option>
+										<option>America/Mexico City</option>
+										<option>America/New York</option>
+										<option>America/Santiago</option>
+										<option>America/Sao Paulo</option>
+										<option>America/Toronto</option>
+										<option>Asia/Bangkok</option>
+										<option>Asia/Jakarta</option>
+										<option>Asia/Kabul</option>
+										<option>Asia/Karachi</option>
+										<option>Asia/Kuala Lumpur</option>
+										<option>Asia/Manila</option>
+										<option>Asia/Shanghai</option>
+										<option>Asia/Singapore</option>
+										<option>Asia/Tokyo</option>
+										<option>Australia/Sydney</option>
+										<option>Europe/Amsterdam</option>
+										<option>Europe/Athens</option>
+										<option>Europe/Berlin</option>
+										<option>Europe/Kiev</option>
+										<option>Europe/Lisbon</option>
+										<option>Europe/London</option>
+										<option>Europe/Madrid</option>
+										<option>Europe/Moscow</option>
+										<option>Europe/Paris</option>
+										<option>Europe/Rome</option>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SntpContent.content.Set_Up.NTP_Server">
+									NTP 서버 1
+								</td>
+								<td>
+									<input type="text" name="ntp_server_1" size="20" maxlength="64" id="ntp_server_1" class="inputbox_sm" value=" ">
+								</td>
+							</tr>
+							<tr>
+								<td data-i18n="SntpContent.content.Set_Up.NTP_Server_2">
+									NTP 서버 2
+								</td>
+								<td>
+									<input type="text" name="ntp_server_2" size="20" maxlength="64" id="ntp_server_2" class="inputbox_sm" value=" ">
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="btm_btn_basic">
+					<input type="hidden" value="/ntp.asp" name="submit-url">
+					<!--
+					<button type="button" class="btn_default btn_cancel_sm" name="refresh" onclick="javascript: window.location.reload()"
+							data-i18n="SntpContent.content.Set_Up.Cancel">취소</button>
+					-->
+					<button type="button" class="btn_default btn_save_sm" id="btn_apply_ntp_set" onClick="submit_apply_ntp_setting();"
+							data-i18n="SntpContent.content.Set_Up.Apply">적용</button>
+					<input type="hidden" value="" name="cmd">
+				</div>
+			</div>
+			<input type="hidden" name="SessionKey" id="SessionKey" value="">
+		</form>
+	</section>
+</div>
+</body>
+</html>

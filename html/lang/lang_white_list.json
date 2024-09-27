@@ -1,0 +1,62 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "WhiteListContent": {
+          "title": "White List",
+          "path1": "ADVANCED SET",
+          "path2": "White List",
+          "content": {
+            "Allowed_URL_List" : {
+              "title" : "Allowed URL List",
+              "White_URL" : "White URL",
+              "Add_URL" : "Add URL",
+              "Help_Font" : "※ In order to apply you must reboot after adding URL.",
+              "Select_Cancel" : "Select Cancel",
+              "All_Cancel" : "All Cancel",
+              "table" : {
+                "Select" : "Select",
+                "Number" : "Number",
+                "Allowed_URL_List" : "Allowed URL List"
+              }
+            }
+          }
+        },
+        "alert" : {
+          "select_URL" : "Please select the URL.",
+          "enter_value" : "Please Enter Value",
+          "continue" : "It deletes all the registered URL list. Do you want to continue?"
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "WhiteListContent": {
+          "title": "White List",
+          "path1": "고급 설정",
+          "path2": "White List",
+          "content": {
+            "Allowed_URL_List" : {
+              "title" : "허용된 URL 목록",
+              "White_URL" : "White URL",
+              "Add_URL" : "URL 추가",
+              "Help_Font" : "※ URL 추가 및 삭제 후 적용하기 위해서는 반드시 재부팅 해야 합니다.",
+              "Select_Cancel" : "선택 삭제",
+              "All_Cancel" : "모두 삭제",
+              "table" : {
+                "Select" : "선택",
+                "Number" : "번호",
+                "Allowed_URL_List" : "허용된 URL 목록"
+              }
+            }
+          }
+        },
+        "alert" : {
+          "select_URL" : "URL을 선택하여 주시기 바랍니다.",
+          "enter_value" : "값을 입력하세요",
+          "continue" : "등록된 URL 리스트가 모두 삭제됩니다. 계속 진행 하시겠습니까?"
+        }
+      }
+    }
+  }
+}

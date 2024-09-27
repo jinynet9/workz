@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="No-Cache">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<div id="title"></div>
+
+<link href="./css/style.css" rel="stylesheet" type="text/css" />
+<link href="./css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+<link href="./css/components.css" rel="stylesheet" type="text/css">
+
+<!-- Jquery load -->
+<script type="text/javascript" src="./js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="./js/i18n.js"></script>
+<script type="text/javascript" src="./js/jquery-i18n.js"></script>
+<script type="text/javascript" src="./common/multilang.js"></script>
+<script type="text/javascript" src="./js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="./js/error.js"></script>
+
+<script type="text/javascript">
+
+    var _lang;
+    var _lang_file = "/lang/lang_main.json";
+
+    $(document).ready( function() {
+
+        languageFileLoad ( _lang_file );
+
+        CheckLogin ();
+
+        $("#title").load("./include/title.html");
+        $("#top").load("./include/top.html");
+        $("#gnb").load("./include/menu_empty.html");
+    });
+
+    function callResize() {
+        contentResize();
+    }
+
+    function contentResize() {
+        document.getElementById("menu_content").style.height = document.getElementById("menu_content").contentWindow.window.document.getElementById('main_page').scrollHeight + 'px';
+        document.getElementById("menu_content").style.width = document.getElementById("menu_content").contentWindow.window.document.getElementById('main_page').scrollWidth + 'px';
+    }
+
+	function jump_inform ( type ) {
+	    $('iframe').attr ( 'src', '/inform.html?type=' + type );
+	    reload_timer_stop ();
+    }
+
+	function jump_home () {
+	    location.replace ( "/home.html" );
+    }
+
+	/*
+	 * refresh parent language
+	 * DAYOU_MKSHIN_200914
+	 */
+	function lang_refresh() {
+	    commonInit(_lang);
+    }
+
+    function apply_dialog(callback, validator, count, text) {
+        if(validator) {
+            if(!validator.call()) {
+                return;
+            }
+        }
+
+        $(".rebooting_txt").html(i18next.store.data[i18next.language].translation.alert[text]);
+
+        $("#popup_count").html(count + "<span>sec</span>" );
+
+        $("#apply_confirm").one("click", callback);
+
+        $('#popup_rebooting').bPopup();
+    }
+
+    function close_dialog() {
+        $('#popup_rebooting').bPopup().close();
+    }
+
+    function reboot() {
+	    if ( xconfirm ('reboot') == false)
+            return;
+
+		var url = "/cgi-bin/advanceset.cgi";
+		var param = "Command=apply_reboot";
+
+		XHRPost(null, url, param, true);
+		jump_inform ( 'reboot' );
+
+		//  $('#popup_rebooting').bPopup().close();
+		//  TimeoutReload( 2 );
+    }
+
+    function logout() {
+        var url = "/cgi-bin/auth.cgi?Command=RunLogout";
+        XHRGet(LogOutHandle, url, true);
+    }
+
+    function LogOutHandle(xmlDoc) {
+
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        removeCookies();
+        
+        window.location.href = "/login.html";
+    }
+
+    function top_init()
+    {
+        var url = "/cgi-bin/getinfo.cgi?Command=title";
+        XHRGet(gettopinfohandle, url, true);
+    }
+
+    function gettopinfohandle(xmlDoc)
+    {
+        if (hasError(xmlDoc))
+        {
+            showError(xmlDoc);
+            return;
+        }
+
+        var con_user24 = getDataFromTag(xmlDoc,"con_user24");
+        var con_user5 = getDataFromTag(xmlDoc,"con_user5");
+        var auth_user24 = getDataFromTag(xmlDoc,"auth_user24");
+        var auth_user5 = getDataFromTag(xmlDoc,"auth_user5");
+        var con_user;
+        var auth_user;
+        var timeoutsecond = 1;
+
+        con_user = Number(con_user24) + Number(con_user5) + "(" + con_user24 + "/" + con_user5 + ")";
+        auth_user = Number(auth_user24) + Number(auth_user5) + "(" + auth_user24 + "/" + auth_user5 + ")";
+        document.getElementById("host_name").innerHTML = getDataFromTag(xmlDoc,"hostname");
+        document.getElementById("version").innerHTML = getDataFromTag(xmlDoc,"version");
+        document.getElementById("con_user").innerHTML = con_user;
+    /*
+        document.getElementById("auth_user").innerHTML = auth_user;
+    */
+
+        var change = getDataFromTag(xmlDoc, "change");
+        if (change == "1")
+        document.getElementById("password").style.display = "";
+        else
+        document.getElementById("password").style.display = "none";
+
+        //document.getElementById("menu_content").contentWindow.init();
+        /*setTimeout("iframe1.contentWindow.page_init()", (timeoutsecond * 100));*/
+    }
+
+</script>
+<!-- //Jquery load -->
+<script type="text/javascript" src="./js/ajaxbasic.js"></script>
+<script type="text/javascript" src="./common/functions.js"></script>
+</head>
+
+<body>
+<div id="wrap_iframe">
+    <!-- 상단 -->
+    <div id="top"></div>
+
+    <!-- //상단 -->
+
+    <!-- 좌측GNB -->
+    <div id="gnb"></div>
+    <!-- //좌측GNB -->
+
+    <!-- 컨텐츠main -->
+    <iframe id="menu_content" class="contbody_iframe" src="/cgi-bin/auth.cgi?Command=ReadPage&page=/overview/sys_info.html" onload="top_init()" scrolling="no" marginwidth="0" marginheight="0" frameborder="0">
+    </iframe>
+    <!-- //컨텐츠main -->
+</div>
+<!-- 레이어팝업 시작 -->
+<div id="popup_rebooting" class="Pstyle">
+    <div class="popinner">
+        <div class="popinner_cont">
+            <div class="rebooting_conut" id="popup_count">30<span>sec</span></div>
+            <div class="rebooting_txt">기능 적용을 위해 단말 재부팅이 필요합니다.<br>재부팅 하시겠습니까?</div>
+
+            <div class="rebooting_btn">
+                <button type="button" class="btn_default btn_rebooting_confirm" id="apply_confirm">확인</button>
+                <button type="button" class="btn_default btn_rebooting_cancel b-close">취소</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 레이어팝업 끝 -->
+
+</body>
+</html>

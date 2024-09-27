@@ -1,0 +1,338 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+        "common": {
+          "Apply" : "Apply",
+          "Save" : "Save",
+          "Help_Font" : "※ LTE band setting will not be reset to factory reset."
+        },
+        "LteSettingContent": {
+          "title": "LTE Setting",
+          "path1": "WAN",
+          "path2": "LTE Setting",
+          "NOT_LTE": "This menu can be set only in the LTE connection available modes.",
+          "content": {
+            "PIN_Info" : {
+              "title" : "PIN Information",
+              "PIN_Status" : "PIN Status"
+            },
+            "PIN_Code_Verification" : {
+              "title" : "PIN Code Verification",
+              "PIN_Code" : "PIN Code"
+            },
+            "PIN_Lock_Setting" : {
+              "title" : "PIN Lock Setting",
+              "PIN_Lock_Status" : "PIN Lock Status",
+              "PIN_Code" : "PIN Code",
+              "Remain_Times" : "Remain Times"
+            },
+            "PIN_Unlock_Key" : {
+              "title" : "PUK(PIN Unlock Key)",
+              "PUK_Code" : "PUK Code",
+              "New_PIN_Code" : "New PIN Code",
+              "New_PIN_Code_Confirm" : "New PIN Code (confirm)",
+              "Remain_Times" : "Remain Times"
+            },
+            "PIN_Code_Change" : {
+              "title" : "Change PIN Code",
+              "Current_PIN_Code" : "Current PIN Code",
+              "New_PIN_Code" : "New PIN Code",
+              "New_PIN_Code_Confirm" : "New PIN Code (confirm)"
+            },
+            "APN_Profile" : {
+              "title" : "APN Profile",
+              "APN_Name" : {
+		  "title" : "APN",
+		  "first" : "m2m-CA-router.lguplus.co.kr",
+		  "second" : "internet.lguplus.co.kr",
+		  "third" : "m2m-router.lguplus.co.kr",
+		  "custom" : "<Input custom APN>"
+	      }, 
+              "PDN_Type" : {
+                "title" : "PDN Type",
+                "options" : {
+                  "IP" : "IP",
+                  "IPV6" : "IPV6",
+                  "IPV4V6" : "IPV4V6"
+                }
+              },
+              "Username" : "Username",
+              "Password" : "Password",
+              "Auth" : {
+                "title" : "Auth",
+                "options" : {
+                  "PAP" : "PAP",
+                  "CHAP" : "CHAP"
+                }
+              }
+            },
+            "LTE_Band_Setting" : {
+              "title": "LTE Band Setting",
+              "Band_Setting": {
+                "title": "Band Setting",
+                "options": {
+                  "Automatic": "Auto",
+                  "Band_1": "Band 1",
+                  "Band_5": "Band 5",
+                  "Band_7": "Band 7",
+                  "Band_1_5": "Band 1 & 5",
+                  "Band_1_7": "Band 1 & 7",
+                  "Band_5_7": "Band 5 & 7"
+                }
+              }
+            },
+            "LTE_Band_Prefer_Setting" : {
+              "title" : "LTE Band Prefer Setting",
+              "LTE_Band_Prefer_Setting" : {
+                "title": "LTE Band Prefer Setting",
+                "options": {
+                  "LTE_Band_3_Prefer": "LTE Band 3 Prefer",
+                  "LTE_Band_8_Prefer": "LTE Band 8 Prefer",
+                  "LTE_Band_1_Prefer": "LTE Band 1 Prefer"
+                }
+              }
+            },
+            "LTE_CA_Setting" : {
+              "title" : "LTE CA Setting",
+              "LTE_CA_Setting": {
+                "title" : "LTE CA Setting",
+                "Active" : "Active"
+              }
+            },
+            "LTE_DM_Setting" : {
+              "title" : "LTE DM Setting",
+              "LTE_DM_Setting": {
+                "Add" : "LTE DM Address Setting",
+                "Active" : "Active"
+              }
+            },
+            "IDLE_MODE_Setting" : {
+              "title" : "IDLE MODE Setting",
+              "IDLE_MODE_Setting" : {
+                "title" : "IDLE MODE Setting",
+                "options" : {
+                  "Enable" : "Enable",
+                  "Disable" : "Disable"
+                }
+              },
+              "Ping_Period_Setting" : "PING Period Setting",
+              "Destination_Address" : "Destination Address"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"Restart the system.",
+          "Content": "This will take a few minutes. Reconnect after restarting the system.",
+          "MoveToLogin":"Go to Login page"
+        },
+        "text":{
+          "pin_deactive":"PIN disabled",
+          "pin_active":"PIN activated",
+          "pin_disable":"Disable",
+          "pin_enable":"Enable",
+          "pin_blocked_umlimit":"PIN permanently Blocked",
+          "pin_blocked":"PIN Blocked",
+          "insert_usim":"Please Insert USIM.",
+	  "restart_modem":"The LTE modem is restarting, please check again." 
+        },
+        "alert":{
+          "pin_error_prepend":"Password input error. Add the chance to enter",
+          "pin_error_append":"count. Please check again.",
+          "pin_error": "Password was entered incorrectly three times. Please enter your unlock code(PUK). When unlock code is entered incorrectly 10 times, USIM card will be permanently discarded.",
+          "puk_error_prepend": "PUK Remain count(",
+          "puk_error_append": "/10) Please make sure to check it out or visit the nearest location after verifying yourself at the Cyber Customer Center.",
+          "puk_error":"PIN permanently Blocked",
+          "pin_code_verified":"The PIN code has been validated successfully completed.",
+          "pin_code_locked":"PIN lock set has been successfully completed.",
+          "pin_code_unlocked":"Successfully completed PIN lock is released.",
+          "puk_code_input":"Enter the PUK has been completed successfully.",
+          "pin_code_changed":"Change the PIN code has been successfully completed.",
+          "insert_password":"Input Current Password.",
+          "insert_new_password":"Please enter a new password.",
+          "insert_confirm_password":"Please enter the new password again.",
+          "Input_IP_Address":"Please Input IP Address.",
+	  "Invalid_IP_Address" : "Invalid IP Address.",
+          "only_number": "Input Number Only.",
+          "password_range":"Please enter at least 4 characters and maximum of 8 characters for password.",
+          "insert_puk":"Please enter a PUK.",
+          "puk_range":"Please enter 8 characters for password.",
+          "code_match":"Password is incorrect.",
+          "profile_name":"APN Profile Name is incorrect.",
+          "address_invaiid":"Destination Address is invalid.",
+	  "auth_name":"User name is incorrect.",
+	  "auth_password":"APN Password is incorrect.",
+          "announcement" : "Network may not be connected for a while. Do you want to continue?",
+	  "set_band_notice_ca":"CA does not operate in the BAND 8 setting."
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+        "common": {
+          "Apply" : "적용",
+          "Save" : "저장",
+          "Help_Font" : "※ LTE 밴드관련 설정은 설정값초기화 시에 기본 값으로 초기화되지 않습니다."
+        },
+        "LteSettingContent": {
+          "title": "LTE 설정",
+          "path1": "WAN",
+          "path2": "LTE 설정",
+          "NOT_LTE": "해당 메뉴는 LTE 접속이 가능한 모드에서만 설정이 가능합니다.",
+          "content": {
+            "PIN_Info" : {
+              "title" : "PIN 정보",
+              "PIN_Status" : "PIN 상태"
+            },
+            "PIN_Code_Verification" : {
+              "title" : "PIN 코드 검증",
+              "PIN_Code" : "PIN 코드"
+            },
+            "PIN_Lock_Setting" : {
+              "title" : "PIN 잠금 설정",
+              "PIN_Lock_Status" : "PIN 잠금 상태",
+              "PIN_Code" : "PIN 코드",
+              "Remain_Times" : "남은 횟수"
+            },
+            "PIN_Unlock_Key" : {
+              "title" : "PIN 해제 키",
+              "PUK_Code" : "PUK 코드",
+              "New_PIN_Code" : "새로운 PIN 코드",
+              "New_PIN_Code_Confirm" : "새로운 PIN 코드 (확인)",
+              "Remain_Times" : "남은 횟수"
+            },
+            "PIN_Code_Change" : {
+              "title" : "PIN 코드 변경",
+              "Current_PIN_Code" : "현재 PIN 코드",
+              "New_PIN_Code" : "새로운 PIN 코드",
+              "New_PIN_Code_Confirm" : "새로운 PIN 코드 (확인)"
+            },
+            "APN_Profile" : {
+              "title" : "APN 프로파일",
+              "APN_Name" : {
+		  "title" : "APN",
+		  "first" : "m2m-CA-router.lguplus.co.kr",
+		  "second" : "internet.lguplus.co.kr",
+		  "third" : "m2m-router.lguplus.co.kr",
+		  "custom" : "<직접 입력>"
+	      }, 
+              "PDN_Type" : {
+                "title" : "PDN 타입",
+                "options" : {
+                  "IP" : "IP",
+                  "IPV6" : "IPV6",
+                  "IPV4V6" : "IPV4V6"
+                }
+              },
+              "Username" : "이름",
+              "Password" : "암호",
+              "Auth" : {
+                "title" : "인증",
+                "options" : {
+                  "PAP" : "PAP",
+                  "CHAP" : "CHAP"
+                }
+              }
+            },
+            "LTE_Band_Setting" : {
+              "title": "LTE 밴드 설정",
+              "Band_Setting": {
+                "title": "밴드 설정",
+                "options": {
+                  "Automatic": "Auto",
+                  "Band_1": "Band 1",
+                  "Band_5": "Band 5",
+                  "Band_7": "Band 7",
+                  "Band_1_5": "Band 1 & 5",
+                  "Band_1_7": "Band 1 & 7",
+                  "Band_5_7": "Band 5 & 7"
+                }
+              }
+            },
+            "LTE_Band_Prefer_Setting" : {
+              "title" : "LTE Band Prefer 설정",
+              "LTE_Band_Prefer_Setting" : {
+                "title": "LTE Band Prefer 설정",
+                "options": {
+                  "LTE_Band_3_Prefer": "LTE Band 3 Prefer",
+                  "LTE_Band_8_Prefer": "LTE Band 8 Prefer",
+                  "LTE_Band_1_Prefer": "LTE Band 1 Prefer"
+                }
+              }
+            },
+            "LTE_CA_Setting" : {
+              "title" : "LTE CA 설정",
+              "LTE_CA_Setting": {
+                "title" : "LTE CA 설정",
+                "Active" : "활성"
+              }
+            },
+            "LTE_DM_Setting" : {
+              "title" : "LTE DM 설정",
+              "LTE_DM_Setting": {
+                "Add" : "LTE DM 주소 설정",
+                "Active" : "활성"
+              }
+            },
+            "IDLE_MODE_Setting" : {
+              "title" : "IDLE MODE 설정",
+              "IDLE_MODE_Setting" : {
+                "title" : "IDLE MODE 설정",
+                "options" : {
+                  "Enable" : "Enable",
+                  "Disable" : "Disable"
+                }
+              },
+              "Ping_Period_Setting" : "PING 주기 설정",
+              "Destination_Address" : "Destination Address"
+            }
+          }
+        },
+        "Progress":{
+          "Reboot_Title":"시스템을 재시작 합니다.",
+          "Content": "이 작업은 수 분 소요됩니다. 시스템 재시작 후 다시 접속하여 주십시오.",
+          "MoveToLogin":"Login 페이지 이동"
+        },
+        "text":{
+          "pin_deactive":"PIN 비활성화 상태",
+          "pin_active":"PIN 활성화 상태",
+          "pin_disable":"비활성화",
+          "pin_enable":"활성화",
+          "pin_blocked_umlimit":"PIN 영구 차단 상태",
+          "pin_blocked":"PIN 차단 상태",
+          "insert_usim":"USIM 카드를 재 장착한 후 재부팅 하십시오.",
+	  "restart_modem":"LTE 모뎀을 재시작 하고 있으니 다시 확인하십시오." 
+        },
+        "alert":{
+          "pin_error_prepend":"PIN 입력 오류. 남은 횟수",
+          "pin_error_append":"회 연속 3회 입력 오류 시 영업점 방문 필요",
+          "pin_error": "PIN 입력 연속 3 회 오류. 영업점을 방문하세요. PUK번호 연속10회 입력오류시 카드 사용불가",
+          "puk_error_prepend": "PUK 입력 오류 연속10회 입력오류시 USIM 영구 사용불가 현재 남은횟수(",
+          "puk_error_append": "/10)회 사이버 고객선터에서 본인 인증 후 조회하거나 반드시 가까운 지점을 방문하시기 바랍니다.",
+          "puk_error":"PUK 연속 10회 오류 USIM카드 사용불가 USIM카드 재구매 필요.",
+          "pin_code_verified":"PIN 코드 검증이 정상적으로 완료 되었습니다.",
+          "pin_code_locked":"PIN 잠금 설정이 정상적으로 완료 되었습니다.",
+          "pin_code_unlocked":"PIN 잠금 해제가 정상적으로 완료 되었습니다.",
+          "puk_code_input":"PUK 입력이 정상적으로 완료 되었습니다.",
+          "pin_code_changed":"PIN 코드 변경이 정상적으로 완료 되었습니다.",
+          "insert_password":"현재 비밀번호를 입력해주세요.",
+          "insert_new_password":"변경할 암호를 입력해주세요.",
+          "insert_confirm_password":"비밀번호 확인란에 암호를 한번 더 입력해주세요.",
+          "Input_IP_Address":"IP 주소를 입력해주세요",
+	  "Invalid_IP_Address" : "유효하지 않은 IP 주소입니다.",
+          "only_number": "숫자만 입력 가능합니다.",
+          "password_range":"비밀 번호는 최소 4 자리에서 최대 8 자리까지 입력 가능합니다.",
+          "insert_puk":"PUK를 입력해 주세요.",
+          "puk_range":"PUK 입력 값은 8자리 입니다.",
+          "code_match":"새로운 번호가 일치하지 않습니다.",
+          "profile_name":"APN 프로필 이름이 올바르지 않습니다.",
+          "address_invaiid":"Destination Address가 유효하지 않습니다.",
+	  "auth_name":"User 이름이 올바르지 않습니다.",
+	  "auth_password":"APN 암호가 올바르지 않습니다.",
+          "announcement" : "네트워크가 잠시 연결되지 않을 수 있습니다. 계속하시겠습니까?",
+	   "set_band_notice_ca":"BAND 8 설정에서는 CA 동작을 하지 않습니다."
+        }
+      }
+    }
+  }
+}

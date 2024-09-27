@@ -1,0 +1,20 @@
+#
+# ~/.gitconfig
+#
+
+$ git config --list
+
+# user name
+$ git config --global user.name "your_name"
+
+# user email
+$ git config --global user.email "your_email"
+
+#
+$ git config --global alias.st status
+$ git config --global alias.co checkout
+
+# remove \r
+$ git config --global core.autocrlf true
+
+

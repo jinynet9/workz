@@ -1,0 +1,166 @@
+{
+  "template": {
+    "en": {
+      "translation": {
+	"common" : {
+	    "Model" : "Model",
+	    "version" : "F/W Version",
+	    "Reboot" : "System Reboot",
+	    "Logout" : "Logout"
+	},
+        "top" : {
+          "total" : "Total User(2.4/5)",
+	        "password" : "※ Please change initial password. <Advanced Setup/System Setting/Login Account Setting>",
+          "auth" : " Auth User(2.4/5)"
+        },
+        "nav": {
+          "wireless24": "2.4G WIRELESS SETUP",
+          "wireless5": "5G WIRELESS SETUP",
+          "firewall": "FIREWALL",
+          "advanced": "ADVANCED SETUP",
+          "state": "STATE INFO",
+          "menuOverview": {
+            "_1": "System Info"
+          },
+          "menuWan": {
+            "_1": "Basic Setting",
+            "_2": "Connection Information",
+            "_3": "LTE Setting",
+            "_4": "LTE State Information"
+          },
+          "menuLan": {
+            "_1": "Basic Setting"
+          },
+          "menu24G": {
+            "_1": "Wireless Setting",
+            "_2": "Wireless SSID Setting",
+            "_3": "Wireless MAC Filter",
+            "_4": "Wireless Connection Limit",
+            "_5": "Wireless SSID Rate Limit",
+            "_6": "WMM Setting",
+            "_7": "2.4G Channel Scan"
+          },
+          "menu5G": {
+            "_1": "Wireless Setting",
+            "_2": "Wireless SSID Setting",
+            "_3": "Wireless MAC Filter",
+            "_4": "Wireless Connection Limit",
+            "_5": "Wireless SSID Rate Limit",
+            "_6": "WMM Setting",
+            "_7": "5G Channel Scan"
+          },
+          "menuFirewall": {
+            "_1": "Port Forwarding Setting",
+            "_2": "Firewall Setting",
+            "_3": "DMZ Setting"
+          },
+          "menuAdvanced": {
+            "_1": "Auth/Acct Setting",
+            "_2": "HOTSPOT Setting",
+            "_3": "Web Auth Setting",
+            "_4": "White List",
+            "_5": "NTP",
+            "_6": "Remote Access",
+            "_7": "Band Steering Setting",
+            "_8": "Backhaul Search",
+            "_9": "Auto Reboot",
+            "_10": "System Setting",
+            "_11": "Firmware Upgrade",
+            "_12": "AP Blinking Search",
+            "_13": "Speed Check",
+            "_14": "IP Detective",
+            "_15": "Air Time Fairness"
+          },
+          "menuState": {
+            "_1": "Terminal Info",
+            "_2": "AP Info",
+            "_3": "Network Statistics",
+            "_4": "Associate Statistics",
+            "_5": "Log Info"
+          }
+        }
+      }
+    },
+    "kr": {
+      "translation": {
+	"common" : {
+	    "Model" : "모델",
+	    "version" : "펌웨어 버전",
+	    "Reboot" : "시스템 재시작",
+	    "Logout" : "로그아웃"
+	},
+        "top" : {
+          "total" : "총 접속자수(2.4/5)",
+	  "password" : "※  초기 암호를 변경해주시기 바랍니다. <고급 설정/시스템 설정/계정 설정>",
+          "auth" : "인증 단말수(2.4/5)"
+        },
+        "nav": {
+          "wireless24": "2.4G 무선랜 설정",
+          "wireless5": "5G 무선랜 설정",
+          "firewall": "방화벽",
+          "advanced": "고급 설정",
+          "state": "상태 정보",
+          "menuOverview": {
+            "_1": "시스템 정보"
+          },
+          "menuWan": {
+            "_1": "기본 설정",
+            "_2": "접속 정보",
+            "_3": "LTE 설정",
+            "_4": "LTE 상태 정보"
+          },
+          "menuLan": {
+            "_1": "기본 설정"
+          },
+          "menu24G": {
+            "_1": "무선 설정",
+            "_2": "무선 SSID 설정",
+            "_3": "무선 MAC 차단",
+            "_4": "무선 접속수 제한",
+            "_5": "무선 SSID 속도 제한",
+            "_6": "WMM 설정",
+            "_7": "2.4G 채널 스캔"
+          },
+          "menu5G": {
+            "_1": "무선 설정",
+            "_2": "무선 SSID 설정",
+            "_3": "무선 MAC 차단",
+            "_4": "무선 접속수 제한",
+            "_5": "무선 SSID 속도 제한",
+            "_6": "WMM 설정",
+            "_7": "5G 채널 스캔"
+          },
+          "menuFirewall": {
+            "_1": "포트포워딩 설정",
+            "_2": "방화벽 설정",
+            "_3": "DMZ 설정"
+          },
+          "menuAdvanced": {
+            "_1": "인증/과금 설정",
+            "_2": "HOTSPOT 설정",
+            "_3": "Web Auth 설정",
+            "_4": "White List",
+            "_5": "NTP",
+            "_6": "원격 접속",
+            "_7": "Band Steering 설정",
+            "_8": "백홀 Search",
+            "_9": "자동 재시작",
+            "_10": "시스템 설정",
+            "_11": "펌웨어 업그레이드",
+            "_12": "AP 육안식별 기능",
+            "_13": "Speed Check",
+            "_14": "IP Detective",
+            "_15": "AirTIme Fairness"
+          },
+          "menuState": {
+            "_1": "단말 정보",
+            "_2": "AP 정보",
+            "_3": "네트워크 통계",
+            "_4": "접속 통계",
+            "_5": "로그 정보"
+          }
+        }
+      }
+    }
+  }
+}
