@@ -1,10 +1,11 @@
 /*
  * connected by ssh to github
+ * github에 workz repository를 생성한 후 다음 진행
  */
 
- cd work/
+ cd workz/
  git init
- git remote add origin git@github.com:jinynet9/work.git
+ git remote add origin git@github.com:jinynet9/workz.git
  git add .
  git status | more
  git commit -m "first commit"
