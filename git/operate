@@ -18,6 +18,9 @@ $ git commit -m "message" --amend
 # push
 $ git push origin master
 
+# 정상적으로 파일이 등록되었는지 조사
+$ git ls-tree -r main --name-only
+
 
 # pull = fetch + merge
 $ git pull [origin master]
@@ -82,6 +85,10 @@ $ git checkout main (or master)
 
 # Working Directory <--> Staging Area
 $ git diff [-- file]
+# 바로 이전 상태와 비교 : reflog(작업 기록) 기준
+$ git diff HEAD@{1} [-- file]
+# 바로 이전 commit 비교
+$ git diff HEAD~1 [-- file]
 
 # Working/Staging <--> Repository
 $ git diff HEAD

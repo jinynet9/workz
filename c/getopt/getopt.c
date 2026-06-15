@@ -9,6 +9,9 @@
 
 #include <unistd.h>
 
+void
+usage ( void );
+
 struct options {
     char *message;
     char *alarm;
@@ -20,7 +23,7 @@ struct options {
  *
  */
 int
-opt_parser ( int argc, char **argv, struct options *p )
+opts_parser ( int argc, char **argv, struct options *p )
 {
     const char *optstring = "m:a:s";
     int c;	/* option */
@@ -42,6 +45,10 @@ opt_parser ( int argc, char **argv, struct options *p )
 	case 's':
 	    p->server_mode = true;
 	    break;
+
+	default:
+	    fprintf(stderr, "Invalid option: %s\n", argv[optind-1]);
+	    usage();
 	}
     }
 
@@ -50,17 +57,17 @@ opt_parser ( int argc, char **argv, struct options *p )
 
 int main ( int argc, char **argv, char **envp )
 {
-    struct options opt;
+    struct options opts;
 
-    memset ( &opt, 0, sizeof opt );
+    memset ( &opts, 0, sizeof opts );
 
-    opt_parser ( argc, argv, &opt );
+    opts_parser ( argc, argv, &opts );
 
     printf ( "argc       : %d\n", argc );
-    printf ( "message    : %s\n", opt.message );
-    printf ( "alarm      : %s\n", opt.alarm );
-    printf ( "alarm on   : %s\n", opt.alm_on );
-    printf ( "server mode: %d\n", opt.server_mode );
+    printf ( "message    : %s\n", opts.message );
+    printf ( "alarm      : %s\n", opts.alarm );
+    printf ( "alarm on   : %s\n", opts.alm_on );
+    printf ( "server mode: %d\n", opts.server_mode );
 
     return 0;
 }

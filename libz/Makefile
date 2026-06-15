@@ -1,22 +1,59 @@
+# Simple Makefile for znx library (static and shared)
 
-TARGET = a.out
+# Compiler settings
+CC      ?= gcc
+CFLAGS  := -Wall -Wextra -fPIC -Iinclude
+LDFLAGS := -shared
 
-CC = gcc
+CFLAGS  += -I.
 
-#CFLAGS = -Wall -fstack-protector
+# Build directories
+BUILD   := build_dir
+LIBDIR  := lib
 
-LDFLAGS += -lpthread
+# Find all source files recursively
+SRCS    := $(shell find . -name '*.c')
+OBJS    := $(patsubst ./%.c,$(BUILD)/%.o,$(SRCS))
+DEPS    := $(OBJS:.o=.d)
 
-SRCS	= $(wildcard *.c)
-OBJS	= $(SRCS:.c=.o)
+# Output libraries
+STATIC_LIB := $(LIBDIR)/libznx.a
+SHARED_LIB := $(LIBDIR)/libznx.so
 
-all: $(TARGET)
+# Default target - build shared library
+all: $(SHARED_LIB)
 
-%.o: %.c
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $@ $^
+# Static library target
+static: $(STATIC_LIB)
 
-$(TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+# Create directories if they don't exist
+$(BUILD) $(LIBDIR):
+	@mkdir -p $@
 
+# Build shared library
+$(SHARED_LIB): $(OBJS) | $(LIBDIR)
+	@echo "Linking shared library $@"
+	$(CC) $(LDFLAGS) -o $@ $(OBJS)
+
+# Build static library
+$(STATIC_LIB): $(OBJS) | $(LIBDIR)
+	@echo "Creating static library $@"
+	ar rcs $@ $(OBJS)
+
+# Compile each source file
+$(BUILD)/%.o: %.c | $(BUILD)
+	@echo "Compiling $<"
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+
+# Include automatically generated dependencies
+-include $(DEPS)
+
+# Clean targets
 clean:
-	rm -f *.o $(TARGET)
+	rm -rf $(BUILD)
+
+distclean: clean
+	rm -rf $(LIBDIR)
+
+.PHONY: all static clean distclean
